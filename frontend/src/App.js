@@ -51,7 +51,7 @@ const App = () => {
     return (
         <div className = "app">
             {professors && professors.map((professor, index) => (
-                <ProfessorCard key = {index} professor = {professor}/>
+                <ProfessorCard key = {index} professor = {professor} dept = "fictionalDept" number = {1234}/>
             ))}
         </div>
     );

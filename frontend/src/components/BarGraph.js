@@ -7,7 +7,7 @@
 import { useEffect, useRef } from "react";
 import { Chart } from "chart.js/auto";
 
-function BarGraph({professorId, courseId}){
+function BarGraph({professorId, dept, number}){
 
     const chartRef = useRef(null);
     const chartInstanceRef = useRef(null);
@@ -19,7 +19,7 @@ function BarGraph({professorId, courseId}){
         if(chartInstanceRef.current){
             chartInstanceRef.current.destroy();
         }
-        //const data = callBackendForInfoByCourse(dept, number)andProfessorID(name?)
+        //const data = callBackendForInfo({professorId, dept, number});
         const data = {
             labels: ["A", "B", "C", "D", "F", "Q"],
             datasets: [{

@@ -1,50 +1,66 @@
 import { useState, useEffect } from "react";
 import StarRating from "./StarRating";
 import BarGraph from "./BarGraph";
+import ProfessorRatingCard from "./ProfessorRatingCard";
 
-export default function ProfessorCard({ professor, nameOfClass }){
+export default function ProfessorCard({ professor, dept, number, nameOfClass }){
+
+    const tags = [
+        { label: "Get ready to read", count: 14 },
+        { label: "Lecture heavy", count: 9 },
+        { label: "Beware of pop quizzes", count: 6 },
+        { label: "Skip class? You won't pass.", count: 5 },
+        { label: "Respected", count: 4 },
+    ];
+    const rating = 4.2;
+    const difficulty = 3.7;
+    const wouldTakeAgain = 74;
+    const totalRatings = 42;
+
 
     return (
-        <div className="professor-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-            <div className="card-header bg-blue-600 p-4 text-white flex">
-                <h1 className="professor-name text-xl font-bold">{nameOfClass} {professor.info.name}</h1>
+        <div className="professor-card bg-black rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+            <div className="card-header p-4 text-white flex">
+                <h1 className="professor-name text-xl font-bold">{dept} {number} {professor.info.name}</h1>
                 <div className="years-taught text-blue-100">Teaching for {professor.info.yearsTaught} years</div>
                 <p className="overview-grades">A-</p>
                 <StarRating rating = {professor.info.averageRating}/>
             </div>
-            <div className="card-body p-4">
-                <div className="rating flex items-center mb-4">
-                    <span className="rating-value text-3xl font-bold mr-2">{professor.info.averageRating}</span>
-                </div>
-                <div className="stats-container grid grid-cols-4 gap-2 mb-4">
-                    <div className="stat-item bg-gray-100 p-2 rounded text-center">
-                        <div className="stat-value font-bold text-blue-600">{professor.info.averageGPA}</div>
-                        <div className="stat-label text-xs text-gray-600">Average GPA</div>
-                    </div>
-                    <div className="stat-item bg-gray-100 p-2 rounded text-center">
-                        <div className="stat-value font-bold text-blue-600">{professor.info.totalStudents}</div>
-                        <div className="stat-label text-xs text-gray-600">Students</div>
-                    </div>
-                    <div className="stat-item bg-gray-100 p-2 rounded text-center">
-                        <div className="stat-value font-bold text-blue-600">{professor.info.totalSections}</div>
-                        <div className="stat-label text-xs text-gray-600">Sections</div>
-                    </div>
-                    <div className="stat-item bg-gray-100 p-2 rounded text-center">
-                        <div className="stat-value font-bold text-blue-600">{professor.info.totalRatings}</div>
-                        <div className="stat-label text-xs text-gray-600">Ratings</div>
-                    </div>
-            </div>
-                
-                <div className="courses-title font-semibold text-gray-700 mb-2">Courses Taught</div>
-                <div className="courses-list flex flex-wrap gap-2">
-                {professor.courses.map((courseId) => (
-                    <span key={courseId} className="course-tag bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                    {courseId}
+
+            <BarGraph professorId = {professor._id} dept = {dept} number = {number}/>
+
+
+            <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, totalRatings}}/>
+
+            <div className = "flex flex-wrap gap-3 mb-6">
+                {tags.map((tag, index) => (
+                    <span
+                        key = {index}
+                        className = "text-white bg-gray-800 px-4 py-2 rounded-full text-sm border border-gray-600"
+                    >
+                        {tag.label} ({tag.count})
                     </span>
                 ))}
-                </div>
             </div>
-            <BarGraph professorId = {professor._id}/>
+
+            <a
+                href = "https://www.ratemyprofessors.com"
+                target = "_blank"
+                rel = "noopener noreferrer"
+                className = "text-blue-400 underline"
+            >
+                Visit Rate My Professors
+            </a>
+
+            <div className="courses-title font-semibold text-blue-200 mb-2">Courses Taught</div>
+            <div className="courses-list flex flex-wrap gap-2">
+            {professor.courses.map((courseId) => (
+                //maybe make this a link
+                <span key={courseId} className="course-tag text-yellow-200 text-xs font-medium px-2.5 py-0.5 rounded">
+                {courseId}
+                </span>
+            ))}
+            </div>
         </div>
     );
 }
