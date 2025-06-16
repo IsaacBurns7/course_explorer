@@ -28,6 +28,7 @@
     "@tailwindcss/postcss": "^4.1.10",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^10.0.0",
+    "chart.js": "^4.5.0",
     "css-loader": "^7.1.2",
     "postcss-import": "^16.1.0",
     "postcss-loader": "^8.1.1",

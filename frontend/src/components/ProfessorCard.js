@@ -44,7 +44,7 @@ export default function ProfessorCard({ professor, nameOfClass }){
                 ))}
                 </div>
             </div>
-            <BarGraph />
+            <BarGraph professorId = {professor._id}/>
         </div>
     );
 }
