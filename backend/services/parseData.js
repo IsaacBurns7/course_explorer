@@ -7,7 +7,8 @@ const { getAnexData,
     getDepartmentCourses,
     getDegreePlan } = require("./fetchData");
 const cheerio = require("cheerio");
-
+const pdf_package = require('pdf2json')
+const pdfParser = new pdf_package();
 
 //later update ratings aswell    
 async function populateSectionsForCourse(dept, number){
@@ -216,7 +217,64 @@ async function populateDepartments() {
 
 }
 
+async function parseDegreePlan(pdfBuffer) {
+    pdfParser.parseBuffer(pdfBuffer);
+
+    pdfParser.on("pdfParser_dataReady", (pdfData) => {
+        const pages = pdfData.Pages;
+        const allText = [];
+
+        pages.forEach((page, pageIndex) => {
+            const texts = page.Texts.map(t => decodeURIComponent(t.R[0].T));
+            allText.push(...texts);
+        });
+        return extractSemesters(allText)
+    });
+
+    // Get the data for each semester from the PDF
+    function extractSemesters(textArray) {
+        const semesterPattern =/^(Fall|Spring|Summer)\s2\d{3}$/;
+        const results = {};
+        let currentSemester = null;
+        let currentCourses = [];
+
+        for (let i = 0; i < textArray.length; i++) {
+            const line = textArray[i];
+
+            if (semesterPattern.test(line)) { // Find start of a new semester
+                if (currentSemester) {
+                    results[currentSemester] = [...currentCourses]; // Push old semester into the list just in case
+                }
+                currentSemester = line.trim();
+                currentCourses = [];
+            } else if (/^Term Total Credits:/i.test(line)) { // The course list is finished
+                if (currentSemester) {
+                    results[currentSemester] = [...currentCourses]; // Save the list
+                    currentSemester = null;
+                    currentCourses = []; // Reset to defaults
+                }
+            } else if (line.match(/^[A-Z]{2,4} \d{3}/)) { // Course ID (ex: CSCE 120)
+                const course = line.split(" ")
+            currentCourses.push({"dept": course[0], "course": course[1], "title": "", "hours": ""});
+            } else if (currentCourses.length > 0) { // More information (ex: Name of class and credit hours), make sure its not whitespace
+                if (/^\d$/.test(line)) 
+                    currentCourses[currentCourses.length - 1].hours = line
+                else 
+                    currentCourses[currentCourses.length - 1].title += ' ' + line
+                
+            }
+        }
+
+        if (currentSemester) { // failsafe
+            results[currentSemester] = [...currentCourses];
+        }
+
+        return results;
+    }
+}
+
 module.exports = { populateSectionsForCourse, 
     populateCourses, 
-    populateDepartments    
+    populateDepartments,
+    parseDegreePlan    
 }
