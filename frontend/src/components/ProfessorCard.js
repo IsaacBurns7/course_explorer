@@ -17,14 +17,27 @@ export default function ProfessorCard({ professor, dept, number, nameOfClass }){
     const wouldTakeAgain = 74;
     const totalRatings = 42;
 
+    function toggleDetails(){
+
+    }
+    function addToCompare(){
+
+    }
+    function addToPlanner(){
+
+    }
 
     return (
         <div className="professor-card bg-black rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-            <div className="card-header p-4 text-white flex">
-                <h1 className="professor-name text-xl font-bold">{dept} {number} {professor.info.name}</h1>
-                <div className="years-taught text-blue-100">Teaching for {professor.info.yearsTaught} years</div>
-                <p className="overview-grades">A-</p>
-                <StarRating rating = {professor.info.averageRating}/>
+            <div className="grid grid-cols-12 gap-4 p-4 border -b border-gray-200">
+                <div class = "col-span-2">
+                    <button onClick = {toggleDetails} className = "text-gray-200">ARROW</button>
+                    <button onClick = {addToCompare} className = "text-gray-200">BOX</button>
+                    <button onClick = {addToPlanner} className = "text-gray-200">PLANNER</button>
+                </div>
+                <div className="professor-name col-span-4 font-bold text-gray-200">{dept} {number} {professor.info.name}</div>
+                <div className="overview-grades col-span-3 bg-green-500 text-black text-center">A-</div>
+                <StarRating className = "col-span-3" rating = {professor.info.averageRating}/>
             </div>
 
             <BarGraph professorId = {professor._id} dept = {dept} number = {number}/>

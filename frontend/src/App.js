@@ -49,12 +49,31 @@ const App = () => {
     }, []);
 
     return (
+    <>
+        <div className = "bg-black text-white grid grid-cols-12 gap-4 font-medium p-4">
+            <div class = "col-span-2">Actions</div>
+            <button className = "col-span-4 text-left"> 
+                <span>Name</span>
+                <span> ARROW</span>
+            </button>
+            <button className = "col-span-3 text-left">
+                <span>Grades</span>
+                <span> ARROW</span>
+            </button>
+            <button className = "col-span-3 text-left">
+                <span>Rating</span>
+                <span> ARROW</span>
+            </button>
+        </div>
+
         <div className = "app">
             {professors && professors.map((professor, index) => (
-                <ProfessorCard key = {index} professor = {professor} dept = "fictionalDept" number = {1234}/>
+                <ProfessorCard key = {index} professor = {professor} dept = "GOVT" number = {206}/>
             ))}
         </div>
+    </>
     );
 }
+
 
 export default App;
