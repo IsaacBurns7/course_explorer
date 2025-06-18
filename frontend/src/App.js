@@ -51,7 +51,7 @@ const App = () => {
     return (
     <>
         <div className = "bg-black text-white grid grid-cols-12 gap-4 font-medium p-4">
-            <div class = "col-span-2">Actions</div>
+            <div className = "col-span-2">Actions</div>
             <button className = "col-span-4 text-left"> 
                 <span>Name</span>
                 <span> ARROW</span>
