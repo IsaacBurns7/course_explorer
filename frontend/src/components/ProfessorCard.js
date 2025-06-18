@@ -39,10 +39,24 @@ export default function ProfessorCard({ professor, dept, number, nameOfClass }){
     return (
         <div className="professor-card bg-black rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
             <button onClick = {toggleDetails} className="grid grid-cols-12 p-3 gap-6 border -b border-gray-200">
-                <div class = "col-span-2 items-center justify-left gap-4 flex bg-zinc-900">
+                <div className = "col-span-2 items-center justify-left gap-4 flex bg-zinc-900">
                     <div><i className = "fas fa-chevron-right text-white rounded" ref = {arrowIconRef}></i></div>
-                    <select onClick = {(e) => {e.stopPropagation(); addToCompare();}}><i className = "fas fa-square text-white border border-white rounded cursor-pointer"></i></select>
-                    <button onClick = {addToPlanner}><i className = "fas fa-bookmark text-white border border-white rounded cursor-pointer"></i></button>
+                    <div className="relative inline-block w-10 h-10">
+                        {/* <span>
+                            <input type="checkbox" id="myCheckbox" className="hidden" />
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2z"></path>
+                                <path d="M17 3v8l-4-2-4 2V3"></path>
+                            </svg>
+                        </span> */}
+                        <label className = "relative inline-block cursor-pointer">
+                            <input type="checkbox" className = "absolute w-full h-full opacity-0 m-0 cursor-pointer"/>        
+                            <svg className = "pointer-events-none" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="grey" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect className = "stroke-gray-500" x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                <polyline className = "hidden stroke-green-600" points="9 12 12 15 22 6"></polyline>
+                            </svg>
+                        </label>
+                    </div>
                 </div>
                 <div className="professor-name col-span-4 font-bold text-gray-200 text-left">{dept} {number} {professor.info.name}</div>
                 <div className="overview-grades col-span-3 bg-green-500 text-black text-center">A-</div>
