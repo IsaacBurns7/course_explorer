@@ -138,13 +138,8 @@ async function getDepartmentCourses(department){
 
 // getDepartmentCourses("csce");
 
-function getDegreePlan(){
-
-}
-
 module.exports = {
     getAnexData,
     getProfessorId,
-    getDepartmentCourses,
-    getDegreePlan
+    getDepartmentCourses
 }

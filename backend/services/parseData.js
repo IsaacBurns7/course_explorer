@@ -218,8 +218,8 @@ async function populateDepartments() {
 }
 
 async function parseDegreePlan(pdfBuffer) {
-    pdfParser.parseBuffer(pdfBuffer);
-
+    //pdfParser.parseBuffer(pdfBuffer);
+    pdfParser.loadPDF("./degree plan.pdf")
     pdfParser.on("pdfParser_dataReady", (pdfData) => {
         const pages = pdfData.Pages;
         const allText = [];
@@ -268,10 +268,12 @@ async function parseDegreePlan(pdfBuffer) {
         if (currentSemester) { // failsafe
             results[currentSemester] = [...currentCourses];
         }
-
+        console.log(results)
         return results;
     }
 }
+
+parseDegreePlan(null)
 
 module.exports = { populateSectionsForCourse, 
     populateCourses, 
