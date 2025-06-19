@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import React from "react";
 import ProfessorCard from "./components/ProfessorCard";
+import ActionsHeader from "./components/ActionsHeader";
 
 const App = () => {
     const [professors, setProfessors] = useState([]);
@@ -50,21 +51,7 @@ const App = () => {
 
     return (
     <>
-        <div className = "bg-black text-white grid grid-cols-12 gap-4 font-medium p-4">
-            <div className = "col-span-2">Actions</div>
-            <button className = "col-span-4 text-left"> 
-                <span>Name</span>
-                <span> ARROW</span>
-            </button>
-            <button className = "col-span-3 text-left">
-                <span>Grades</span>
-                <span> ARROW</span>
-            </button>
-            <button className = "col-span-3 text-left">
-                <span>Rating</span>
-                <span> ARROW</span>
-            </button>
-        </div>
+        <ActionsHeader />
 
         <div className = "app">
             {professors && professors.map((professor, index) => (

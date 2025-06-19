@@ -4,6 +4,18 @@ import BarGraph from "./BarGraph";
 import ProfessorRatingCard from "./ProfessorRatingCard";
 import Actions from "./Actions";
 
+function toggleDetails(e){
+    if(e.target.type === "checkbox") return;
+    hiddenRef.current.hidden = ! hiddenRef.current.hidden;
+    if(hiddenRef.current.hidden){
+        arrowIconRef.current.classList.remove("fa-chevron-down");
+        arrowIconRef.current.classList.add("fa-chevron-right");
+    }else{
+        arrowIconRef.current.classList.remove("fa-chevron-right");
+        arrowIconRef.current.classList.add("fa-chevron-down");
+    }
+}
+
 export default function ProfessorCard({ professor, dept, number, nameOfClass }){
 
     const hiddenRef = useRef(null);
@@ -19,25 +31,15 @@ export default function ProfessorCard({ professor, dept, number, nameOfClass }){
     const difficulty = 3.7;
     const wouldTakeAgain = 74;
     const totalRatings = 42;
+    const averageGPA = professor.info.averageGPA; //later find this by course
 
-    function toggleDetails(e){
-        if(e.target.type === "checkbox") return;
-        hiddenRef.current.hidden = ! hiddenRef.current.hidden;
-        if(hiddenRef.current.hidden){
-            arrowIconRef.current.classList.remove("fa-chevron-down");
-            arrowIconRef.current.classList.add("fa-chevron-right");
-        }else{
-            arrowIconRef.current.classList.remove("fa-chevron-right");
-            arrowIconRef.current.classList.add("fa-chevron-down");
-        }
-    }
 
     return (
         <div className="professor-card bg-black rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
             <button onClick = {(e) => {toggleDetails(e);}} className="grid grid-cols-12 p-3 gap-6 border -b border-gray-200">
                 <Actions arrowIconRef = {arrowIconRef}/>
-                <div className="professor-name col-span-4 font-bold text-gray-200 text-left">{dept} {number} {professor.info.name}</div>
-                <div className="overview-grades col-span-3 bg-green-500 text-black text-center">A-</div>
+                <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{dept} {number} {professor.info.name} {nameOfClass}</div>
+                <div className="col-span-1 text-center text-white font-semibold text-xl px-6 py-2 rounded-full bg-green-400">{averageGPA}</div>
                 <StarRating className = "col-span-3" rating = {professor.info.averageRating}/>
             </button>
 
