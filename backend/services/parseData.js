@@ -273,8 +273,6 @@ async function parseDegreePlan(pdfBuffer) {
     }
 }
 
-parseDegreePlan(null)
-
 module.exports = { populateSectionsForCourse, 
     populateCourses, 
     populateDepartments,

@@ -14,11 +14,9 @@ const getBestClasses = async (req, res) => {
             if(!course) { 
                 return res.status(404).json({error: `Class ${courses.dept} ${courses.course} not found.`});
             }
-            const sections = course.sections
-            const professorNames = sections.map(x => x.prof)
 
-            const professors = await Professor.find({"info.name": {$in: professorNames}}) // find the entire list of professors that teach the course
-            if(!course) { 
+            const professors = await Professor.find({"_id": {$in: course.professors}}) // find the entire list of professors that teach the course
+            if(!professors) { 
                 return res.status(404).json({error: `No Professors Found`});
             }
             professors.sort((a, b) => (a.info.averageGPA + a.info.averageRating) - (b.info.averageGPA + b.info.averageRating)) // sort by a combination of average GPA + rating
