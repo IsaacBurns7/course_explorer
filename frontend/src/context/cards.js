@@ -9,18 +9,24 @@ export const CardsContext = createContext();
 export const CardsReducer = (state, action) => {
     switch(action.type){
         case 'SET_CARDS':
-            return action.payload
+            return {
+                cards: action.payload
+            }
         case "ADD_CARDS": {
-            return [
-                ...state,
-                ...action.payload
-            ]
+            return {
+                cards: [
+                    ...state,
+                    ...action.payload
+                ]
+            }
         }
         case "ADD_CARD": {
-            return [
-                ...state,
-                action.payload
-            ]
+            return {
+                cards: [
+                    ...state,
+                    action.payload
+                ]
+            }
         }
         default:
             return state;
@@ -28,7 +34,7 @@ export const CardsReducer = (state, action) => {
 }
 
 export const CardsContextProvider = ( {children} ) => {
-    const [state, dispatch] = useReducer(CardsReducer, {});
+    const [state, dispatch] = useReducer(CardsReducer, {cards: null});
 
     const contextValue = useMemo(() => {
         return { 

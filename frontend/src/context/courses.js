@@ -18,41 +18,49 @@ export const CoursesActions = {
 export const CoursesReducer = (state, action) => {
     switch(action.type){
         case CoursesActions.SET_COURSES:
-            return action.payload
+            return {
+                courses: action.payload
+            }
         case CoursesActions.ADD_COURSES: {
-            const newState = {...state};
+            const newCourses = {...state.courses};
             Object.entries(action.payload).forEach(([key, course], index) => {
-                if(newState[key]){
-                    newState[key] = {
+                if(newCourses[key]){
+                    newCourses[key] = {
                         ...course,
                         professorsId: [...new Set([
-                            ...newState[key].professorsId, 
+                            ...newCourses[key].professorsId, 
                             ...course.professorsId
                         ])]
                     };
                 } else {
-                    newState[key] = course;
+                    newCourses[key] = course;
                 }
             });
-            return newState;
+            return {
+                courses: newCourses
+            };
         }
         case CoursesActions.ADD_COURSE: {
             const course = action.payload;
             const key = `${course.info.dept}${course.info.number}`;
 
-            if(state[key]) { //merge professorsId from both if course already in state
+            if(state.courses[key]) { //merge professorsId from both if course already in state
                 return {
-                    ...state,
-                    [key]: {
-                        ...course, 
-                        professorsId: [...new Set([...state[key].professorsId, ...course.professorsId])]
+                    courses: {
+                        ...state.courses,
+                        [key]: {
+                            ...course, 
+                            professorsId: [...new Set([...state[key].professorsId, ...course.professorsId])]
+                        }
                     }
                 }
             }
 
             return {
-                ...state,
-                [key]: course //add new course
+                courses: {
+                    ...state.courses,
+                    [key]: course //add new course
+                }
             };
         }
         default:
@@ -61,7 +69,9 @@ export const CoursesReducer = (state, action) => {
 }
 
 export const CoursesContextProvider = ( {children} ) => {
-    const [state, dispatch] = useReducer(CoursesReducer, {});
+    const [state, dispatch] = useReducer(CoursesReducer, {
+        courses: null
+    });
 
     const contextValue = useMemo(() => ({
         ...state,

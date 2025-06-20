@@ -18,16 +18,23 @@ export const ProfessorsActions = {
 export const ProfessorsReducer = (state, action) => {
     switch(action.type){
         case ProfessorsActions.SET_PROFESSORS:
-            return action.payload
+            return {
+                professors: action.payload
+            }
         case ProfessorsActions.ADD_PROFESSORS: {
-            return Object.entries(action.payload).reduce((acc, [professorId, professor]) => {
-                acc[professorId] = professor; //overwrite no matter what
-            }, {...state});
+            const newProfessors = Object.entries(action.payload).reduce((acc, [professorId, professor]) => {
+                    acc[professorId] = professor; //overwrite no matter what
+                }, {...state.professors})
+            return {
+                professors: newProfessors
+            };
         }
         case ProfessorsActions.ADD_PROFESSOR: {
             const newState = {
-                ...state,
-                [action.payload.professorId]: action.payload.professor
+                professors: {
+                    ...state.professors,
+                    [action.payload.professorId]: action.payload.professor
+                }
             }
             return newState;
         }
@@ -38,7 +45,7 @@ export const ProfessorsReducer = (state, action) => {
 
 export const ProfessorsContextProvider = ( {children} ) => {
     const [state, dispatch] = useReducer(ProfessorsReducer, {
-        
+        professors: null
     });
 
     //useMemo on context so if provider re-renders, children using state only re-render if state actually changed

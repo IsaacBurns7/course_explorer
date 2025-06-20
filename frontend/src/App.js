@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import React from "react";
 import ProfessorCard from "./components/ProfessorCard";
 import ActionsHeader from "./components/ActionsHeader";
+import { useProfessorsContext } from "./hooks/useProfessorsContext";
 
 const App = () => {
-    const [professors, setProfessors] = useState([]);
+    const {state, dispatch} = useProfessorsContext();
 
     useEffect(() => {
         // const fetchProfessors = async () => {
