@@ -11,7 +11,8 @@ export const ProfessorsContext = createContext();
 
 export const ProfessorsActions = {
     SET_PROFESSORS: "SET_PROFESSORS",
-    ADD_PROFESSORS: "ADD_PROFESSORS"
+    ADD_PROFESSORS: "ADD_PROFESSORS",
+    ADD_PROFESSOR: "ADD_PROFESSOR"
 }
 
 export const ProfessorsReducer = (state, action) => {
@@ -20,8 +21,15 @@ export const ProfessorsReducer = (state, action) => {
             return action.payload
         case ProfessorsActions.ADD_PROFESSORS: {
             return Object.entries(action.payload).reduce((acc, [professorId, professor]) => {
-                489 
+                acc[professorId] = professor; //overwrite no matter what
             }, {...state});
+        }
+        case ProfessorsActions.ADD_PROFESSOR: {
+            const newState = {
+                ...state,
+                [action.payload.professorId]: action.payload.professor
+            }
+            return newState;
         }
         default:
             return state;
