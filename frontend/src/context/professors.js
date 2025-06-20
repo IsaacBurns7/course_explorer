@@ -1,24 +1,27 @@
 // PROFESSORS:
 //     Hashmap Professors (ProfessorID -> PROFESSOR OBJECT)
 //     PROFESSOR OBJECT: 
-//         ARRAY of COURSE Hashmaps ("${dept}${number}" -> SECTIONSARRAY: [{sectionObjects}])
+//         COURSE Hashmap ("${dept}${number}" -> SECTIONSARRAY: [{sectionObjects}])
 //             sectionObjects:
 //                 {same as in DB}
 
-import { createContext, useReducer } from "react";
+import { createContext, useReducer, useMemo } from "react";
 
 export const ProfessorsContext = createContext();
 
+export const ProfessorsActions = {
+    SET_PROFESSORS: "SET_PROFESSORS",
+    ADD_PROFESSORS: "ADD_PROFESSORS"
+}
+
 export const ProfessorsReducer = (state, action) => {
     switch(action.type){
-        case 'SET_PROFESSORS':
-            return {
-                professors: action.payload
-            }
-        case "ADD_PROFESSORS": {
-            return {
-                professors: [...state, action.payload]
-            }
+        case ProfessorsActions.SET_PROFESSORS:
+            return action.payload
+        case ProfessorsActions.ADD_PROFESSORS: {
+            return Object.entries(action.payload).reduce((acc, [professorId, professor]) => {
+                489 
+            }, {...state});
         }
         default:
             return state;
@@ -27,10 +30,18 @@ export const ProfessorsReducer = (state, action) => {
 
 export const ProfessorsContextProvider = ( {children} ) => {
     const [state, dispatch] = useReducer(ProfessorsReducer, {
-        professors: null
+        
     });
 
-    return <ProfessorsContext.Provider value = {{...state, dispatch}}>
+    //useMemo on context so if provider re-renders, children using state only re-render if state actually changed
+    const contextValue = useMemo(() => {
+        return {
+            ...state,
+            dispatch
+        }
+    }, [state])
+
+    return <ProfessorsContext.Provider value = {contextValue}>
         {children}
     </ProfessorsContext.Provider>
 }
