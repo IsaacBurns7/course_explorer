@@ -1,11 +1,19 @@
+//libraries
 import { useEffect, useState } from "react";
 import React from "react";
+
+//components
 import ProfessorCard from "./components/ProfessorCard";
 import ActionsHeader from "./components/ActionsHeader";
+import SearchOptions from "./components/SearchOptions";
+import Navbar from "./components/Navbar";
+
+//hooks
 import { useProfessorsContext } from "./hooks/useProfessorsContext";
+import { BrowserRouter } from "react-router";
 
 const App = () => {
-    const {state, dispatch} = useProfessorsContext();
+    const {professors, dispatch} = useProfessorsContext();
 
     useEffect(() => {
         // const fetchProfessors = async () => {
@@ -47,19 +55,26 @@ const App = () => {
             courses: ["courseId1", "courseId2"]
         };
         const professorData = [professorObj1, professorObj2];
-        setProfessors(professorData);
+        dispatch({
+            type: "SET_PROFESSORS",
+            payload: professorData
+        });
     }, []);
 
     return (
-    <>
-        <ActionsHeader />
+        <div className = "App bg-black text-white">
+            <BrowserRouter>
+                <Navbar />
+                <SearchOptions />
+                <ActionsHeader />
 
-        <div className = "app">
-            {professors && professors.map((professor, index) => (
-                <ProfessorCard key = {index} professor = {professor} dept = "GOVT" number = {206}/>
-            ))}
+                <div className = "app">
+                    {professors && professors.map((professor, index) => (
+                        <ProfessorCard key = {index} professor = {professor} dept = "GOVT" number = {206}/>
+                    ))}
+                </div>
+            </BrowserRouter>
         </div>
-    </>
     );
 }
 

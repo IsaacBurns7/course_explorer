@@ -2,7 +2,6 @@
 //     Hashmap Courses ("${dept}${number}" -> COURSE OBJECT)
 //     COURSE OBJECT:
 //         {info}
-//         //NOT {sections} -> for overall //note: will aggregator over professors instead of storing sections twice
 //         [professorsId (internal ID from mongo?)]
 
 import { createContext, useReducer, useMemo } from "react";
