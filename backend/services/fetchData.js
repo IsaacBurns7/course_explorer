@@ -86,6 +86,7 @@ async function getAnexData(department, number){
         }
     }
 
+    console.log(professors)
     return professors;
 }
 
@@ -136,7 +137,10 @@ async function getDepartmentCourses(department){
     return answer;
 }
 
+
+
 // getDepartmentCourses("csce");
+getAnexData("CSCE", "120")
 
 module.exports = {
     getAnexData,

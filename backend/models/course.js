@@ -28,6 +28,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const courseSchema = new Schema({
+    _id: String,
     info: {
         department: String,
         number: Number,
@@ -41,8 +42,9 @@ const courseSchema = new Schema({
         totalRatings: Number,
     },
     professors: [String], //professorId
-    sections: [
-        {   
+    sections: {
+        type: Map,
+        of: [{
             section: Number,
             A: Number,
             B: Number,
@@ -57,9 +59,14 @@ const courseSchema = new Schema({
             prof: String,
             year: Number,
             semester: String,
-            gpa: Number
-        }
-    ]
+            gpa: Number,
+            crn: String,
+            hours: String,
+            site: String,
+            times: Object,
+            prof_id: String
+        }]
+    }
 });
 
 module.exports = mongoose.model("Course", courseSchema);
