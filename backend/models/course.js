@@ -64,7 +64,8 @@ const courseSchema = new Schema({
             hours: String,
             site: String,
             times: Object,
-            prof_id: String
+            prof_id: String,
+            students: Number
         }]
     }
 });

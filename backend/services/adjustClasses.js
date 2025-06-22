@@ -203,3 +203,51 @@ async function adjustGPA(data) {
         data[key].info.averageGPA = parseFloat((total / sections).toFixed(3))
     }
 }
+function extractCourses(pdfData) {
+    const pages = pdfData.Pages;
+    const courses = []
+    pages.forEach(p => {
+        const texts = p.Texts
+        let fields = 0
+        let onCourse = false
+        let info = []
+        texts.forEach(t => {
+           //console.log(t.R)
+           const line = decodeURIComponent(t.R[0].T);
+          // console.log(line)
+
+           const regex = /\b[A-Z]{4}-\d{3}-\d{3}\b/;
+           const match = line.match(regex);
+           if (match || onCourse) { // found the start of a new course line, or in the middle of one
+                if (match)
+                    info.push(...line.split("-"))
+                else
+                    info.push(line.trim())
+                onCourse = true
+                fields++
+                if (fields == 20) { // 20 fields total
+                    courses.push(info) // push the course info to the array
+                    info = [] // reset values
+                    onCourse = false
+                    fields = 0
+                }
+           }
+        })
+    })
+
+    return courses
+}
+
+
+function addStudents(data) {
+     for (const key of Object.keys(data)) {
+        for (const sem of Object.keys(data[key].sections)) {
+            for (const sectKey of Object.keys(data[key].sections[sem])) {
+                const sect =  data[key].sections[sem][sectKey]
+                data[key].sections[sem][sectKey].students = sect.A + sect.B + sect.C + sect.D + sect.F + sect.I + sect.S + sect.Q + sect.U + sect.X
+            }
+        }
+    }
+
+    return data
+}

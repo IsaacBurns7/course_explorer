@@ -45,14 +45,32 @@ async function pushClasses(courseData) {
     console.log('Courses imported successfully!');
 }
 
+async function pushProfs(profData) {
+    const prof = Object.entries(profData).map(([code, prof]) => ({_id: code, ...prof}));
+    console.log("Going to Delete")
+    await Professor.deleteMany({});
+
+    console.log("Now inserting")
+
+    const chunks = chunkArray(prof, 500); 
+    for (let i = 0; i < chunks.length; i++) {
+      console.log(`Inserting chunk ${i + 1}/${chunks.length}`);
+      await Professor.insertMany(chunks[i]);
+    }
+
+    console.log('Professors imported successfully!');
+}
+
 mongoose.connect(process.env.MONGO_ATLAS_URI)
     .then(async () => {
         console.log("Connected to database!");
         app.listen(process.env.PORT, () => {
             console.log("Listening for requests on PORT ", process.env.PORT);
         })
-        //const courseData = require('./services/data_FINAL.json')
+        //const courseData = require('./services/coursedata_FINAL.json')
+        //const profData = require('./services/profdata-FINAL.json')
         //pushClasses(courseData)
+        //pushProfs(profData)
     })
     .catch((error) => {
         require('fs').writeFileSync('bulkWriteError.txt', JSON.stringify(error, null, 2));

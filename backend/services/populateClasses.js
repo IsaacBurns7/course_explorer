@@ -116,7 +116,8 @@ function transformParsedData(parsedRows, year = 2025, semester = "Spring") {
             prof: profName,
             year: year,
             semester: semester,
-            gpa: parseFloat(gpa)
+            gpa: parseFloat(gpa),
+            students: studentCount
         };
 
         // Add section
