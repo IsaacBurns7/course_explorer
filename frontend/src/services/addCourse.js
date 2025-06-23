@@ -1,31 +1,33 @@
 import { CoursesActions } from "../context/courses";
 import { ProfessorsActions } from "../context/professors";
 
-import { useCardsContext } from "../hooks/cards";
-import { useCoursesContext } from "../hooks/courses";
+import { useCardsContext } from "../hooks/useCardsContext";
+import { useCoursesContext } from "../hooks/useCoursesContext";
 import { useProfessorsContext } from "../hooks/useProfessorsContext";
+import { useSearchContext } from "../hooks/useSearchContext"
 
-function addCourse(courseDept, courseNumber){
-    const {state: professorsState, dispatch: professorsDispatch} = useProfessorsContext();
-    const {state: cardsState, dispatch: cardsDispatch} = useCardsContext();
-    const {state: coursesState, dispatch: coursesDispatch} = useCoursesContext();
+export const addCourse = (courseDept, courseNumber) => {
+    const { dispatch: professorsDispatch } = useProfessorsContext();
+    const { dispatch: cardsDispatch } = useCardsContext();
+    const { dispatch: coursesDispatch } = useCoursesContext();
+    const { state: searchState } = useSearchContext();
 
-    // const professorsState = {}; //hypothetical backend API call
-    // const courseState = {}; //hypothetical backend API call
-    // const cardsContext = {}; //just do this yourself from provided arguments, and professorsState
+    // const newProfessors = {}; //hypothetical backend API call
+    // const newCourses = {}; //hypothetical backend API call
+    // const newCards = {}; //just do this yourself from provided arguments, and professorsState
 
     //do I want an additional context for graphs? 
 
     const newCourses = {
-        //Key: {dept}{number}
         "CSCE120": {
             info: {
 
             },
-            //Key: professorId
             "professorId1": {
-                
-                //Key: {timeOfYear} {year}
+                //info about the professor for this class
+                info: {
+
+                },
                 "FALL 2024": [
                     //Array of Sections Objects
                     {
@@ -55,30 +57,13 @@ function addCourse(courseDept, courseNumber){
         }
     }
 
-    const newCards = {
-        professors: [
-            "professorId1",
-            "professorId2"
-        ],
-        courses: [
-            "DEPT123"
-        ],
-    };
-    const defaultSearchOptions = {
-        minGPA: 3.00,
-        minRating: 3.00,
-        teachingNextSemester: false,
-        semesters: [
-            "FALL 2024",
-            "SPRING 2025",
-            "SUMMER 2025"
-        ]
-    }
+    //display each of these classes
+    const newCards = [
+        "DEPT123_professorId1",
+        "DEPT123_professorId2",
+    ];    
 
     professorsDispatch({type: ProfessorsActions.ADD_PROFESSORS, payload: newProfessors});
     coursesDispatch({type: CoursesActions.ADD_COURSES, payload: newCourses});
     cardsDispatch({type: "ADD_CARDS", payload: newCards});
-    //search options is default, don't update context
 }
-
-export default addCourse;
