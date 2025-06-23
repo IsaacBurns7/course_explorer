@@ -10,6 +10,7 @@ const { populateProfessors,
     populateSectionsForCourse} = require("./services/parseData");
 const Course = require('./models/course');
 const Professor = require('./models/professor')
+const Department = require('./models/department')
 
 const app = express();
 
@@ -61,6 +62,22 @@ async function pushProfs(profData) {
     console.log('Professors imported successfully!');
 }
 
+async function pushDepts(deptData) {
+    const dept = Object.entries(deptData).map(([code, dep]) => ({_id: code, ...dep}));
+    console.log("Going to Delete")
+    await Department.deleteMany({});
+
+    console.log("Now inserting")
+
+    const chunks = chunkArray(dept, 500); 
+    for (let i = 0; i < chunks.length; i++) {
+      console.log(`Inserting chunk ${i + 1}/${chunks.length}`);
+      await Department.insertMany(chunks[i]);
+    }
+
+    console.log('Departments imported successfully!');
+}
+
 mongoose.connect(process.env.MONGO_ATLAS_URI)
     .then(async () => {
         console.log("Connected to database!");
@@ -69,8 +86,10 @@ mongoose.connect(process.env.MONGO_ATLAS_URI)
         })
         //const courseData = require('./services/coursedata_FINAL.json')
         //const profData = require('./services/profdata-FINAL.json')
+        //const deptData = require('./services/deptdata_FINAL.json')
         //pushClasses(courseData)
         //pushProfs(profData)
+        //pushDepts(deptData)
     })
     .catch((error) => {
         require('fs').writeFileSync('bulkWriteError.txt', JSON.stringify(error, null, 2));

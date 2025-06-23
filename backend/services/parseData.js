@@ -213,9 +213,6 @@ async function populateCourses(deptRaw) {
     return courses;
 }
 
-async function populateDepartments() {
-
-}
 
 async function parseDegreePlan(pdfBuffer) {
     //pdfParser.parseBuffer(pdfBuffer);
@@ -271,6 +268,36 @@ async function parseDegreePlan(pdfBuffer) {
         console.log(results)
         return results;
     }
+}
+
+
+async function populateDepartments(data) {
+    const departments = {}
+    const html = require('fs').readFileSync('./services/undergrad_list.html', 'utf8');
+    let $ = cheerio.load(html);
+    $('ul.nav.leveltwo li a').each((_, element) => {
+        const str = $(element).text().trim();       // e.g., "CSCE -​ Computer Sci & Engr (CSCE)"
+        const match = str.match(/^([A-Z]{2,5})\s*[-–]\u200b?\s*(.*?)\s*\(/);
+        departments[match[1]] = { info: {name: match[2].replace(/^[\s\u200B\u00A0]+|[\s\u200B\u00A0]+$/g, '')}, courses: [] };
+    });
+    const html2 = require('fs').readFileSync('./services/grad-list.html', 'utf8');
+    $ = cheerio.load(html2)
+    $('ul.nav.leveltwo li a').each((_, element) => {
+        const str = $(element).text().trim();       // e.g., "CSCE -​ Computer Sci & Engr (CSCE)"
+        const match = str.match(/^([A-Z]{2,5})\s*-\s*(.+)$/);
+        console.log(str)
+        departments[match[1]] = { info: {name: match[2].replace(/^[\s\u200B\u00A0]+|[\s\u200B\u00A0]+$/g, '')}, courses: [] };
+    });
+
+    for (const key of Object.keys(data)) {
+        const dept = key.split("_")[0]
+        if (!departments[dept]) {
+            console.log(dept)
+            continue
+        }
+        departments[dept].courses.push({courseNumber: data[key].info.number, courseTitle: data[key].info.title, courseDescription: data[key].info.description, courseId: key})
+    }
+    require('fs').writeFileSync('deptdata_FINAL.json', JSON.stringify(departments, null, 2));
 }
 
 module.exports = { populateSectionsForCourse, 
