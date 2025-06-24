@@ -1,8 +1,51 @@
-// COURSES:
-//     Hashmap Courses ("${dept}${number}" -> COURSE OBJECT)
-//     COURSE OBJECT:
-//         {info}
-//         [professorsId (internal ID from mongo?)]
+/*
+COURSES:
+    Hashmap Courses ("${dept}${number}" -> COURSE OBJECT)
+    COURSE OBJECT:
+        {info} -> <ATTRIBUTES UNDECIDED>
+        Hashmap Professors ["${professorId}" -> PROFESSOR OBJECT]
+        PROFESSOR OBJECT:
+            {info} -> <ATTRIBUTES UNDECIDED>
+            Hashmap Semesters ["${timeOfYear} {year}" -> SEMESTER OBJECT]
+            SEMESTER OBJECT:
+                ?{info} -> not implemented yet... + <ATTRIBUTES UNDECIDED>
+                [array of sections objects] -> could turn into object of sections, with CRN # or section # as key for faster queries...
+                
+EXAMPLE
+const newCourses = {
+    "CSCE120": {
+        info: {
+            //info about course
+        },
+        "professorId1": {
+            info: {
+                //info about the professor for this class specifically
+            },
+            "FALL 2024": [
+                //Array of Sections Objects
+                {
+                    check DB for section object schema
+                },
+                {
+
+                }
+            ],
+        },
+        "professorId2": {
+            "FALL 2024": [
+                {
+
+                },
+                {
+
+                }
+            ]
+        }
+    }
+};
+
+
+*/
 
 import { createContext, useReducer, useMemo } from "react";
 

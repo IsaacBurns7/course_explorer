@@ -1,3 +1,17 @@
+/*
+this ones pretty simple...
+EXAMPLE
+const defaultSearchOptions = {
+    minGPA: 3.00,
+    minRating: 3.00,
+    teachingNextSemester: false,
+    semesters: [
+        "FALL 2024",
+        "SPRING 2025",
+        "SUMMER 2025"
+    ]
+}
+*/
 import { createContext, useReducer, useMemo } from "react"; 
 
 export const SearchContext = createContext();
@@ -5,16 +19,6 @@ export const SearchContext = createContext();
 export const SearchActions = {
     SET_SEARCH_OPTIONS: "SET_SEARCH_OPTIONS"
 }
-// const defaultSearchOptions = {
-    //     minGPA: 3.00,
-    //     minRating: 3.00,
-    //     teachingNextSemester: false,
-    //     semesters: [
-    //         "FALL 2024",
-    //         "SPRING 2025",
-    //         "SUMMER 2025"
-    //     ]
-    // }
 
 export const SearchReducer = (state, action) => {
     switch(action.type){

@@ -40,13 +40,23 @@ function SearchOptions (){
             type: SearchActions.SET_SEARCH_OPTIONS,
             payload: newSearchOptions
         });
-        // console.log('Selected min GPA:', search_options);  //this will show original state, not new state b/c async
     }
 
     const handleRatingChange = (e) => {
         const newSearchOptions = {
             ...search_options,
             minRating: e.target.value
+        };
+        dispatch({
+            type: SearchActions.SET_SEARCH_OPTIONS,
+            payload: newSearchOptions
+        });
+    }
+
+    const handleTeachingNextSemesterChange = (e) => {
+        const newSearchOptions = {
+            ...search_options,
+            teachingNextSemester: e.target.checked
         };
         dispatch({
             type: SearchActions.SET_SEARCH_OPTIONS,
@@ -118,10 +128,13 @@ function SearchOptions (){
                     }
                 </select>
             </div>
-            <div>
+            <div className = "flex flex-col items-center">
                 <label>Teaching Next Semester</label>
-                <input type = "checkbox">
-
+                <input 
+                    type = "checkbox"
+                    className = "w-5 h-5 border border-maroon"
+                    onChange = {handleTeachingNextSemesterChange}
+                >
                 </input>
             </div>
         </div>

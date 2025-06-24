@@ -1,6 +1,11 @@
 /*
 CARDS: 
     ARRAY of [String w/ format: "${dept}${number}${professorId}"]
+EXAMPLE
+const newCards = [
+        "DEPT123_professorId1",
+        "DEPT123_professorId2",
+    ];   
 */
 import { createContext, useMemo, useReducer } from "react";
 

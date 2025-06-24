@@ -4,19 +4,19 @@ import BarGraph from "./BarGraph";
 import ProfessorRatingCard from "./ProfessorRatingCard";
 import Actions from "./Actions";
 
-function toggleDetails(e){
-    if(e.target.type === "checkbox") return;
-    hiddenRef.current.hidden = ! hiddenRef.current.hidden;
-    if(hiddenRef.current.hidden){
-        arrowIconRef.current.classList.remove("fa-chevron-down");
-        arrowIconRef.current.classList.add("fa-chevron-right");
-    }else{
-        arrowIconRef.current.classList.remove("fa-chevron-right");
-        arrowIconRef.current.classList.add("fa-chevron-down");
-    }
-}
-
 export default function ProfessorCard({ professor, dept, number, nameOfClass }){
+
+    function toggleDetails(e){
+        if(e.target.type === "checkbox") return;
+        hiddenRef.current.hidden = ! hiddenRef.current.hidden;
+        if(hiddenRef.current.hidden){
+            arrowIconRef.current.classList.remove("fa-chevron-down");
+            arrowIconRef.current.classList.add("fa-chevron-right");
+        }else{
+            arrowIconRef.current.classList.remove("fa-chevron-right");
+            arrowIconRef.current.classList.add("fa-chevron-down");
+        }
+    }
 
     const hiddenRef = useRef(null);
     const arrowIconRef = useRef(null);

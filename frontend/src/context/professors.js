@@ -1,9 +1,17 @@
-// PROFESSORS:
-//     Hashmap Professors (ProfessorID -> PROFESSOR OBJECT)
-//     PROFESSOR OBJECT: 
-//         COURSE Hashmap ("${dept}${number}" -> SECTIONSARRAY: [{sectionObjects}])
-//             sectionObjects:
-//                 {same as in DB}
+/* 
+PROFESSORS:
+    Hashmap Professors (ProfessorID -> PROFESSOR OBJECT)
+    PROFESSOR OBJECT: 
+        //metadata such as other classes taught, overall ratings, overall gpa, etc
+        //section info will be held in courses context
+EXAMPLE
+const newProfessors = {
+    "professorId1": {
+        //metadata such as other classes taught, overall ratings, overall gpa, etc
+    }
+}
+
+*/
 
 import { createContext, useReducer, useMemo } from "react";
 
