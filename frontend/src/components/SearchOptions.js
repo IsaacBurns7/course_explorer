@@ -1,5 +1,9 @@
 import { useRef, useState, useEffect } from "react";
 
+import { SearchActions } from "../context/search";
+
+import { useSearchContext } from "../hooks/useSearchContext";
+
 //make this fancier in the future but for now I cannot be bothered
 const defaultSemesters = [
     "FALL 2024",
@@ -8,19 +12,59 @@ const defaultSemesters = [
 ]
 
 function SearchOptions (){
-    const [options, setOptions] = useState(() => 
-        defaultSemesters
-    );
+    const {search_options, dispatch} = useSearchContext();
+    const [semestersDropDownFocus, setSemestersDropdownFocus] = useState(false);
+
+    useEffect(() => {
+        const newSearchOptions = {
+            ...search_options,
+            semesters: defaultSemesters
+        }
+        dispatch({
+            type: SearchActions.SET_SEARCH_OPTIONS, 
+            payload: newSearchOptions
+        });
+    }, []);
+
 
     function selectAllSemesters(){
-        
+        console.log("Selecting all semesters");
+    }
+    
+    const handleGPAChange = (e) => {
+        const newSearchOptions = {
+            ...search_options,
+            minGPA: e.target.value
+        };
+        dispatch({
+            type: SearchActions.SET_SEARCH_OPTIONS,
+            payload: newSearchOptions
+        });
+        // console.log('Selected min GPA:', search_options);  //this will show original state, not new state b/c async
+    }
+
+    const handleRatingChange = (e) => {
+        const newSearchOptions = {
+            ...search_options,
+            minRating: e.target.value
+        };
+        dispatch({
+            type: SearchActions.SET_SEARCH_OPTIONS,
+            payload: newSearchOptions
+        });
     }
 
     return (
         <div className = "SearchOptions flex p-4 gap-6">
             <div className = "flex-col flex">
                 <label className = "text-center">Min GPA</label>
-                <select className = "bg-black text-white border" id="">
+                <select 
+                    className = "bg-black p-2 text-white border border-white transition-all duration-200 focus:border-2 focus:border-maroon focus:outline-non" 
+                    id=""
+                    onChange = {handleGPAChange}
+                    // onFocus = {() => setGPAFocus(true)}
+                    // onBlur = {handleGPABlur}
+                >
                     <option value="" hidden disabled>Minimum GPA</option>
                     <option value="None">None</option>
                     <option value="3.75">3.75</option>
@@ -36,7 +80,13 @@ function SearchOptions (){
 
             <div className = "flex-col flex">
                 <label className = "text-center">Min Rating</label>
-                <select className = "bg-black text-white border" id="">
+                <select     
+                    className = "bg-black p-2 text-white border border-white transition-all duration-200 focus:border-2 focus:border-maroon focus:outline-non hover:bg-maroon" 
+                    id=""
+                    onChange = {handleRatingChange}
+                    // onFocus = {handleRatingFocus}
+                    // onBlur = {handleRatingBlur}
+                >
                     <option value="" hidden disabled>Minimum Rating</option>
                     <option value="None">None</option>
                     <option value="4.5">4.5</option>
@@ -54,18 +104,26 @@ function SearchOptions (){
                     className = "bg-black text-white border" 
                     id=""
                     multiple 
+                    onFocus = {() => setSemestersDropdownFocus(true)}
+                    onBlur = {() => setSemestersDropdownFocus(false)}
                 >
                     <option value="" hidden disabled>Semesters</option>
-                    <option value="ALL" onClick = {selectAllSemesters(this)}>Select all</option>
-                    {options && options.map((opt) => (
-                        <option key = {opt} value = {opt}>{opt}</option>
-                    ))}
+                    <option value="ALL" onClick = {selectAllSemesters}>Select all</option>
+                    {semestersDropDownFocus && 
+                    <>
+                        {search_options.semesters && search_options.semesters.map((opt) => (
+                            <option key = {opt} value = {opt}>{opt}</option>
+                        ))}
+                    </>
+                    }
                 </select>
             </div>
-            <label>Teaching Next Semester</label>
-            <input type = "checkbox">
+            <div>
+                <label>Teaching Next Semester</label>
+                <input type = "checkbox">
 
-            </input>
+                </input>
+            </div>
         </div>
     );
 }

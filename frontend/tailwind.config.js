@@ -4,7 +4,11 @@ module.exports = {
     "./public/index.html"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        maroon: "#800000"
+      }
+    },
   },
   plugins: [],
 }

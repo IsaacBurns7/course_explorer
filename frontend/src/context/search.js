@@ -20,6 +20,7 @@ export const SearchReducer = (state, action) => {
     switch(action.type){
         case SearchActions.SET_SEARCH_OPTIONS:
             return {
+                ...state,
                 search_options: action.payload
             }
         default: 
