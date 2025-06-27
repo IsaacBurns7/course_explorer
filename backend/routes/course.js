@@ -15,6 +15,7 @@ router.get("", routeByQueryParams);
 //middleware - essentially a map(params -> controller func)
 function routeByQueryParams(req, res, next){
     const { department, courseNumber } = req.query;
+    console.log(req.query);
     if(department && courseNumber){
         getCourseByDeptAndNumber(req, res, next);
     }

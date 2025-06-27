@@ -69,6 +69,11 @@ const getCourseByDeptAndNumber = async (req, res) => {
             }
         }
     );
+
+    if(!course){
+        return res.status(400).json({error: "No course with that dept and number exists"});
+    }
+
     const courseObject = {
         info: course.info,
     }
@@ -83,16 +88,18 @@ const getCourseByDeptAndNumber = async (req, res) => {
     const sectionsMap = course.sections;
     for(const [term, sectionArray] of sectionsMap){
         for(const section of sectionArray){
+            console.log(section);
             const professorId = section.prof_id.toString();
-            if(!courseObject.hasOwnObject(professorId)){
+            if(!courseObject[professorId]){
                 throw new Error("Course Controller - getCourseByDeptAndNumber - courseObject does not have professor with professorId: ", professorId, ". Proceeding with initialization...");
             }
 
-            const professorData = courseObject[professorId] || {};
-            const termSections = professorData[term] || {};
+            const professorData = courseObject[professorId] || new Map();
+            const termSections = professorData[term] || new Map();
+            console.log(termSections);
             
             courseObject[professorId] = {
-                ...professorId,
+                ...professorData,
                 [term]: [...termSections, section]
             }
         }

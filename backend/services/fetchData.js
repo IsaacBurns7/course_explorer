@@ -105,7 +105,7 @@ async function getProfessorId(schoolId, firstName, lastName){
     return profCardLink;
 }
 
-getProfessorId(1003, "P", "Ritchey");
+// getProfessorId(1003, "P", "Ritchey");
 
 /*
 this follows dept schema
@@ -140,7 +140,7 @@ async function getDepartmentCourses(department){
 
 
 // getDepartmentCourses("csce");
-getAnexData("CSCE", "120")
+// getAnexData("CSCE", "120")
 
 module.exports = {
     getAnexData,

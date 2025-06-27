@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const fetch = require('node-fetch')
 const professorRoutes = require('./routes/professor');
+const courseRoutes = require("./routes/course");
 const { populateProfessors, 
     populateCourses, 
     populateDepartments, 
@@ -22,6 +23,8 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/professors", professorRoutes);
+app.use("/api/courses", courseRoutes);
+
 function chunkArray(array, chunkSize) {
   const chunks = [];
   for (let i = 0; i < array.length; i += chunkSize) {
