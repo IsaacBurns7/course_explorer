@@ -17,10 +17,10 @@ function routeByQueryParams(req, res, next){
     const { department, courseNumber } = req.query;
     console.log(req.query);
     if(department && courseNumber){
-        getCourseByDeptAndNumber(req, res, next);
+        return getCourseByDeptAndNumber(req, res, next);
     }
     
-    res.status(400).json({error: "Missing valid query parameters"});
+    return res.status(400).json({error: "Missing valid query parameters"});
 }
 
 

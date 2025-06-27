@@ -88,7 +88,7 @@ const getCourseByDeptAndNumber = async (req, res) => {
     const sectionsMap = course.sections;
     for(const [term, sectionArray] of sectionsMap){
         for(const section of sectionArray){
-            console.log(section);
+            if(!section.prof_id) continue; //act as though section does not exist.
             const professorId = section.prof_id.toString();
             if(!courseObject[professorId]){
                 throw new Error("Course Controller - getCourseByDeptAndNumber - courseObject does not have professor with professorId: ", professorId, ". Proceeding with initialization...");
@@ -96,7 +96,6 @@ const getCourseByDeptAndNumber = async (req, res) => {
 
             const professorData = courseObject[professorId] || new Map();
             const termSections = professorData[term] || new Map();
-            console.log(termSections);
             
             courseObject[professorId] = {
                 ...professorData,
