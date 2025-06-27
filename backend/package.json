@@ -16,6 +16,8 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "mongoose": "^8.15.1",
-    "nodemon": "^3.1.10"
+    "node-fetch": "^2.7.0",
+    "nodemon": "^3.1.10",
+    "pdf2json": "^3.1.6"
   }
 }

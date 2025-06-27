@@ -7,7 +7,8 @@ const { getAnexData,
     getDepartmentCourses,
     getDegreePlan } = require("./fetchData");
 const cheerio = require("cheerio");
-
+const pdf_package = require('pdf2json')
+const pdfParser = new pdf_package();
 
 //later update ratings aswell    
 async function populateSectionsForCourse(dept, number){
@@ -212,11 +213,95 @@ async function populateCourses(deptRaw) {
     return courses;
 }
 
-async function populateDepartments() {
 
+async function parseDegreePlan(pdfBuffer) {
+    //pdfParser.parseBuffer(pdfBuffer);
+    pdfParser.loadPDF("./degree plan.pdf")
+    pdfParser.on("pdfParser_dataReady", (pdfData) => {
+        const pages = pdfData.Pages;
+        const allText = [];
+
+        pages.forEach((page, pageIndex) => {
+            const texts = page.Texts.map(t => decodeURIComponent(t.R[0].T));
+            allText.push(...texts);
+        });
+        return extractSemesters(allText)
+    });
+
+    // Get the data for each semester from the PDF
+    function extractSemesters(textArray) {
+        const semesterPattern =/^(Fall|Spring|Summer)\s2\d{3}$/;
+        const results = {};
+        let currentSemester = null;
+        let currentCourses = [];
+
+        for (let i = 0; i < textArray.length; i++) {
+            const line = textArray[i];
+
+            if (semesterPattern.test(line)) { // Find start of a new semester
+                if (currentSemester) {
+                    results[currentSemester] = [...currentCourses]; // Push old semester into the list just in case
+                }
+                currentSemester = line.trim();
+                currentCourses = [];
+            } else if (/^Term Total Credits:/i.test(line)) { // The course list is finished
+                if (currentSemester) {
+                    results[currentSemester] = [...currentCourses]; // Save the list
+                    currentSemester = null;
+                    currentCourses = []; // Reset to defaults
+                }
+            } else if (line.match(/^[A-Z]{2,4} \d{3}/)) { // Course ID (ex: CSCE 120)
+                const course = line.split(" ")
+            currentCourses.push({"dept": course[0], "course": course[1], "title": "", "hours": ""});
+            } else if (currentCourses.length > 0) { // More information (ex: Name of class and credit hours), make sure its not whitespace
+                if (/^\d$/.test(line)) 
+                    currentCourses[currentCourses.length - 1].hours = line
+                else 
+                    currentCourses[currentCourses.length - 1].title += ' ' + line
+                
+            }
+        }
+
+        if (currentSemester) { // failsafe
+            results[currentSemester] = [...currentCourses];
+        }
+        console.log(results)
+        return results;
+    }
+}
+
+
+async function populateDepartments(data) {
+    const departments = {}
+    const html = require('fs').readFileSync('./services/undergrad_list.html', 'utf8');
+    let $ = cheerio.load(html);
+    $('ul.nav.leveltwo li a').each((_, element) => {
+        const str = $(element).text().trim();       // e.g., "CSCE -​ Computer Sci & Engr (CSCE)"
+        const match = str.match(/^([A-Z]{2,5})\s*[-–]\u200b?\s*(.*?)\s*\(/);
+        departments[match[1]] = { info: {name: match[2].replace(/^[\s\u200B\u00A0]+|[\s\u200B\u00A0]+$/g, '')}, courses: [] };
+    });
+    const html2 = require('fs').readFileSync('./services/grad-list.html', 'utf8');
+    $ = cheerio.load(html2)
+    $('ul.nav.leveltwo li a').each((_, element) => {
+        const str = $(element).text().trim();       // e.g., "CSCE -​ Computer Sci & Engr (CSCE)"
+        const match = str.match(/^([A-Z]{2,5})\s*-\s*(.+)$/);
+        console.log(str)
+        departments[match[1]] = { info: {name: match[2].replace(/^[\s\u200B\u00A0]+|[\s\u200B\u00A0]+$/g, '')}, courses: [] };
+    });
+
+    for (const key of Object.keys(data)) {
+        const dept = key.split("_")[0]
+        if (!departments[dept]) {
+            console.log(dept)
+            continue
+        }
+        departments[dept].courses.push({courseNumber: data[key].info.number, courseTitle: data[key].info.title, courseDescription: data[key].info.description, courseId: key})
+    }
+    require('fs').writeFileSync('deptdata_FINAL.json', JSON.stringify(departments, null, 2));
 }
 
 module.exports = { populateSectionsForCourse, 
     populateCourses, 
-    populateDepartments    
+    populateDepartments,
+    parseDegreePlan    
 }

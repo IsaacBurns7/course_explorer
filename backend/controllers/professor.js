@@ -1,4 +1,5 @@
 const Professor = require('../models/professor');
+const Course = require('../models/course');
 
 const getProfessorByName = async (req, res) => {
     const { profName } = req.params;
@@ -12,13 +13,31 @@ const getProfessorByName = async (req, res) => {
 //have to make actual courses schema for this one 
 const getProfessorsByCourse = async (req, res) => {
     const { dept, number } = req.params;
-    const professors = await Professor.find({});
+    const course = await Course.find({"info.department": dept, "info.number": number});
+    if (!course) {
+        return res.status(404).json({error: `Course ${dept} ${number} not found.`});
+    }
+    return res.status(200).json(course.professors)
 }
 
 //have to use both course and professor schema for this one.
 const getProfessorByCourseAndName = async (req, res) => {
     const { dept, number, profName} = req.params;
-    return {};
+    const course = await Course.findOne({"info.department": dept, "info.number": number});
+    if (!course) {
+        return res.status(404).json({error: `Course ${dept} ${number} not found.`});
+    }
+    const professor = await Professor.findOne({"info.name" : profName});
+    if (!professor) {
+        return res.status(404).json({error: `Professor with name ${profName} not found.`});
+    }
+
+    const findClass = professor.courses.find((id) => id == course._id)
+    if (!findClass) {
+        return res.status(404).json({ error: `Professor ${profName} does not teach ${dept} ${number}.` });
+    }
+
+    return res.status(200).json(professor);
 }
 
 
