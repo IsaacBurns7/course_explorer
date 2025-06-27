@@ -34,7 +34,6 @@ const courseSchema = new Schema({
         number: Number,
         title: String,
         description: String,
-
         averageGPA: Number,
         totalSections: Number,
         totalStudents: Number,
