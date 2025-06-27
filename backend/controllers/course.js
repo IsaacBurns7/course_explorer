@@ -60,7 +60,7 @@ const getCourseByProfID = async (req, res) => {
 //this function makes above 
 
 const getCourseByDeptAndNumber = async (req, res) => {
-    const { department, courseNumber } = req.params;
+    const { department, courseNumber } = req.query;
     const course = await Course.findOne({"info.department": department, "info.number": courseNumber});
     const professors = await Professor.find(
         {
