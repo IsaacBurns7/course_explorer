@@ -1,3 +1,5 @@
+const axios = require("axios");
+
 import { CoursesActions } from "../context/courses";
 import { ProfessorsActions } from "../context/professors";
 
@@ -13,7 +15,12 @@ export const useCourseActions = () => {
     const { state: searchState } = useSearchContext();
 
     const addCourse = (courseDept, courseNumber) => {
-        // const newCourses = {}; //hypothetical backend API call
+
+        const options = {
+            method: "GET",
+            url: "http://localhost:4000/api/",
+        }
+        const newCourses2 = axios(options); 
         // const newProfessors = {}; //hypothetical backend API call
         // const newCards = {}; //just do this yourself from provided arguments, and professorsState
     
