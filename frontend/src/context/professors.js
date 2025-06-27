@@ -30,10 +30,16 @@ export const ProfessorsReducer = (state, action) => {
                 professors: action.payload
             }
         case ProfessorsActions.ADD_PROFESSORS: {
+            // console.log("action payload add professors: ", action.payload);
             const newProfessors = Object.entries(action.payload).reduce((acc, [professorId, professor]) => {
+                    // console.log("ADDING PROFESSOR w/ PROFESSOR ID: ", professorId);
+                    // console.log("ADDING PROFESSOR OBJECT: ", professor);
                     acc[professorId] = professor; //overwrite no matter what
-                }, {...state.professors})
+                    return acc;
+                }, {...state.professors || {}});
+            // console.log("add professors setting new professors: ", newProfessors);
             return {
+                ...state,
                 professors: newProfessors
             };
         }

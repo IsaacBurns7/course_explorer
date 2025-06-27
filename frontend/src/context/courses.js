@@ -64,46 +64,14 @@ export const CoursesReducer = (state, action) => {
                 courses: action.payload
             }
         case CoursesActions.ADD_COURSES: {
-            const newCourses = {...state.courses};
-            Object.entries(action.payload).forEach(([key, course], index) => {
-                if(newCourses[key]){
-                    newCourses[key] = {
-                        ...course,
-                        professorsId: [...new Set([
-                            ...newCourses[key].professorsId, 
-                            ...course.professorsId
-                        ])]
-                    };
-                } else {
-                    newCourses[key] = course;
-                }
-            });
-            return {
-                courses: newCourses
-            };
-        }
-        case CoursesActions.ADD_COURSE: {
-            const course = action.payload;
-            const key = `${course.info.dept}${course.info.number}`;
-
-            if(state.courses[key]) { //merge professorsId from both if course already in state
-                return {
-                    courses: {
-                        ...state.courses,
-                        [key]: {
-                            ...course, 
-                            professorsId: [...new Set([...state[key].professorsId, ...course.professorsId])]
-                        }
-                    }
-                }
+            const newCourses = {
+                ...state.courses,
+                ...action.payload //overwrite old data
             }
-
             return {
-                courses: {
-                    ...state.courses,
-                    [key]: course //add new course
-                }
-            };
+                ...state, 
+                courses: newCourses
+            }
         }
         default:
             return state;

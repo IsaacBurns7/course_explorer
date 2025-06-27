@@ -1,6 +1,5 @@
 //libraries
 import { useEffect, useState } from "react";
-import React from "react";
 
 //components
 import ProfessorCard from "../components/ProfessorCard";
@@ -9,50 +8,74 @@ import SearchOptions from "../components/SearchOptions";
 
 //hooks
 import { useProfessorsContext } from "../hooks/useProfessorsContext";
+import { useSearchParams } from "react-router";
+import { useSearchContext } from "../hooks/useSearchContext";
+import { useCourseActions } from "../hooks/useCourseActions";
+import { useCoursesContext } from "../hooks/useCoursesContext";
+import { useCardsContext } from "../hooks/useCardsContext";
 
 const SearchResults = () => {
-    const {professors, dispatch} = useProfessorsContext();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const {search_options, dispatch: searchDispatch} = useSearchContext();
+    const { professors } = useProfessorsContext();
+    const { courses } = useCoursesContext();
+    const { addCourse } = useCourseActions();
+    const { cards } = useCardsContext();
+    const [professorList, setProfessorList] = useState([]);
+
+    const dept = searchParams.get("dept");
+    const courseNumber = searchParams.get("courseNumber");
+    
 
     useEffect(() => {
-        const professorObj1 = {
-             info: {
-                name: "professor1Name", 
-                averageGPA: 3.58,
-                totalSections: 12,
-                totalStudents: 144,
-                averageRating: 4.23,
-                totalRatings: 15, 
-                yearsTaught: 12,   
-            },
-            courses: ["courseId1","courseId2"]
-        };
-        const professorObj2 = {
-             info: {
-                name: "professor2Name", 
-                averageGPA: 3.59,
-                totalSections: 13,
-                totalStudents: 124,
-                averageRating: 4.13,
-                totalRatings: 1123, 
-                yearsTaught: 1212,
-            },
-            courses: ["courseId1", "courseId2"]
-        };
-        const professorData = [professorObj1, professorObj2];
-        dispatch({
-            type: "SET_PROFESSORS",
-            payload: professorData
-        });
-    }, []);
+        addCourse(dept, courseNumber);
+    }, [dept, courseNumber]);
+
+    useEffect(() => {
+        if(courses){
+            const list = Object.entries(courses).flatMap(([courseKey, courseObject]) => {
+                if(courseKey === "info"){
+                    return;
+                }
+                const [dept, number] = courseKey.split(" ");
+                const professorsOfCourse =  Object.entries(courseObject).map(([professorId, professor]) => {
+                        if(professorId === "info"){
+                            return {
+                                professorId
+                            };
+                        }
+                        return {
+                            professorId,
+                            professor,
+                            dept,
+                            number
+                        }
+                    });
+                // console.log(professorsOfCourse);
+                return professorsOfCourse;
+            });
+            setProfessorList(list);
+            // console.log(list);
+        }
+    }, [courses]);
 
     return (
         <div className = "search-results">
             <SearchOptions />
             <ActionsHeader />
-            <div className = "app">
-                {professors && professors.map((professor, index) => (
-                    <ProfessorCard key = {index} professor = {professor} dept = "GOVT" number = {206}/>
-                ))}
+            <div className = "cards">
+                {/* {console.log(professorList)} */}
+                {professorList.map(({professorId, professor, dept, number}) => {
+                    if(professorId === "info"){
+                        return;
+                    }
+                    return <ProfessorCard 
+                        key = {`${professorId}-${dept}-${number}`}
+                        professor = {professor}
+                        dept = {dept}
+                        number = {number}
+                    />
+                })}
             </div>
         </div>
     )

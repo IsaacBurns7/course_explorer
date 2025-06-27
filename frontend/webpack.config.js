@@ -21,6 +21,7 @@ module.exports = {
             }
         ],
         // open: true,
+        historyApiFallback: true,
         hot: true,
         liveReload: true,
     },

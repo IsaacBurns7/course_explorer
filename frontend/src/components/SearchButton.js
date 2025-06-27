@@ -1,22 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 
-import { addCourse } from "../services/addCourse";
 import { useCoursesContext } from "../hooks/useCoursesContext";
-
-function handleSearch(inputText){
-    //<verify inputText is of correct form> 
-
-    const courseDept = inputText.slice(0,4);
-    const courseNumber = inputText.slice(5);
-    addCourse(courseDept, courseNumber);
-}
 
 function SearchButton() {
     const [inputText, setInputText] = useState("");
     const {courses} = useCoursesContext();
     const [matches, setMatches] = useState([]);
     const [activeIndex, setActiveIndex] = useState(-1);
+    const [error, setError] = useState(false);
     const resultsRef = useRef(null);
     const navigate = useNavigate();
 
@@ -38,8 +30,27 @@ function SearchButton() {
     }
 
     function handleSubmit(selectedCourse){
-        console.log("Selected Course: ", selectedCourse);
-        navigate(`/dashboard/${encodeURIComponent(selectedCourse)}`);
+        if(!selectedCourse | selectedCourse === ""){
+            console.log("Cannot submit, no course listed.");
+            return;
+        }
+
+        // console.log("Selected Course: ", selectedCourse);
+        const dept = selectedCourse.split(" ")[0];
+        const number = selectedCourse.split(" ")[1];
+
+        if(!dept | !number){
+            console.log("Department or Number invalid.")
+            return;
+        }
+
+        setInputText("");
+        setActiveIndex(-1);
+        setMatches([]);
+        navigate({
+            pathname: "dashboard",
+            search: `?dept=${dept}&courseNumber=${number}`
+        });
     }
 
     function handleKeyDown(e){
@@ -60,6 +71,11 @@ function SearchButton() {
             if(activeIndex >= 0){
                 handleSubmit(matches[activeIndex]);
             }
+            if(matches.includes(inputText)){
+                handleSubmit(inputText);
+            }else{
+                setError(true);
+            }
         }
         if(e.key === "Escape"){
             setActiveIndex(-1);
@@ -79,19 +95,26 @@ function SearchButton() {
     }, [activeIndex]);
 
     return (
-        <form className = "container flex" onSubmit = {() => handleSubmit(matches[0])}>
+        <form className = "container flex" onSubmit = {(e) => {
+                e.preventDefault();
+                handleSubmit(matches[0]);
+            }}>
             <div className = "search-input">
                 <input 
-                className = "mr-4 text-black" 
+                className = "mr-4 text-black"
                 type = "text" 
                 value = {inputText}
                 placeholder = "DEPT 123"
                 onChange = {(e) =>  {
                     setInputText(e.target.value);
+                    setError(false);
                     displayMatches(e);
                 }}
                 onKeyDown = {handleKeyDown}
                 />
+                {error && (
+                    <p className = "text-red-500 text-sm mt-1">⚠️ Please enter a valid course</p>
+                )}
                 <ul ref = {resultsRef}>
                     {matches.map((element, index) => {
                         const regex = new RegExp(`(${inputText})`, "gi");

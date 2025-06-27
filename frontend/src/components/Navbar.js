@@ -27,7 +27,7 @@ const Navbar = () => {
                 }
                 return acc;
             }, {});
-            console.log(newCourses);
+            // console.log(newCourses);
 
             dispatch({type: CoursesActions.SET_COURSES, payload: newCourses});
         }

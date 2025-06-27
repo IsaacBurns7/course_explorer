@@ -4,7 +4,8 @@ import BarGraph from "./BarGraph";
 import ProfessorRatingCard from "./ProfessorRatingCard";
 import Actions from "./Actions";
 
-export default function ProfessorCard({ professor, dept, number, nameOfClass }){
+export default function ProfessorCard({ professorId, professor, dept, number, nameOfClass }){
+    console.log(professor);
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -70,12 +71,14 @@ export default function ProfessorCard({ professor, dept, number, nameOfClass }){
 
                 <div className="courses-title font-semibold text-blue-200 mb-2">Courses Taught</div>
                 <div className="courses-list flex flex-wrap gap-2">
-                {professor.courses.map((courseId) => (
+                
+                {/* have to remake this */}
+                {/* {professor.courses.map((courseId) => (
                     //maybe make this a link
                     <span key={courseId} className="course-tag text-yellow-200 text-xs font-medium px-2.5 py-0.5 rounded">
                     {courseId}
                     </span>
-                ))}
+                ))} */}
                 </div>
             </div>
         </div>
