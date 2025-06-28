@@ -22,7 +22,7 @@ for (const key of Object.keys(data)) {
                 professors[section.prof_id].info.averageGPA += section.gpa
                 professors[section.prof_id].info.totalSections++
                 professors[section.prof_id].info.totalStudents += section.students
-                if (professors[section.prof_id].courses.includes(key)) professors[section.prof_id].courses.push(key)
+                if (!professors[section.prof_id].courses.includes(key)) professors[section.prof_id].courses.push(key)
             }
         }
     }
