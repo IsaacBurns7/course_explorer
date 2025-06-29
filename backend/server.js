@@ -85,7 +85,7 @@ mongoose.connect(process.env.MONGO_ATLAS_URI)
             console.log("Listening for requests on PORT ", process.env.PORT);
         })
         //const courseData = require('./services/coursedata_FINAL.json')
-        //const profData = require('./services/profdata-FINAL.json')
+        //const profData = require('./services/professors-with-ratings.json')
         //const deptData = require('./services/deptdata_FINAL.json')
         //pushClasses(courseData)
         //pushProfs(profData)

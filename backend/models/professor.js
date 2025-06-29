@@ -11,9 +11,18 @@ const professorSchema = new Schema({
         totalStudents: Number,
         //yearsTaught: Number,
         averageRating: Number,
-        totalRatings: Number,    
+        totalRatings: Number,
+        wouldTakeAgain: Number,
+        tags: [String]    
     },
-    courses: [String] //this is courseId,
+    courses: [String], //this is courseId,
+    ratings: { type: Map,
+        of: {
+            ratings: Object,
+            tags: Object,
+            averageRating: Number
+        }
+    }
 });
 
 module.exports = mongoose.model("Professor", professorSchema);
