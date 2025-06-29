@@ -4,86 +4,113 @@
 
 //in courses, find course with courseId
 //for that course, find professors with professorId
-import { useEffect, useRef } from "react";
-import { Chart } from "chart.js/auto";
+import { useEffect, useRef, useMemo } from "react";
+import Chart from "react-apexcharts"; 
+import axios from "axios";
 
-function BarGraph({professorId, dept, number}){
-
-    const chartRef = useRef(null);
-    const chartInstanceRef = useRef(null);
+function BarGraph({professorId, professorName, dept, number}){
+    const [data, setData] = useState([]);
 
     useEffect(() => {
-        const ctx = chartRef.current.getContext("2d");
+        const options = {};
 
-        //destroy old chart instance if it exists
-        if(chartInstanceRef.current){
-            chartInstanceRef.current.destroy();
-        }
-        //const data = callBackendForInfo({professorId, dept, number});
-        const data = {
-            labels: ["A", "B", "C", "D", "F", "Q"],
-            datasets: [{
-                label: '# of Students',
-                data: [2500, 6700, 4300, 2200, 1900, 1700],
-                backgroundColor: [
-                '#7CFC00', '#7FFF00', '#ADFF2F', '#C0FF3E', '#FFFF66', '#FFE066', 
-                '#FFD700', '#FFCC00', '#FFB400', '#FF9933', '#FF6600', '#FF4500', 
-                '#FF0000', '#C0C0C0'
-                ],
-                borderRadius: 5,
-                barPercentage: 0.9
-            }]
-        };
-        const options = {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context){
-                            // console.log(context); 
-                            //may have to modify based on actual form of datasets
-                            const value = context.raw;
-                            const total = context.chart._metasets[0].total ?? context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0)
-                            const percentage = ((value / total) * 100).toFixed(2);
-                            return `Students: ${value} (${percentage}%)`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: "#e5e7eb"
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: "#e5e7eb"
-                    }
+        axios(options)
+            .then((response) => {
+                const incData = [];
+                setData(incData);
+            })
+            .catch((error) => {
+                console.error("error: ", error);
+            });
+    }, []);
+
+    const categories = data.map((item => item[0]));
+    const seriesData = data.map((item => item[1]));
+    const total = useMemo(() => {
+        return seriesData.reduce((sum, value) => sum + value, 0);
+    }, [seriesData]);
+    const options = {
+        chart: {
+            id: 'basic-bar',
+            toolbar: {
+                show: true
+            }
+        },
+        xaxis: {
+            categories: categories,
+            labels: {
+                style: {
+                    colors: "#ffffff",
+                    fontSize: "12px",
+                    fontFamily: "Arial, sans-serf"
+
                 }
             }
-        };
+        },
+        yaxis: {
+            labels: {
+                formatter: function(val){
+                    return val.toFixed(2);
+                },
+                style: { 
+                    colors: "#000000"
+                }
+            }
+        },
+        colors: ['#3B82F6'],
+        plotOptions: {
+            bar: {
+            borderRadius: 4,
+            columnWidth: '70%'
+            }
+        },
+        tooltip: {
+            style: {
+                
+            },
+            custom: function({series, seriesIndex, dataPointIndex, w}){
+                const value = series[seriesIndex][dataPointIndex];
+                const percentage = ((value / total) * 100).toFixed(2);
+                return `
+                    <div class = "apexcharts-tooltip-custom">
+                        <h1><strong>${data[seriesIndex][0]}</strong></h1>
+                        <div>${dept} ${number} ${professorName !== "info" ? professorName: ""} ${value}(${percentage}%)</div>
+                    </div>
+                `;
+            }
+        }
+    };
 
-        chartInstanceRef.current = new Chart(ctx, {
-            type: "bar",
-            data,
-            options
-        })
 
-        return () => {
-            chartInstanceRef.current?.destroy();
-        };
-
-    }, [])
+    const series = [
+        {
+            name: "Grades",
+            data: seriesData
+        }
+    ];
 
     return (
-        <canvas ref = {chartRef} className = "bg-gray-800 p-4 rounded-lg">
+        <div className = "chart-wrapper">
+            <Chart 
+                options = {options}
+                series = {series}
+                type = "bar"
+                height = {350}
+                className = "text-white"
+            />
+            <style jsx global>
+            {`
+                .apexcharts-tooltip-custom {
+                    color: #000000;
+                }
+                .apexcharts-tooltip-custom div:first-child {
+                    font-weight: bold;
+                    margin-bottom: 4px;
+                }
+            `}
+            </style>
+        </div>
 
-        </canvas>
     )
 }
 

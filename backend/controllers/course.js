@@ -108,7 +108,15 @@ const getCourseByDeptAndNumber = async (req, res) => {
             [`${department} ${courseNumber}`]: courseObject
         }
     );
-
 }
 
-module.exports = { getCourseByProfID, getCourseByProfName, getCourseByDeptAndNumber };
+/*
+Need to create series data
+categories: ["category1", "category2"]
+seriesData: [valueForCategory1, valueForCategory2]
+*/
+const getGraphSeriesForProfessorAndCourse = async(req, res) => {
+    const { department, courseNumber, professorId } = req.query;
+}
+
+module.exports = { getCourseByProfID, getCourseByProfName, getCourseByDeptAndNumber, getGraphSeriesForProfessorAndCourse };

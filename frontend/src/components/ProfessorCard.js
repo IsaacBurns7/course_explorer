@@ -46,7 +46,7 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
 
 
             <div id = {`${professor.info.name}${dept}${number}`} ref = {hiddenRef} hidden = {true}>
-                <BarGraph professorId = {professor._id} dept = {dept} number = {number}/>
+                <BarGraph professorId = {professor._id} professorName = {professor.info.name} dept = {dept} number = {number}/>
                 <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, totalRatings}}/>
 
                 <div className = "flex flex-wrap gap-3 mb-6">

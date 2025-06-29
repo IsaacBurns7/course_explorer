@@ -25,7 +25,6 @@ const SearchResults = () => {
 
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
-    
 
     useEffect(() => {
         addCourse(dept, courseNumber);
@@ -33,29 +32,7 @@ const SearchResults = () => {
 
     useEffect(() => {
         if(courses){
-            const list = Object.entries(courses).flatMap(([courseKey, courseObject]) => {
-                if(courseKey === "info"){
-                    return;
-                }
-                const [dept, number] = courseKey.split(" ");
-                const professorsOfCourse =  Object.entries(courseObject).map(([professorId, professor]) => {
-                        if(professorId === "info"){
-                            return {
-                                professorId
-                            };
-                        }
-                        return {
-                            professorId,
-                            professor,
-                            dept,
-                            number
-                        }
-                    });
-                // console.log(professorsOfCourse);
-                return professorsOfCourse;
-            });
-            setProfessorList(list);
-            // console.log(list);
+            console.log(courses);
         }
     }, [courses]);
 
@@ -64,11 +41,14 @@ const SearchResults = () => {
             <SearchOptions />
             <ActionsHeader />
             <div className = "cards">
-                {/* {console.log(professorList)} */}
-                {professorList.map(({professorId, professor, dept, number}) => {
+                {cards && cards.map((card) => {
+                    const dept = card.slice(0,4);
+                    const number = card.slice(4,7);
+                    const professorId = card.split("_")[1];
                     if(professorId === "info"){
                         return;
                     }
+                    const professor = courses[`${dept} ${number}`][professorId];
                     return <ProfessorCard 
                         key = {`${professorId}-${dept}-${number}`}
                         professor = {professor}

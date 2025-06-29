@@ -22,7 +22,7 @@ const getProfessorsByCourse = async (req, res) => {
 
 //have to use both course and professor schema for this one.
 const getProfessorByCourseAndName = async (req, res) => {
-    const { dept, number, profName} = req.params;
+    const { dept, number, profName} = req.query;
     const course = await Course.findOne({"info.department": dept, "info.number": number});
     if (!course) {
         return res.status(404).json({error: `Course ${dept} ${number} not found.`});

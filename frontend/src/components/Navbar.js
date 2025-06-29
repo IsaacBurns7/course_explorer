@@ -35,7 +35,7 @@ const Navbar = () => {
     }, []);
 
     return (
-        <div className = "flex p-4 gap-6 fixed h-16 z-50">
+        <div className = "flex p-4 gap-6 fixed h-16 z-50 bg-maroon w-full opacity-100">
             <Link to = "/">
                 <h1>Home</h1>
             </Link>

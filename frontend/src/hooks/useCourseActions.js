@@ -14,87 +14,47 @@ export const useCourseActions = () => {
     const { dispatch: coursesDispatch } = useCoursesContext();
     const { state: searchState } = useSearchContext();
 
-    const addCourse = (courseDept, courseNumber) => {
-
+    const addCourse = async (courseDept, courseNumber) => {
         const options = {
             method: "GET",
-            url: "http://localhost:4000/api/",
+            url: `/server/api/courses/?department=${courseDept}&courseNumber=${courseNumber}`
         }
-        const newCourses2 = axios(options); 
+        axios(options)
+            .then(function (response){
+                if(!response || !response.data){
+                    throw new Error("Invalid response structure");
+                }
+                const data = response.data;
+                if (typeof data !== 'object' || data === null) {
+                    throw new Error('Expected object data');
+                }
+                coursesDispatch({type: CoursesActions.ADD_COURSES, payload: data});
+
+                const newProfessors = new Map(Object.entries(data[`${courseDept} ${courseNumber}`]));
+                const newCards = [];
+                for(const [professorId, professor] of newProfessors){
+                    newCards.push(`${courseDept}${courseNumber}_${professorId}`);
+                    if(professorId === "info"){
+                        continue;
+                    }
+                    professorsDispatch({type: ProfessorsActions.ADD_PROFESSOR, payload: {
+                        professorId,
+                        professor
+                    }});
+                }
+                cardsDispatch({type: "ADD_CARDS", payload: newCards});
+
+
+            })
+            .catch(function (error){
+                console.error("error: ", error);
+            })
+            .finally(function (){
+            })
         // const newProfessors = {}; //hypothetical backend API call
         // const newCards = {}; //just do this yourself from provided arguments, and professorsState
     
         //do I want an additional context for graphs? 
-    
-        const newCourses = {
-            "CSCE 120": {
-                info: {
-                    averageGPA: 2.65,
-                    averageRating: 3.35
-                },
-                "professorId1": {
-                    //info about the professor for this class
-                    info: {
-                        name: "isaacthedestroyer",
-                        averageGPA: 2.65,
-                        averageRating: 3.35
-                    },
-                    "FALL 2024": [
-                        //Array of Sections Objects
-                        {
-    
-                        },
-                        {
-    
-                        }
-                    ],
-                },
-                "professorId2": {
-                    info: {
-                        name: "rafaythebloke",
-                        averageGPA: 1.25,
-                        averageRating: 1.93
-                    },
-                    "FALL 2024": [
-                        {
-    
-                        },
-                        {
-    
-                        }
-                    ]
-                }
-            }
-        };
-    
-        const newProfessors = {
-            "professorId1": {
-                name: "uwuGuy1",
-                ratingCount: 30,
-                ratingAverage: 4.45,
-                gpa: 3.7
-            },
-            "professorId2": {
-                //metadata such as other classes taught, overall ratings, overall gpa, etc
-                name: "uwuGuy2",
-                ratingCount: 20,
-                ratingAverage: 2.45,
-                gpa: 2.7
-            }
-        }
-    
-        //display each of these classes
-        const newCards = [
-            "CSCE120_professorId1",
-            "CSCE120_professorId2",
-        ];   
-        // console.log(newProfessors);
-        
-        professorsDispatch({ type: ProfessorsActions.ADD_PROFESSORS, payload: newProfessors });
-        coursesDispatch({ type: CoursesActions.ADD_COURSES, payload: newCourses });
-        cardsDispatch({ type: "ADD_CARDS", payload: newCards });
-
-        // console.log(professors);
     };
 
 
