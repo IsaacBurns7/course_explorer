@@ -114,9 +114,47 @@ const getCourseByDeptAndNumber = async (req, res) => {
 Need to create series data
 categories: ["category1", "category2"]
 seriesData: [valueForCategory1, valueForCategory2]
+
+[
+    ["A", aCount]
+]
 */
 const getGraphSeriesForProfessorAndCourse = async(req, res) => {
-    const { department, courseNumber, professorId } = req.query;
+    const { department, courseNumber, professorID } = req.query;
+    const selectedCourse = await Course.findOne(
+        {
+            "info.department" : department, 
+            "info.number": courseNumber
+        }
+    );
+    // console.log(department, courseNumber, selectedCourse);
+
+    if(!selectedCourse){
+        return res.status(400).json({error: "No course found with specified department and courseNumber"});
+    }
+
+    const categories = ["A", "B", "C", "D", "F", "I", "S", "U", "Q", "X"];
+
+    const data = categories.map((category) => {
+        return [
+            category,
+            0
+        ]
+    });
+
+    for(const [semester, sections] of selectedCourse.sections){
+        // if(semester in validSemesters)
+        for(const section of sections){
+            if(section.prof_id === undefined || section.prof_id !== professorID) continue;
+            for(const category of categories){
+                const value = section[category];
+                const index = data.findIndex(item => item[0] === category);
+                data[index][1] += Number(value);
+            }
+        }
+    }
+
+    return res.status(200).json(data);
 }
 
 module.exports = { getCourseByProfID, getCourseByProfName, getCourseByDeptAndNumber, getGraphSeriesForProfessorAndCourse };

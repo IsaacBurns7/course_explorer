@@ -5,7 +5,6 @@ import ProfessorRatingCard from "./ProfessorRatingCard";
 import Actions from "./Actions";
 
 export default function ProfessorCard({ professorId, professor, dept, number, nameOfClass }){
-    console.log(professor);
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -28,25 +27,24 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
         { label: "Skip class? You won't pass.", count: 5 },
         { label: "Respected", count: 4 },
     ];
-    const rating = 4.2;
+    const { name, averageRating: rating, totalRatings, averageGPA} = professor.info;
+    console.log(professor);
     const difficulty = 3.7;
     const wouldTakeAgain = 74;
-    const totalRatings = 42;
-    const averageGPA = professor.info.averageGPA; //later find this by course
 
 
     return (
         <div className="professor-card bg-black rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
             <button onClick = {(e) => {toggleDetails(e);}} className="grid grid-cols-12 p-3 gap-6 border -b border-gray-200">
                 <Actions arrowIconRef = {arrowIconRef}/>
-                <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{dept} {number} {professor.info.name} {nameOfClass}</div>
+                <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{dept} {number} {name} {nameOfClass}</div>
                 <div className="col-span-1 text-center text-white font-semibold text-xl px-6 py-2 rounded-full bg-green-400">{averageGPA}</div>
-                <StarRating className = "col-span-3" rating = {professor.info.averageRating}/>
+                <StarRating className = "col-span-3" rating = {rating}/>
             </button>
 
 
             <div id = {`${professor.info.name}${dept}${number}`} ref = {hiddenRef} hidden = {true}>
-                <BarGraph professorId = {professor._id} professorName = {professor.info.name} dept = {dept} number = {number}/>
+                <BarGraph professorId = {professorId} professorName = {professor.info.name} dept = {dept} number = {number}/>
                 <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, totalRatings}}/>
 
                 <div className = "flex flex-wrap gap-3 mb-6">

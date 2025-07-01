@@ -4,7 +4,7 @@
 
 //in courses, find course with courseId
 //for that course, find professors with professorId
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Chart from "react-apexcharts"; 
 import axios from "axios";
 
@@ -12,12 +12,17 @@ function BarGraph({professorId, professorName, dept, number}){
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        const options = {};
+        const optionsUrl = `/server/api/courses/graph?department=${dept}&courseNumber=${number}&professorID=${professorId}`;
+        // console.log(optionsUrl);
+        const options = {
+            method: "GET",
+            url: optionsUrl
+        };
 
         axios(options)
             .then((response) => {
-                const incData = [];
-                setData(incData);
+                // console.log(response.data);
+                setData(response.data);
             })
             .catch((error) => {
                 console.error("error: ", error);

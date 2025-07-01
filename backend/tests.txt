@@ -1,1 +1,3 @@
 curl "http://localhost:4000/api/courses/?department=CSCE&courseNumber=120"
+
+curl "http://localhost:4000/api/courses/graph/?department=CSCE&courseNumber=120&professorID=424079"

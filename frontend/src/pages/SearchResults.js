@@ -17,7 +17,7 @@ import { useCardsContext } from "../hooks/useCardsContext";
 const SearchResults = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const {search_options, dispatch: searchDispatch} = useSearchContext();
-    const { professors } = useProfessorsContext();
+    const { professors } = useProfessorsContext(); //use professors to find ratings and such
     const { courses } = useCoursesContext();
     const { addCourse } = useCourseActions();
     const { cards } = useCardsContext();
@@ -51,6 +51,7 @@ const SearchResults = () => {
                     const professor = courses[`${dept} ${number}`][professorId];
                     return <ProfessorCard 
                         key = {`${professorId}-${dept}-${number}`}
+                        professorId = {professorId}
                         professor = {professor}
                         dept = {dept}
                         number = {number}

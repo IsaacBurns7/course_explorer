@@ -41,7 +41,7 @@ const courseSchema = new Schema({
         totalRatings: Number,
     },
     professors: [String], //professorId
-    sections: {
+    sections: { //key is semester
         type: Map,
         of: [{
             section: Number,
