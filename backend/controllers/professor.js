@@ -40,5 +40,23 @@ const getProfessorByCourseAndName = async (req, res) => {
     return res.status(200).json(professor);
 }
 
+const getProfessorRatingsByIdAndCourse = async (req, res) => {
+    const { professorID, department, courseNumber } = req.query;
+    const professor = await Professor.findOne({_id: professorID});
+    if(!professor){
+        return res.status(404).json({error: `Professor with ID ${professorID} does not exist.`});
+    }
+    const ratings = professor.ratings;
+    if(!ratings){
+        return res.status(404).json({error: `Professor with ID ${professorID} does not have ratings object`});
+    }
+    // console.log(ratings);
+    const classString = `${department}_${courseNumber}`;
+    const classRatings = ratings.get(classString);
+    if(!classRatings){
+        return res.status(404).json({error: `Professor with ID ${professorID} does not have ratings for class ${classString}`});
+    }
+    return res.status(200).json(classRatings);
+}
 
-module.exports = { getProfessorByName, getProfessorsByCourse, getProfessorByCourseAndName };
+module.exports = { getProfessorByName, getProfessorsByCourse, getProfessorByCourseAndName, getProfessorRatingsByIdAndCourse };

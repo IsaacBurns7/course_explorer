@@ -1,10 +1,14 @@
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
+
 import StarRating from "./StarRating";
 import BarGraph from "./BarGraph";
 import ProfessorRatingCard from "./ProfessorRatingCard";
 import Actions from "./Actions";
 
 export default function ProfessorCard({ professorId, professor, dept, number, nameOfClass }){
+
+    const [ratingObject, setRatingObject] = useState(null);
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -28,7 +32,33 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
         { label: "Respected", count: 4 },
     ];
     const { name, averageRating: rating, totalRatings, averageGPA} = professor.info;
-    console.log(professor);
+
+    useEffect(() => {
+        const url = `/server/api/professors/ratings/professorID=${professorId}&department=${dept}&courseNumber=${number}`;
+        const options = {
+            method: "GET",
+            url
+        }
+        axios(options)
+            .then((response) => {
+                if(!response | !response.data){
+                    throw new Error("Invalid response structure");
+                }
+                const data = response.data;
+                if(data === null | typeof data !== "object"){
+                    throw new Error("Expected object data");
+                }
+
+                setRatingObject(data);
+                console.log(data);
+            })
+            .catch((error) => {
+                console.error("Error: ", error);
+            })
+            .finally(() => {
+
+            })
+    });
     const difficulty = 3.7;
     const wouldTakeAgain = 74;
 
