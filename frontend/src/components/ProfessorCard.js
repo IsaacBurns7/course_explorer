@@ -10,6 +10,8 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
 
     const [ratingObject, setRatingObject] = useState(null);
     const [tags, setTags] = useState(null);
+    const [ratingCount, setRatingCount] = useState(0);
+    const [rating, setRating] = useState(0.00);
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -44,10 +46,15 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
 
                 setRatingObject(data);
                 setTags(data.tags);
+                const totalRatings = ratingObject ? Object.values(ratingObject.ratings).reduce((acc,value) => {
+                    acc + value
+                }, 0) : 0;
+                setRatingCount(totalRatings);
+                setRating(ratingObject.averageRating.toFixed(2) | 0.0);
                 console.log(data);
             })
             .catch((error) => {
-                console.error("Error: ", error);
+                // console.error("Error: ", error);
             })
             .finally(() => {
 
@@ -55,10 +62,6 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
     }, []);
 
     const { name, averageGPA, wouldTakeAgain} = professor.info;
-    const rating = ratingObject ? ratingObject.averageRating : 5.0;
-    const totalRatings = ratingObject ? Object.values(ratingObject.ratings).reduce((acc,value) => {
-        acc + value
-    }, 0) : 0;
 
     const difficulty = 3.7;
 
@@ -75,7 +78,7 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
 
             <div id = {`${professor.info.name}${dept}${number}`} ref = {hiddenRef} hidden = {true}>
                 <BarGraph professorId = {professorId} professorName = {professor.info.name} dept = {dept} number = {number}/>
-                <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, totalRatings}}/>
+                <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, ratingCount}}/>
 
                 <div className = "flex flex-wrap gap-3 mb-6">
                     {tags && Object.entries(tags).map(([key, value]) => (
