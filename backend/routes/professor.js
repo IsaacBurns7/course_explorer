@@ -14,9 +14,17 @@ const router = express.Router();
 /*note for future isaac:
     create middleware to select the correct function to fire - multiple functions shouldnt fire all at once.
 */
-router.get("/name/:profName", getProfessorByName);
-router.get("/ratings", getProfessorRatingsByIdAndCourse); 
-router.get("/:dept/:number/:profName", getProfessorByCourseAndName);
-router.get("/:dept/:number", getProfessorsByCourse);
+// router.get("/name/:profName", getProfessorByName);
+router.get("/ratings", routeByQueryParams); 
+// router.get("/:dept/:number/:profName", getProfessorByCourseAndName);
+// router.get("/:dept/:number", getProfessorsByCourse);
+
+function routeByQueryParams(req, res, next){
+    const { professorID, department, courseNumber } = req.query;
+    if(professorID && department && courseNumber){
+        return getProfessorRatingsByIdAndCourse(req, res, next);
+    }
+    return res.status(400).json({error: "Missing valid query parameters"});
+}
 
 module.exports = router;

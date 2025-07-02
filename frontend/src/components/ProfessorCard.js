@@ -9,6 +9,7 @@ import Actions from "./Actions";
 export default function ProfessorCard({ professorId, professor, dept, number, nameOfClass }){
 
     const [ratingObject, setRatingObject] = useState(null);
+    const [tags, setTags] = useState(null);
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -24,17 +25,9 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
 
     const hiddenRef = useRef(null);
     const arrowIconRef = useRef(null);
-    const tags = [  
-        { label: "Get ready to read", count: 14 },
-        { label: "Lecture heavy", count: 9 },
-        { label: "Beware of pop quizzes", count: 6 },
-        { label: "Skip class? You won't pass.", count: 5 },
-        { label: "Respected", count: 4 },
-    ];
-    const { name, averageRating: rating, totalRatings, averageGPA} = professor.info;
 
     useEffect(() => {
-        const url = `/server/api/professors/ratings/professorID=${professorId}&department=${dept}&courseNumber=${number}`;
+        const url = `/server/api/professors/ratings/?professorID=${professorId}&department=${dept}&courseNumber=${number}`;
         const options = {
             method: "GET",
             url
@@ -50,6 +43,7 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
                 }
 
                 setRatingObject(data);
+                setTags(data.tags);
                 console.log(data);
             })
             .catch((error) => {
@@ -58,9 +52,15 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
             .finally(() => {
 
             })
-    });
+    }, []);
+
+    const { name, averageGPA, wouldTakeAgain} = professor.info;
+    const rating = ratingObject ? ratingObject.averageRating : 5.0;
+    const totalRatings = ratingObject ? Object.values(ratingObject.ratings).reduce((acc,value) => {
+        acc + value
+    }, 0) : 0;
+
     const difficulty = 3.7;
-    const wouldTakeAgain = 74;
 
 
     return (
@@ -69,7 +69,7 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
                 <Actions arrowIconRef = {arrowIconRef}/>
                 <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{dept} {number} {name} {nameOfClass}</div>
                 <div className="col-span-1 text-center text-white font-semibold text-xl px-6 py-2 rounded-full bg-green-400">{averageGPA}</div>
-                <StarRating className = "col-span-3" rating = {rating}/>
+                {ratingObject && <StarRating className = "col-span-3" rating = {rating}/>}
             </button>
 
 
@@ -78,12 +78,12 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
                 <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, totalRatings}}/>
 
                 <div className = "flex flex-wrap gap-3 mb-6">
-                    {tags.map((tag, index) => (
+                    {tags && Object.entries(tags).map(([key, value]) => (
                         <span
-                            key = {index}
+                            key = {key}
                             className = "text-white bg-gray-800 px-4 py-2 rounded-full text-sm border border-gray-600"
                         >
-                            {tag.label} ({tag.count})
+                            {key} ({value})
                         </span>
                     ))}
                 </div>
