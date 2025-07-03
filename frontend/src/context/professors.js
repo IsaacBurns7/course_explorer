@@ -8,6 +8,7 @@ EXAMPLE
 const newProfessors = {
     "professorId1": {
         //metadata such as other classes taught, overall ratings, overall gpa, etc
+        courses: [array of courses keys(e.g "DEPT_123")]
     }
 }
 

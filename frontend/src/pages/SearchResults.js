@@ -8,6 +8,7 @@ import SearchOptions from "../components/SearchOptions";
 
 //hooks
 import { useProfessorsContext } from "../hooks/useProfessorsContext";
+import { useProfessorActions } from "../hooks/useProfessorActions";
 import { useSearchParams } from "react-router";
 import { useSearchContext } from "../hooks/useSearchContext";
 import { useCourseActions } from "../hooks/useCourseActions";
@@ -21,7 +22,6 @@ const SearchResults = () => {
     const { courses } = useCoursesContext();
     const { addCourse } = useCourseActions();
     const { cards } = useCardsContext();
-    const [professorList, setProfessorList] = useState([]);
 
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
@@ -30,11 +30,11 @@ const SearchResults = () => {
         addCourse(dept, courseNumber);
     }, [dept, courseNumber]);
 
-    useEffect(() => {
-        if(courses){
-            console.log(courses);
-        }
-    }, [courses]);
+    // useEffect(() => {
+    //     if(courses){
+    //         console.log(courses);
+    //     }
+    // }, [courses]);
 
     return (
         <div className = "search-results">

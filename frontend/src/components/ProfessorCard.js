@@ -1,17 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
+import { useProfessorActions } from "../hooks/useProfessorActions";
+
 import StarRating from "./StarRating";
 import BarGraph from "./BarGraph";
 import ProfessorRatingCard from "./ProfessorRatingCard";
 import Actions from "./Actions";
 
 export default function ProfessorCard({ professorId, professor, dept, number, nameOfClass }){
-
+    // console.log(professor);
     const [ratingObject, setRatingObject] = useState(null);
     const [tags, setTags] = useState(null);
     const [ratingCount, setRatingCount] = useState(0);
     const [rating, setRating] = useState(0.00);
+    const [courses, setCourses] = useState([]);
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -59,7 +62,38 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
             .finally(() => {
 
             })
-    }, []);
+    }, [professorId, dept, number]);
+    
+    useEffect(() => {
+        const url = `/server/api/professors/coursesTaught/?professorID=${professorId}`;
+        const options = {
+            method: "GET",
+            url
+        };
+
+        axios(options)
+            .then((response) => {
+                if(!response | !response.data){
+                    throw new Error("Invalid response structure");
+                }
+                const data = response.data;
+                if(data === null | !Array.isArray(data)){
+                    throw new Error("Expected array data");
+                }
+                // const newProfessor = {
+                //     ...professors[professorId],
+                //     courses: data
+                // };
+                // dispatch({type: ProfessorsActions.ADD_PROFESSOR, payload: {
+                //     professorId,
+                //     professor: newProfessor
+                // }});
+                setCourses(data);
+            })
+            .catch((error) => {
+                console.error("error: ", error)
+            })
+    }, [professorId]);
 
     const { name, averageGPA, wouldTakeAgain} = professor.info;
 
@@ -103,13 +137,11 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
                 <div className="courses-title font-semibold text-blue-200 mb-2">Courses Taught</div>
                 <div className="courses-list flex flex-wrap gap-2">
                 
-                {/* have to remake this */}
-                {/* {professor.courses.map((courseId) => (
-                    //maybe make this a link
+                {courses && courses.map((courseId) => (
                     <span key={courseId} className="course-tag text-yellow-200 text-xs font-medium px-2.5 py-0.5 rounded">
-                    {courseId}
+                        {courseId.replace("_", " ")}
                     </span>
-                ))} */}
+                ))}
                 </div>
             </div>
         </div>
