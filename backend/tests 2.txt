@@ -1,0 +1,7 @@
+curl "http://localhost:4000/api/courses/?department=CSCE&courseNumber=120"
+
+curl "http://localhost:4000/api/courses/graph/?department=CSCE&courseNumber=120&professorID=424079"
+
+curl "http://localhost:4000/api/professors/ratings/?professorID=193825&department=CSCE&courseNumber=120"
+
+curl "http://localhost:4000/api/professors/ratings/?professorID=3246008&department=CSCE&courseNumber=120"
