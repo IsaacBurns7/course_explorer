@@ -9,12 +9,13 @@ import ProfessorRatingCard from "./ProfessorRatingCard";
 import Actions from "./Actions";
 
 export default function ProfessorCard({ professorId, professor, dept, number, nameOfClass }){
-    // console.log(professor);
+    // console.log(professorId);
     const [ratingObject, setRatingObject] = useState(null);
     const [tags, setTags] = useState(null);
     const [ratingCount, setRatingCount] = useState(0);
     const [rating, setRating] = useState(0.00);
     const [courses, setCourses] = useState([]);
+    const [graphData, setGraphData] = useState([]);
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -30,6 +31,24 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
 
     const hiddenRef = useRef(null);
     const arrowIconRef = useRef(null);
+
+    useEffect(() => {
+        const optionsUrl = `/server/api/courses/graph?department=${dept}&courseNumber=${number}&professorID=${professorId}`;
+        // console.log(optionsUrl);
+        const options = {
+            method: "GET",
+            url: optionsUrl
+        };
+
+        axios(options)
+            .then((response) => {
+                // console.log(response.data);
+                setGraphData(response.data);
+            })
+            .catch((error) => {
+                console.error("error: ", error);
+            });
+    }, []);
 
     useEffect(() => {
         const url = `/server/api/professors/ratings/?professorID=${professorId}&department=${dept}&courseNumber=${number}`;
@@ -109,7 +128,7 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
 
 
             <div id = {`${professor.info.name}${dept}${number}`} ref = {hiddenRef} hidden = {true}>
-                <BarGraph professorId = {professorId} professorName = {professor.info.name} dept = {dept} number = {number}/>
+                <BarGraph data = {graphData} professorName = {professor.info.name} dept = {dept} number = {number}/>
                 <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, ratingCount}}/>
 
                 <div className = "flex flex-wrap gap-3 mb-6">

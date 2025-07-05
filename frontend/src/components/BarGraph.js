@@ -8,26 +8,7 @@ import { useEffect, useState, useMemo } from "react";
 import Chart from "react-apexcharts"; 
 import axios from "axios";
 
-function BarGraph({professorId, professorName, dept, number}){
-    const [data, setData] = useState([]);
-
-    useEffect(() => {
-        const optionsUrl = `/server/api/courses/graph?department=${dept}&courseNumber=${number}&professorID=${professorId}`;
-        // console.log(optionsUrl);
-        const options = {
-            method: "GET",
-            url: optionsUrl
-        };
-
-        axios(options)
-            .then((response) => {
-                // console.log(response.data);
-                setData(response.data);
-            })
-            .catch((error) => {
-                console.error("error: ", error);
-            });
-    }, []);
+function BarGraph({data, professorName, dept, number}){
 
     const categories = data.map((item => item[0]));
     const seriesData = data.map((item => item[1]));

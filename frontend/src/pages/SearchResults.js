@@ -36,6 +36,7 @@ const SearchResults = () => {
     //         console.log(courses);
     //     }
     // }, [courses]);
+    const comparedCards = ["100615_CSCE120", "193825_CSCE120"];
 
     return (
         <div className = "search-results">
@@ -60,7 +61,7 @@ const SearchResults = () => {
                             return;
                         }
                     }
-                    console.log(courses[`${dept} ${number}`]);
+                    // console.log(courses[`${dept} ${number}`]);
                     return <ProfessorCard 
                         key = {`${professorId}-${dept}-${number}`}
                         professorId = {professorId}
@@ -71,7 +72,7 @@ const SearchResults = () => {
                 })}
             </div>
             <div className = "compare">
-                <Compare />
+                <Compare comparedCards = {comparedCards}/>
             </div>
         </div>
     )
