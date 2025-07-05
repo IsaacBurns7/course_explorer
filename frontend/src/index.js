@@ -23,3 +23,4 @@ root.render(
         </CoursesContextProvider>
     </React.StrictMode>
 )
+
