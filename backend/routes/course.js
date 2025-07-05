@@ -4,13 +4,14 @@ way to get courses based off professorName,
 */
 
 const express = require('express');
-const { getCourseByProfName, getCourseByProfID, getCourseByDeptAndNumber, getGraphSeriesForProfessorAndCourse } = require('../controllers/course');
+const { getCourseByProfName, getCourseByProfID, getCourseByDeptAndNumber, getGraphSeriesForProfessorAndCourse, getAllCourses } = require('../controllers/course');
 
 const router = express.Router();
 
 router.get("/id/:id", getCourseByProfName);
 router.get("/name/:name", getCourseByProfID);
 router.get("", routeByQueryParams); 
+router.get("/getAll", getAllCourses);
 router.get("/graph", getGraphSeriesForProfessorAndCourse);
 
 //middleware - essentially a map(params -> controller func)

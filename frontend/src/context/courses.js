@@ -54,7 +54,9 @@ export const CoursesContext = createContext();
 export const CoursesActions = {
     SET_COURSES: "SET_COURSES",
     ADD_COURSES: "ADD_COURSES",
-    ADD_COURSE: "ADD_COURSE"
+    ADD_COURSE: "ADD_COURSE",
+    ADD_COURSES_NO_OVERRIDE: "ADD_COURSES_NO_OVERRIDE"
+    
 }
 
 export const CoursesReducer = (state, action) => {
@@ -70,6 +72,16 @@ export const CoursesReducer = (state, action) => {
             }
             return {
                 ...state, 
+                courses: newCourses
+            }
+        }
+        case CoursesActions.ADD_COURSES_NO_OVERRIDE: {
+            const newCourses = {
+                ...action.payload,
+                ...state.courses
+            }
+            return {
+                ...state,
                 courses: newCourses
             }
         }

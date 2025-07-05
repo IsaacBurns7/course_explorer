@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 import SearchButton from "./SearchButton";
 
@@ -12,26 +13,43 @@ const Navbar = () => {
 
     useEffect(() => {
         //this should be an API call
-        const defaultCourses = [
-            "CSCE 120",
-            "CSCE 221"
-        ];
-        function addDefaultCourses(){
-            const newCourses = defaultCourses.reduce((acc, curr) => {
-                if(!acc[curr]){
-                    acc[curr] = {
-                        info: {
-
-                        }
-                    }
-                }
-                return acc;
-            }, {});
-            // console.log(newCourses);
-
-            dispatch({type: CoursesActions.SET_COURSES, payload: newCourses});
+        const url = `/server/api/courses/getAll`;
+        const options = {
+            method: "GET",
+            url
         }
-        addDefaultCourses();
+        axios(options)
+            .then((response) => {
+                if(!response || !response.data){
+                    throw new Error("Invalid response structure");
+                }
+                const data = response.data;
+                if (typeof data !== 'object' || data === null) {
+                    throw new Error('Expected object data');
+                }
+                const defaultCourses = response.data.map((course) => {
+                    return course.replace("_", " ");
+                });
+                function addDefaultCourses(){
+                    const newCourses = defaultCourses.reduce((acc, curr) => {
+                        if(!acc[curr]){
+                            acc[curr] = {
+                                info: {
+
+                                }
+                            }
+                        }
+                        return acc;
+                    }, {});
+                    console.log(newCourses["AGCJ 105"]);
+
+                    dispatch({type: CoursesActions.ADD_COURSES_NO_OVERRIDE, payload: newCourses});
+                }
+                addDefaultCourses();
+            })
+            .catch((error) => {
+                console.error("error: ", error);
+            })
     }, []);
 
     return (

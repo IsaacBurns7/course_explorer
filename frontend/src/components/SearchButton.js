@@ -25,7 +25,7 @@ function SearchButton() {
         const value = e.target.value;
 
         const courseArray = Object.keys(courses);
-        const matchArray = findMatches(value, courseArray);
+        const matchArray = findMatches(value, courseArray).slice(0,10);
         setMatches(matchArray);
     }
 

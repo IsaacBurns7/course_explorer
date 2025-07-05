@@ -157,4 +157,9 @@ const getGraphSeriesForProfessorAndCourse = async(req, res) => {
     return res.status(200).json(data);
 }
 
-module.exports = { getCourseByProfID, getCourseByProfName, getCourseByDeptAndNumber, getGraphSeriesForProfessorAndCourse };
+const getAllCourses = async (req, res) => {
+    const data = await Course.distinct("_id");
+    return res.status(200).json(data);
+}
+
+module.exports = { getCourseByProfID, getCourseByProfName, getCourseByDeptAndNumber, getGraphSeriesForProfessorAndCourse, getAllCourses };

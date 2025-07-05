@@ -119,7 +119,7 @@ function SearchOptions (){
                 >
                     <option value="" hidden disabled>Semesters</option>
                     <option value="ALL" onClick = {selectAllSemesters}>Select all</option>
-                    {semestersDropDownFocus && 
+                    {semestersDropDownFocus &&
                     <>
                         {search_options.semesters && search_options.semesters.map((opt) => (
                             <option key = {opt} value = {opt}>{opt}</option>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import ProfessorCard from "../components/ProfessorCard";
 import ActionsHeader from "../components/ActionsHeader";
 import SearchOptions from "../components/SearchOptions";
+import Compare from "../components/Compare";
 
 //hooks
 import { useProfessorsContext } from "../hooks/useProfessorsContext";
@@ -49,6 +50,17 @@ const SearchResults = () => {
                         return;
                     }
                     const professor = courses[`${dept} ${number}`][professorId];
+                    //verify professor matches search results
+                    if(search_options){
+                        const { minGPA, minRating } = search_options;
+                        if(minGPA && professor.info.averageGPA < minGPA){
+                            return;
+                        }
+                        if(minRating && professor.info.averageRating < minRating){
+                            return;
+                        }
+                    }
+                    console.log(courses[`${dept} ${number}`]);
                     return <ProfessorCard 
                         key = {`${professorId}-${dept}-${number}`}
                         professorId = {professorId}
@@ -57,6 +69,9 @@ const SearchResults = () => {
                         number = {number}
                     />
                 })}
+            </div>
+            <div className = "compare">
+                <Compare />
             </div>
         </div>
     )

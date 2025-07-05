@@ -46,15 +46,13 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
                 if(data === null | typeof data !== "object"){
                     throw new Error("Expected object data");
                 }
-
+                setRating(data.averageRating.toFixed(2) | 0.0);
                 setRatingObject(data);
                 setTags(data.tags);
                 const totalRatings = ratingObject ? Object.values(ratingObject.ratings).reduce((acc,value) => {
                     acc + value
                 }, 0) : 0;
                 setRatingCount(totalRatings);
-                setRating(ratingObject.averageRating.toFixed(2) | 0.0);
-                console.log(data);
             })
             .catch((error) => {
                 // console.error("Error: ", error);
