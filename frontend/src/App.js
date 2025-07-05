@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import React from "react";
-import ProfessorCard from "./components/ProfessorCard";
+import Landing from "./components/Landing";
 
 const App = () => {
-    const [professors, setProfessors] = useState([]);
+  /*
+   const [professors, setProfessors] = useState([]);
 
     useEffect(() => {
         // const fetchProfessors = async () => {
@@ -56,5 +56,8 @@ const App = () => {
         </div>
     );
 }
+    */
+  return <Landing />;
+};
 
 export default App;
