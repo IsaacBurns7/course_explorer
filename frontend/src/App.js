@@ -2,17 +2,9 @@
 import React from "react";
 import Landing from "./components/Landing";
 
-//components
-import Navbar from "./components/Navbar";
-
-//hooks
-import { BrowserRouter, Routes, Route, Navigate } from "react-router";
-
-//pages
-import Home from "./pages/Home";
-import SearchResults from "./pages/SearchResults";
-
 const App = () => {
+  /*
+   const [professors, setProfessors] = useState([]);
   /*
    const [professors, setProfessors] = useState([]);
 
@@ -82,6 +74,5 @@ const App = () => {
     */
   return <Landing />;
 };
-
 
 export default App;

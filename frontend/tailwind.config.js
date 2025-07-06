@@ -7,7 +7,6 @@ module.exports = {
   ],
   theme: {
     extend: {
-    
       colors: {
         maroon: "#500000",
         blackX: "#141414"
