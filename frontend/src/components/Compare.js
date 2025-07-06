@@ -38,7 +38,9 @@ const Compare = ({comparedCards}) => {
                                 ...series,
                                 {
                                     name: professorId,
-                                    data: newSeriesData
+                                    data: newSeriesData,
+                                    dept, 
+                                    courseNumber
                                 }
                             ]);
                             const newSet = new Set(existingNames);
@@ -50,8 +52,8 @@ const Compare = ({comparedCards}) => {
                         console.error("error: ", error);
                     });
             }
-            
         }
+        //get professor.info
         populateGraphData(comparedCards);
     }, [comparedCards]);
     const total = useMemo(() => {
@@ -100,13 +102,14 @@ const Compare = ({comparedCards}) => {
             style: {
                 
             },
-            custom: function({series, seriesIndex, dataPointIndex}){
-                const value = series[seriesIndex][dataPointIndex];
+            custom: function({series: seriesInput, seriesIndex, dataPointIndex}){
+                const {name, data, dept, courseNumber} = series[seriesIndex];
+                const value = data[dataPointIndex];
                 const percentage = ((value / total[seriesIndex]) * 100).toFixed(2);
                 return `
                     <div class = "apexcharts-tooltip-custom">
-                        <h1><strong>${series[seriesIndex][0]}</strong></h1>
-                        <div>${dept} ${number} ${professorName !== "info" ? professorName: ""} ${value}(${percentage}%)</div>
+                        <h1><strong>${categories[dataPointIndex]}</strong></h1>
+                        <div>${dept} ${courseNumber} ${name !== "info" ? name: ""} ${percentage}(${value}%)</div>
                     </div>
                 `;
             }
@@ -115,18 +118,7 @@ const Compare = ({comparedCards}) => {
 
     return (
         <>
-            <div className = "header">
-                header options
-            </div>
-            <div className = "graph">
-                <Chart 
-                    options = {options}
-                    series = {series}
-                    type = "bar"
-                    height = {350}
-                    className = "text-white"
-                />
-                <style jsx global>
+            <style jsx global>
                 {`
                     .apexcharts-tooltip-custom {
                         color: #000000;
@@ -136,10 +128,22 @@ const Compare = ({comparedCards}) => {
                         margin-bottom: 4px;
                     }
                 `}
-                </style>
+            </style>
+            <div className = "header">
+                header options
+            </div>
+            <div className = "graph bg-black">
+                <Chart 
+                    options = {options}
+                    series = {series}
+                    type = "bar"
+                    height = {350}
+                    className = "text-white"
+                />
             </div>
             <div className = "info">
                 info on comparison
+                {/* map of comparison cards that are dependant on CARDS -> COURSE_PROFESORID */}
             </div>
         </>
     )

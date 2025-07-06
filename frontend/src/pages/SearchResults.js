@@ -41,38 +41,40 @@ const SearchResults = () => {
     return (
         <div className = "search-results">
             <SearchOptions />
-            <ActionsHeader />
-            <div className = "cards">
-                {cards && cards.map((card) => {
-                    const dept = card.slice(0,4);
-                    const number = card.slice(4,7);
-                    const professorId = card.split("_")[1];
-                    if(professorId === "info"){
-                        return;
-                    }
-                    const professor = courses[`${dept} ${number}`][professorId];
-                    //verify professor matches search results
-                    if(search_options){
-                        const { minGPA, minRating } = search_options;
-                        if(minGPA && professor.info.averageGPA < minGPA){
+            <div className = "body grid grid-cols-12">
+                <div className = "cards col-span-6">
+                    <ActionsHeader />
+                    {cards && cards.map((card) => {
+                        const dept = card.slice(0,4);
+                        const number = card.slice(4,7);
+                        const professorId = card.split("_")[1];
+                        if(professorId === "info"){
                             return;
                         }
-                        if(minRating && professor.info.averageRating < minRating){
-                            return;
+                        const professor = courses[`${dept} ${number}`][professorId];
+                        //verify professor matches search results
+                        if(search_options){
+                            const { minGPA, minRating } = search_options;
+                            if(minGPA && professor.info.averageGPA < minGPA){
+                                return;
+                            }
+                            if(minRating && professor.info.averageRating < minRating){
+                                return;
+                            }
                         }
-                    }
-                    // console.log(courses[`${dept} ${number}`]);
-                    return <ProfessorCard 
-                        key = {`${professorId}-${dept}-${number}`}
-                        professorId = {professorId}
-                        professor = {professor}
-                        dept = {dept}
-                        number = {number}
-                    />
-                })}
-            </div>
-            <div className = "compare">
-                <Compare comparedCards = {comparedCards}/>
+                        // console.log(courses[`${dept} ${number}`]);
+                        return <ProfessorCard 
+                            key = {`${professorId}-${dept}-${number}`}
+                            professorId = {professorId}
+                            professor = {professor}
+                            dept = {dept}
+                            number = {number}
+                        />
+                    })}
+                </div>
+                <div className = "compare col-span-6">
+                    <Compare comparedCards = {comparedCards}/>
+                </div>
             </div>
         </div>
     )
