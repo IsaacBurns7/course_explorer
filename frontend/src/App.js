@@ -1,27 +1,34 @@
 //libraries
 import React from "react";
+import { useState, useEffect } from "react";
 import Landing from "./components/Landing";
+import Navbar from "./components/Navbar";
+
+//hooks
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+
+//pages
+import Home from "./pages/Home";
+import SearchResults from "./pages/SearchResults";
 
 const App = () => {
-  /*
-   const [professors, setProfessors] = useState([]);
-  /*
+   //const [professors, setProfessors] = useState([]);
    const [professors, setProfessors] = useState([]);
 
     useEffect(() => {
-        // const fetchProfessors = async () => {
-        //     const response = await fetch ("/server/api/professors/CSCE/120", {
-        //         method: "GET"
-        //     });
-        //     const profJson = await response.json();
-        //     console.log("profJson: ", profJson);
+        const fetchProfessors = async () => {
+            const response = await fetch ("/server/api/professors/CSCE/120", {
+                method: "GET"
+            });
+            const profJson = await response.json();
+            console.log("profJson: ", profJson);
 
 
-        //     if(response.ok){
-        //         setProfessors(profJson);
-        //     }
-        // }
-        // fetchProfessors();
+            if(response.ok){
+                setProfessors(profJson);
+            }
+        }
+        fetchProfessors();
 
         const professorObj1 = {
              info: {
@@ -71,8 +78,7 @@ const App = () => {
         </div>
     );
 }
-    */
-  return <Landing />;
-};
+    //   return <Landing />;
+// };
 
 export default App;
