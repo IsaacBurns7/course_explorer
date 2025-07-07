@@ -15,13 +15,14 @@ import { useSearchContext } from "../hooks/useSearchContext";
 import { useCourseActions } from "../hooks/useCourseActions";
 import { useCoursesContext } from "../hooks/useCoursesContext";
 import { useCardsContext } from "../hooks/useCardsContext";
+import { useCompareContext } from "../hooks/useCompareContext";
 
 const SearchResults = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const {search_options, dispatch: searchDispatch} = useSearchContext();
-    const { professors } = useProfessorsContext(); //use professors to find ratings and such
-    const { courses } = useCoursesContext();
-    const { addCourse } = useCourseActions();
+    // const { professors } = useProfessorsContext(); //use professors to find ratings and such
+    const { courses } = useCoursesContext(); //try to delete this as well
+    const { addCourse } = useCourseActions(); //good god who thought this was a good idea.
     const { cards } = useCardsContext();
 
     //for compare
@@ -29,6 +30,7 @@ const SearchResults = () => {
     const [series, setSeries] = useState([]);
     const [categories, setCategories] = useState([]);
     const [existingNames, setExistingNames] = useState(new Set());
+    const [professorInfo, setProfessorInfo] = useState([]);
 
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
@@ -84,6 +86,10 @@ const SearchResults = () => {
         populateGraphData(comparedCards);
     }, [comparedCards]);
 
+    useEffect(() => {
+        
+    })
+
     return (
         <div className = "search-results">
             <SearchOptions />
@@ -131,6 +137,7 @@ const SearchResults = () => {
                         categories = {categories}
                         series = {series}
                         names = {existingNames}
+                        professorInfo = {professorInfo}
                     />
                 </div>
             </div>
