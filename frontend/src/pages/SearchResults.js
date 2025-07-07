@@ -24,6 +24,12 @@ const SearchResults = () => {
     const { addCourse } = useCourseActions();
     const { cards } = useCardsContext();
 
+    //for compare
+    const { cards: comparedCards } = useCompareContext();
+    const [series, setSeries] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [existingNames, setExistingNames] = useState(new Set());
+
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
 
@@ -31,12 +37,52 @@ const SearchResults = () => {
         addCourse(dept, courseNumber);
     }, [dept, courseNumber]);
 
-    // useEffect(() => {
-    //     if(courses){
-    //         console.log(courses);
-    //     }
-    // }, [courses]);
-    const comparedCards = ["100615_CSCE120", "193825_CSCE120"];
+    //take this useeffect and place it into the compare 
+        //thought process: searchresults page will pass down info from useeffect.
+        //compare will be passed to searchresults based on config
+    useEffect(() => {
+        const populateGraphData = (comparedCards) => {
+            for(const card of comparedCards){
+                const course = card.split("_")[1];
+                const dept = course.slice(0,4);
+                const courseNumber = course.slice(4);
+                const professorId = card.split("_")[0];
+                const optionsUrl = `/server/api/courses/graph?department=${dept}&courseNumber=${courseNumber}&professorID=${professorId}`;
+                // console.log(optionsUrl);
+                const options = {
+                    method: "GET",
+                    url: optionsUrl
+                };
+
+                axios(options)
+                    .then((response) => {
+                        const data = response.data;
+                        const categories = data.map((item => item[0]));
+                        setCategories(categories);
+                        const newSeriesData = data.map((item => item[1]));
+                        if(!existingNames.has(professorId)){
+                            setSeries([
+                                ...series,
+                                {
+                                    name: professorId,
+                                    data: newSeriesData,
+                                    dept, 
+                                    courseNumber
+                                }
+                            ]);
+                            const newSet = new Set(existingNames);
+                            newSet.add(professorId);
+                            setExistingNames(newSet);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("error: ", error);
+                    });
+            }
+        }
+        //get professor.info and pass this down to teh cards as well
+        populateGraphData(comparedCards);
+    }, [comparedCards]);
 
     return (
         <div className = "search-results">
@@ -73,7 +119,19 @@ const SearchResults = () => {
                     })}
                 </div>
                 <div className = "compare col-span-6">
-                    <Compare comparedCards = {comparedCards}/>
+                    {/* need compared cards info ->
+                        array of objects
+                        {
+                            dept, course, professorName, 
+                            GPA, rating, wouldtakeagain,
+                            difficulty, # of students / ratings (i.e. how often do people care)
+                        }
+                    */}
+                    <Compare 
+                        categories = {categories}
+                        series = {series}
+                        names = {existingNames}
+                    />
                 </div>
             </div>
         </div>

@@ -5,57 +5,11 @@ import Chart from "react-apexcharts";
 import BarGraph from "./BarGraph";
 
 
-const Compare = ({comparedCards}) => {
+const Compare = ({categories, series, }) => {
     const [cardsToColor, setCardsToColor] = useState({
         //exampleCard: exampleColor
     });
-    const [categories, setCategories] = useState([]);
-    const [series, setSeries] = useState([]);
-    const [existingNames, setExistingNames] = useState(new Set());
-
-    useEffect(() => {
-        const populateGraphData = (comparedCards) => {
-            for(const card of comparedCards){
-                const course = card.split("_")[1];
-                const dept = course.slice(0,4);
-                const courseNumber = course.slice(4);
-                const professorId = card.split("_")[0];
-                const optionsUrl = `/server/api/courses/graph?department=${dept}&courseNumber=${courseNumber}&professorID=${professorId}`;
-                // console.log(optionsUrl);
-                const options = {
-                    method: "GET",
-                    url: optionsUrl
-                };
-
-                axios(options)
-                    .then((response) => {
-                        const data = response.data;
-                        const categories = data.map((item => item[0]));
-                        setCategories(categories);
-                        const newSeriesData = data.map((item => item[1]));
-                        if(!existingNames.has(professorId)){
-                            setSeries([
-                                ...series,
-                                {
-                                    name: professorId,
-                                    data: newSeriesData,
-                                    dept, 
-                                    courseNumber
-                                }
-                            ]);
-                            const newSet = new Set(existingNames);
-                            newSet.add(professorId);
-                            setExistingNames(newSet);
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("error: ", error);
-                    });
-            }
-        }
-        //get professor.info
-        populateGraphData(comparedCards);
-    }, [comparedCards]);
+    
     const total = useMemo(() => {
         const newTotal = series.map((stream) => {
             return stream.data.reduce((acc, value) => acc + value, 0);
