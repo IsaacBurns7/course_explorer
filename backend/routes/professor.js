@@ -17,16 +17,6 @@ const router = express.Router();
 // router.get("/name/:profName", getProfessorByName);
 router.get("/ratings", routeRatingsByQueryParams); 
 router.get("/coursesTaught", routeCoursesTaughtByQueryParams);
-router.get("/professorInfo/", routeProfessorInfoByQueryParams);
-// router.get("/:dept/:number", getProfessorsByCourse);
-
-function routeProfessorInfoByQueryParams(req, res, next){
-    const { professorID, department, courseNumber} = req.query;
-    if(professorID && department && courseNumber){
-        return getProfessorByCourseAndName(req, res, next);
-    }
-    return res.status(400).json({error: "Missing valid query parameters."});
-}
 
 function routeRatingsByQueryParams(req, res, next){
     const { professorID, department, courseNumber } = req.query;

@@ -46,7 +46,7 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
                 setGraphData(response.data);
             })
             .catch((error) => {
-                console.error("error: ", error);
+                // console.error("error: ", error);
             });
     }, []);
 
@@ -54,7 +54,10 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
         const url = `/server/api/professors/ratings/?professorID=${professorId}&department=${dept}&courseNumber=${number}`;
         const options = {
             method: "GET",
-            url
+            url,
+            validateStatus: function(status){
+                return status !== 404;
+            }
         }
         axios(options)
             .then((response) => {
@@ -73,8 +76,29 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
                 }, 0) : 0;
                 setRatingCount(totalRatings);
             })
-            .catch((error) => {
-                // console.error("Error: ", error);
+            .catch(function (error){
+                if(error.response?.status === 404){
+                    console.error("No ratings found for this professor, expected to happen for less popular professors");
+                    //this is expected to happen when ratings arent found for specific professor
+                    return;
+                }
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    console.log(error.response.data);
+                    console.log(error.response.status);
+                    console.log(error.response.headers);
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                    // http.ClientRequest in node.js
+                    console.log(error.request);
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.log('Error', error.message);
+                }
+                console.log(error.config);
+
             })
             .finally(() => {
 
@@ -108,7 +132,7 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
                 setCourses(data);
             })
             .catch((error) => {
-                console.error("error: ", error)
+                // console.error("error: ", error)
             })
     }, [professorId]);
 
@@ -120,7 +144,12 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
     return (
         <div className="professor-card bg-black rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
             <button onClick = {(e) => {toggleDetails(e);}} className="grid grid-cols-12 p-3 gap-6 border -b border-gray-200">
-                <Actions arrowIconRef = {arrowIconRef}/>
+                <Actions 
+                    arrowIconRef = {arrowIconRef}
+                    department = {dept}
+                    courseNumber = {number}
+                    professorId = {professorId}
+                />
                 <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{dept} {number} {name} {nameOfClass}</div>
                 <div className="col-span-1 text-center text-white font-semibold text-xl px-6 py-2 rounded-full bg-green-400">{averageGPA}</div>
                 {ratingObject && <StarRating className = "col-span-3" rating = {rating}/>}

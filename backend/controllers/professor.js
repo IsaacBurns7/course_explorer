@@ -20,25 +20,25 @@ const getProfessorsByCourse = async (req, res) => {
     return res.status(200).json(course.professors)
 }
 
-//have to use both course and professor schema for this one.
-const getProfessorByCourseAndName = async (req, res) => {
-    const { dept, number, profName} = req.query;
-    const course = await Course.findOne({"info.department": dept, "info.number": number});
-    if (!course) {
-        return res.status(404).json({error: `Course ${dept} ${number} not found.`});
-    }
-    const professor = await Professor.findOne({"info.name" : profName});
-    if (!professor) {
-        return res.status(404).json({error: `Professor with name ${profName} not found.`});
-    }
+// //have to use both course and professor schema for this one.
+// const getProfessorByCourseAndName = async (req, res) => {
+//     const { dept, number, profName} = req.query;
+//     const course = await Course.findOne({"info.department": dept, "info.number": number});
+//     if (!course) {
+//         return res.status(404).json({error: `Course ${dept} ${number} not found.`});
+//     }
+//     const professor = await Professor.findOne({"info.name" : profName});
+//     if (!professor) {
+//         return res.status(404).json({error: `Professor with name ${profName} not found.`});
+//     }
 
-    const findClass = professor.courses.find((id) => id == course._id)
-    if (!findClass) {
-        return res.status(404).json({ error: `Professor ${profName} does not teach ${dept} ${number}.` });
-    }
+//     const findClass = professor.courses.find((id) => id == course._id)
+//     if (!findClass) {
+//         return res.status(404).json({ error: `Professor ${profName} does not teach ${dept} ${number}.` });
+//     }
 
-    return res.status(200).json(professor);
-}
+//     return res.status(200).json(professor);
+// }
 
 const getProfessorRatingsByIdAndCourse = async (req, res) => {
     const { professorID, department, courseNumber } = req.query;
@@ -74,4 +74,4 @@ const getCoursesTaughtByProfessorID = async(req, res) => {
     return res.status(200).json(data);
 } 
 
-module.exports = { getProfessorByName, getProfessorsByCourse, getProfessorByCourseAndName, getProfessorRatingsByIdAndCourse, getCoursesTaughtByProfessorID };
+module.exports = { getProfessorByName, getProfessorsByCourse, getProfessorRatingsByIdAndCourse, getCoursesTaughtByProfessorID };

@@ -1,14 +1,21 @@
 import { useState, useRef } from "react";
+import { useCompareContext } from "../hooks/useCompareContext";
 
-function Actions({arrowIconRef}){
+function Actions({arrowIconRef, department, courseNumber, professorId}){
     const compareSVGRef = useRef(null);
     const compareRef = useRef(null);
     const plannerSVGRef = useRef(null);
     const plannerRef = useRef(null);
     const [isCompareChecked, setIsCompareChecked] = useState(false);
     const [isPlannerChecked, setIsPlannerChecked] = useState(false);
-    
+    const { cards, dispatch } = useCompareContext();
+
     function handleAddToCompare(){
+        if(!isCompareChecked){
+            dispatch({type: "ADD_CARD", payload: `${department}${courseNumber}_${professorId}`});
+        }else{
+            dispatch({type: "DELETE_CARD", payload: `${department}${courseNumber}_${professorId}`});
+        }
         setIsCompareChecked(!isCompareChecked);
     }
     function addToPlanner(){

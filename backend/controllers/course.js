@@ -157,9 +157,72 @@ const getGraphSeriesForProfessorAndCourse = async(req, res) => {
     return res.status(200).json(data);
 }
 
+const getProfessorInfoForCourse = async (req, res) => {
+    const { department, courseNumber, professorID} = req.query;
+    console.log(req.query);
+    const selectedCourse = await Course.findOne(
+        {
+            "info.department" : department, 
+            "info.number": courseNumber
+        }
+    );
+
+    if(!selectedCourse){
+        return res.status(404).json({error: "No course found with specified department and courseNumber"});
+    }
+
+    const selectedProfessor = await Professor.findOne(
+        {
+            "_id": professorID
+        }
+    );
+
+    if(!selectedProfessor){
+        return res.status(404).json({error: "No professor found with specified professorID"});
+    }
+    const ratings = selectedProfessor.ratings;
+    if(!ratings){
+        return res.status(404).json({error: `Professor with ID ${professorID} does not have ratings object`});
+    }
+    const classString = `${department}_${courseNumber}`
+    const classRatings = ratings[classString];
+    if(!classRatings){
+        return res.status(404).json({error: `Professor with ID ${professorID} does not have ratings for class ${classString}`});
+    }
+
+    const data = {
+        averageGPA: 4.00,
+        totalSections: 0,
+        totalStudents: 0,
+        averageRating: 5.00,
+        totalRatings: 0,
+        wouldTakeAgain: 0,
+        professorId: professorID,
+        courseNumber,
+        department
+    }
+
+    for(const [semester, sections] of selectedCourse.sections){
+        // if(semester in validSemesters)
+        for(const section of sections){
+            if(section.prof_id === undefined || section.prof_id !== professorID) continue;
+            data.averageGPA = (data.averageGPA * data.totalStudents + section.gpa * section.students) / (data.totalStudents + section.students);
+            data.totalStudents += section.students;
+            data.totalSections += 1;
+        }
+    }
+
+    for(const [rating, freq] of classRatings.ratings){
+        data.totalRatings += freq;
+    }
+    data.averageRating = classRatings.ratings;
+
+    return res.status(200).json(data);
+}
+
 const getAllCourses = async (req, res) => {
     const data = await Course.distinct("_id");
     return res.status(200).json(data);
 }
 
-module.exports = { getCourseByProfID, getCourseByProfName, getCourseByDeptAndNumber, getGraphSeriesForProfessorAndCourse, getAllCourses };
+module.exports = { getProfessorInfoForCourse, getCourseByProfID, getCourseByProfName, getCourseByDeptAndNumber, getGraphSeriesForProfessorAndCourse, getAllCourses };

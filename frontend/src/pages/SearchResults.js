@@ -1,5 +1,6 @@
 //libraries
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 //components
 import ProfessorCard from "../components/ProfessorCard";
@@ -30,7 +31,7 @@ const SearchResults = () => {
     const [series, setSeries] = useState([]);
     const [categories, setCategories] = useState([]);
     const [existingNames, setExistingNames] = useState(new Set());
-    const [professorInfo, setProfessorInfo] = useState([]);
+    const [comparedProfessorInfo, setComparedProfessorInfo] = useState([]);
 
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
@@ -45,12 +46,11 @@ const SearchResults = () => {
     useEffect(() => {
         const populateGraphData = (comparedCards) => {
             for(const card of comparedCards){
-                const course = card.split("_")[1];
+                const course = card.split("_")[0];
                 const dept = course.slice(0,4);
                 const courseNumber = course.slice(4);
-                const professorId = card.split("_")[0];
+                const professorId = card.split("_")[1];
                 const optionsUrl = `/server/api/courses/graph?department=${dept}&courseNumber=${courseNumber}&professorID=${professorId}`;
-                // console.log(optionsUrl);
                 const options = {
                     method: "GET",
                     url: optionsUrl
@@ -58,7 +58,13 @@ const SearchResults = () => {
 
                 axios(options)
                     .then((response) => {
+                        if(!response || !response.data){
+                            throw new Error("Invalid response structure");
+                        }
                         const data = response.data;
+                        if (!Array.isArray(data) || data === null) {
+                            throw new Error('Expected object data');
+                        }
                         const categories = data.map((item => item[0]));
                         setCategories(categories);
                         const newSeriesData = data.map((item => item[1]));
@@ -82,13 +88,52 @@ const SearchResults = () => {
                     });
             }
         }
-        //get professor.info and pass this down to teh cards as well
         populateGraphData(comparedCards);
     }, [comparedCards]);
 
     useEffect(() => {
-        
-    })
+        //get professor.info and pass this down to teh cards as well
+        const populateProfessorInfoForComparedCards = (comparedCards) => {
+            for(const card of comparedCards){
+                console.log(card);
+                const course = card.split("_")[0];
+                const dept = course.slice(0,4);
+                const courseNumber = course.slice(4);
+                const professorId = card.split("_")[1];
+                const optionsUrl = `/server/api/courses/professorInfo?department=${dept}&courseNumber=${courseNumber}&professorID=${professorId}`;
+                console.log(optionsUrl);
+                const options = {
+                    method: "GET",
+                    url: optionsUrl
+                };
+                axios(options)
+                    .then((response) => {
+                        if(!response || !response.data){
+                            throw new Error("Invalid response structure");
+                        }
+                        const data = response.data;
+                        if (typeof object !== "object" || data === null) {
+                            throw new Error('Expected object data');
+                        }
+                        //check if duplicate info exists
+                        //check if professor info does not match cards - by data.courseNumber, data.department, and data.professorId
+                        setComparedProfessorInfo([
+                            ...comparedProfessorInfo,
+                            data
+                        ]);
+                    })
+                    .catch((error) => {
+                        //fallback by getting default - which will only have 
+                        //can only check by data.professorId - but this should only delete at most one instance, as there could be
+                        //GOVT 2306 prof1 and GOVT 2307 prof1, but if they both default to profId, then we cant delete them both
+                        
+                        console.error("error: ", error);
+
+                    })
+            }
+        }
+        populateProfessorInfoForComparedCards(comparedCards);
+    }, [comparedCards])
 
     return (
         <div className = "search-results">
@@ -137,7 +182,7 @@ const SearchResults = () => {
                         categories = {categories}
                         series = {series}
                         names = {existingNames}
-                        professorInfo = {professorInfo}
+                        professorInfo = {comparedProfessorInfo}
                     />
                 </div>
             </div>
