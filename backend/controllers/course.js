@@ -159,7 +159,7 @@ const getGraphSeriesForProfessorAndCourse = async(req, res) => {
 
 const getProfessorInfoForCourse = async (req, res) => {
     const { department, courseNumber, professorID} = req.query;
-    console.log(req.query);
+    // console.log(req.query);
     const selectedCourse = await Course.findOne(
         {
             "info.department" : department, 

@@ -5,7 +5,9 @@ import Chart from "react-apexcharts";
 import BarGraph from "./BarGraph";
 
 
-const Compare = ({categories, series, }) => {
+const Compare = ({categories, series, names, professorsInfo}) => {
+    // console.log("compared names: ", names);
+    // console.log("professor Info: ", professorsInfo);
     const [cardsToColor, setCardsToColor] = useState({
         //exampleCard: exampleColor
     });
@@ -97,7 +99,9 @@ const Compare = ({categories, series, }) => {
             </div>
             <div className = "info">
                 info on comparison
-                {/* map of comparison cards that are dependant on CARDS -> COURSE_PROFESORID */}
+                {professorsInfo.map((infoObject) => {
+                    <h1>stuff</h1>
+                })}
             </div>
         </>
     )

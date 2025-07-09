@@ -32,6 +32,9 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
     const hiddenRef = useRef(null);
     const arrowIconRef = useRef(null);
 
+    //do we need this useeffect call ? 
+    //could we place this in searchresults component instead?
+    //  the answer is yes!
     useEffect(() => {
         const optionsUrl = `/server/api/courses/graph?department=${dept}&courseNumber=${number}&professorID=${professorId}`;
         // console.log(optionsUrl);
@@ -50,14 +53,13 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
             });
     }, []);
 
+    //does this useEffect call need to be placed inside of professorCard? 
+    //does this useEffect call need to exist at all? can api call be resolved by searchresults page? 
     useEffect(() => {
         const url = `/server/api/professors/ratings/?professorID=${professorId}&department=${dept}&courseNumber=${number}`;
         const options = {
             method: "GET",
             url,
-            validateStatus: function(status){
-                return status !== 404;
-            }
         }
         axios(options)
             .then((response) => {

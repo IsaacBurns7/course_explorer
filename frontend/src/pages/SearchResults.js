@@ -17,6 +17,7 @@ import { useCourseActions } from "../hooks/useCourseActions";
 import { useCoursesContext } from "../hooks/useCoursesContext";
 import { useCardsContext } from "../hooks/useCardsContext";
 import { useCompareContext } from "../hooks/useCompareContext";
+import department from "../../../backend/models/department";
 
 const SearchResults = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -31,18 +32,21 @@ const SearchResults = () => {
     const [series, setSeries] = useState([]);
     const [categories, setCategories] = useState([]);
     const [existingNames, setExistingNames] = useState(new Set());
-    const [comparedProfessorInfo, setComparedProfessorInfo] = useState([]);
+    const [comparedProfessorsInfo, setComparedProfessorsInfo] = useState([]);
 
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
 
+    //this uses professors and courses context, which I would like to eliminate. 
+    //Modify addCourse call to return courses & professors info, which then can be resolved into searchResults' state.
+    //Then, delete courses and professors context, as it will be redundant. 
+    //This will get rid of a lot of rerenders that only occur because 
+    //  many child components access both courses and professors context.
     useEffect(() => {
         addCourse(dept, courseNumber);
     }, [dept, courseNumber]);
 
-    //take this useeffect and place it into the compare 
-        //thought process: searchresults page will pass down info from useeffect.
-        //compare will be passed to searchresults based on config
+    //this useeffect populates the graph data of compared cards
     useEffect(() => {
         const populateGraphData = (comparedCards) => {
             for(const card of comparedCards){
@@ -91,9 +95,10 @@ const SearchResults = () => {
         populateGraphData(comparedCards);
     }, [comparedCards]);
 
+    //this useefffect is to populate professor info for compared cards
     useEffect(() => {
         //get professor.info and pass this down to teh cards as well
-        const populateProfessorInfoForComparedCards = (comparedCards) => {
+        const populateProfessorsInfoForComparedCards = (comparedCards) => {
             for(const card of comparedCards){
                 console.log(card);
                 const course = card.split("_")[0];
@@ -101,7 +106,6 @@ const SearchResults = () => {
                 const courseNumber = course.slice(4);
                 const professorId = card.split("_")[1];
                 const optionsUrl = `/server/api/courses/professorInfo?department=${dept}&courseNumber=${courseNumber}&professorID=${professorId}`;
-                console.log(optionsUrl);
                 const options = {
                     method: "GET",
                     url: optionsUrl
@@ -112,13 +116,13 @@ const SearchResults = () => {
                             throw new Error("Invalid response structure");
                         }
                         const data = response.data;
-                        if (typeof object !== "object" || data === null) {
+                        if (typeof data !== "object" || data === null) {
                             throw new Error('Expected object data');
                         }
                         //check if duplicate info exists
                         //check if professor info does not match cards - by data.courseNumber, data.department, and data.professorId
-                        setComparedProfessorInfo([
-                            ...comparedProfessorInfo,
+                        setComparedProfessorsInfo([
+                            ...comparedProfessorsInfo,
                             data
                         ]);
                     })
@@ -126,13 +130,55 @@ const SearchResults = () => {
                         //fallback by getting default - which will only have 
                         //can only check by data.professorId - but this should only delete at most one instance, as there could be
                         //GOVT 2306 prof1 and GOVT 2307 prof1, but if they both default to profId, then we cant delete them both
-                        
-                        console.error("error: ", error);
-
-                    })
+                        const options2Url = `/server/api/professors/professorInfo?professorID=${professorId}`;
+                        const options2 = {
+                            method: "GET",
+                            url: options2Url
+                        };
+                        axios(options2)
+                            .then((response) => {
+                                if(!response || !response.data){
+                                    throw new Error("Invalid response structure");
+                                }
+                                const data = response.data;
+                                console.log(typeof data, data);
+                                if (typeof data !== "object" || data === null) {
+                                    throw new Error('Expected object data');
+                                }
+                                setComparedProfessorsInfo([
+                                    ...comparedProfessorsInfo,
+                                    data
+                                ])
+                            })
+                            .catch((error) => {
+                                console.error("error: ", error);
+                            });
+                        //actually catch the error
+                        if(error.response?.status === 404){
+                            console.error(`Data for professor ${professorId} in course ${dept}_${courseNumber} not found. Usually a lack of specific ratings.`)
+                            //this is expected to happen when ratings arent found for specific professor
+                            return;
+                        }
+                        if (error.response) {
+                            // The request was made and the server responded with a status code
+                            // that falls out of the range of 2xx
+                            console.log(error.response.data);
+                            console.log(error.response.status);
+                            console.log(error.response.headers);
+                        } else if (error.request) {
+                            // The request was made but no response was received
+                            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                            // http.ClientRequest in node.js
+                            console.log(error.request);
+                        } else {
+                            // Something happened in setting up the request that triggered an Error
+                            console.log('Error', error.message);
+                        }
+                        console.log(error.config);
+                    });
             }
         }
-        populateProfessorInfoForComparedCards(comparedCards);
+        populateProfessorsInfoForComparedCards(comparedCards);
     }, [comparedCards])
 
     return (
@@ -170,19 +216,11 @@ const SearchResults = () => {
                     })}
                 </div>
                 <div className = "compare col-span-6">
-                    {/* need compared cards info ->
-                        array of objects
-                        {
-                            dept, course, professorName, 
-                            GPA, rating, wouldtakeagain,
-                            difficulty, # of students / ratings (i.e. how often do people care)
-                        }
-                    */}
                     <Compare 
                         categories = {categories}
                         series = {series}
                         names = {existingNames}
-                        professorInfo = {comparedProfessorInfo}
+                        professorsInfo = {comparedProfessorsInfo}
                     />
                 </div>
             </div>
