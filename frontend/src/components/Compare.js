@@ -6,8 +6,8 @@ import BarGraph from "./BarGraph";
 
 
 const Compare = ({categories, series, names, professorsInfo}) => {
-    // console.log("compared names: ", names);
-    // console.log("professor Info: ", professorsInfo);
+    console.log("compared names: ", names);
+    console.log("professor Info: ", professorsInfo);
     const [cardsToColor, setCardsToColor] = useState({
         //exampleCard: exampleColor
     });
@@ -97,10 +97,17 @@ const Compare = ({categories, series, names, professorsInfo}) => {
                     className = "text-white"
                 />
             </div>
-            <div className = "info">
-                info on comparison
-                {professorsInfo.map((infoObject) => {
-                    <h1>stuff</h1>
+            <div className = "info grid grid-row-12">
+             {professorsInfo.map((infoObject) => {
+                    const {averageGPA, averageRating, name, totalRatings, totalSections, totalStudents} = infoObject;
+                    console.log(infoObject);
+                    return <div className = "comparison_card_container">
+                        <div>{name}</div>
+                        <div>{averageRating}</div>
+                        <div>{averageGPA}</div>
+                        <div>{totalSections}</div>
+                        <div>{totalStudents} / {totalRatings}</div>
+                    </div>;
                 })}
             </div>
         </>

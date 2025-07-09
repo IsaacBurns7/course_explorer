@@ -100,7 +100,7 @@ const SearchResults = () => {
         //get professor.info and pass this down to teh cards as well
         const populateProfessorsInfoForComparedCards = (comparedCards) => {
             for(const card of comparedCards){
-                console.log(card);
+                // console.log(card);
                 const course = card.split("_")[0];
                 const dept = course.slice(0,4);
                 const courseNumber = course.slice(4);
@@ -141,7 +141,7 @@ const SearchResults = () => {
                                     throw new Error("Invalid response structure");
                                 }
                                 const data = response.data;
-                                console.log(typeof data, data);
+                                // console.log(typeof data, data);
                                 if (typeof data !== "object" || data === null) {
                                     throw new Error('Expected object data');
                                 }
