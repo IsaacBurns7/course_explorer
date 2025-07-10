@@ -1,3 +1,12 @@
+todos:
+    - planner functionality
+    - compare functionality
+    - speed up react - find unnecessary rerenders and engineer them away
+    - shift all backend controllers to mongodb 
+    - eliminate large context(professors / courses) from frontend and turn into top->down state handling
+    
+
+
 /*
     PROFESSOR SCHEMA 
     {
@@ -58,4 +67,56 @@
 
     note: may need to extend to preqrequisite classes and postrequisite classes (what classes need this class)
 */
+
+
+
+elemMatch (and $eq),
+in,
+and,
+lt,
+gt,
+lte,
+gte,
+or,
+insertOne,
+insertMany,
+db.find({
+    $or: {expression1},
+    $or: {expression2}
+})
+    - expression2 will overwrite expression1 b/c json cannot map 1 key to 2 values
+
+1. Find every document in the sales collection that meets the following criteria:
+- Purchased online
+- Used a coupon
+- Purchased by a customer 25 years old or younger
+db.sales.find({
+    purchaseMethod: "Online",
+    couponUsed: true,
+    "customer.age": { $lte: 25 }
+})
+
+2. Return every document in the sales collection that meets one of the following criteria:
+- Item with the name of pens
+- Item with a writing tag
+db.sales.find({$or: [{"items.name": "pens"}, {"items.tags": "writing"}]}) 
+//note -> items can be a scalar value or array, and tags can be scalar or array. to guarantee array, use query below
+db.sales.find({
+    items: {
+        $elemMatch: {
+            $or: [
+                {name: "pens"},
+                {tags: { $elemMatch: {$eq: "writing"}}}
+            ]
+        }
+    }
+})
+$set 
+$push 
+updateOne
+upsert
+replaceOne
+replaceMany
+updateMany
+
 
