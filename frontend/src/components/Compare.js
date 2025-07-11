@@ -16,7 +16,6 @@ const Compare = ({categories, series, professorsInfo}) => {
     const [cardsToColor, setCardsToColor] = useState({
         //exampleCard: exampleColor
     });
-    //names can be overwritten by professorsInfo
     
     const total = useMemo(() => {
         const newTotal = series.map((stream) => {

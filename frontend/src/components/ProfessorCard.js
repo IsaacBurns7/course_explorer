@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-import { useProfessorActions } from "../hooks/useProfessorActions";
-
 import StarRating from "./StarRating";
 import BarGraph from "./BarGraph";
 import ProfessorRatingCard from "./ProfessorRatingCard";

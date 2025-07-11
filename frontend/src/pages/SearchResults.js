@@ -30,25 +30,48 @@ const SearchResults = () => {
     const { cards: comparedCards } = useCompareContext();
     const comparedProfessorsInfo = useProfessorsInfo(comparedCards);
     const { series, categories, existingNames } = useGraphData(comparedCards);
+    const [cardToProfessorInfo, setCardToProfessorInfo] = useState(new Map());
 
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
 
-    //this uses professors and courses context, which I would like to eliminate. 
-    //Modify addCourse call to return courses & professors info, which then can be resolved into searchResults' state.
-    //Then, delete courses and professors context, as it will be redundant. 
-    //This will get rid of a lot of rerenders that only occur because 
-    //  many child components access both courses and professors context.
     useEffect(() => {
         addCourse(dept, courseNumber);
+        //affects courses state, then 
     }, [dept, courseNumber]);
+
+    //create map (<COURSEID_PROFESSORID> -> { rating, gpa, name }
+    useEffect(() => {
+        if(cards === null) return;
+        const updateCardToProfessorInfo = (prevMap) => {
+            const map = new Map(prevMap);
+            // console.log(cards, course
+            for(const card of cards){
+                if(map.has(card)) continue;
+                const professorId = card.split("_")[1];
+                if(professorId === "info") continue;
+                const courseIdRaw = card.split("_")[0];
+                const dept = courseIdRaw.slice(0,4);
+                const courseNumber = courseIdRaw.slice(4);
+                const courseId = dept + " " + courseNumber;
+                const professorInfo = courses[courseId][professorId].info;
+                const { averageRating, averageGPA, name} = professorInfo;
+                const neededInfo = {
+                    averageRating, averageGPA, name
+                }
+                map.set(card, neededInfo);
+            }
+            return map;    
+        }
+        setCardToProfessorInfo(prev => updateCardToProfessorInfo(prev));
+    }, [courses]);
 
     return (
         <div className = "search-results">
             <SearchOptions />
             <div className = "body grid grid-cols-12">
                 <div className = "cards col-span-6">
-                    <ActionsHeader />
+                    <ActionsHeader cardToProfessorInfo = {cardToProfessorInfo}/>
                     {cards && cards.map((card) => {
                         const dept = card.slice(0,4);
                         const number = card.slice(4,7);

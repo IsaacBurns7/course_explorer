@@ -1,9 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 
-import { useCoursesContext } from "../hooks/useCoursesContext";
-
-//ELIMINATE USECOURSESCONTEXT
 function SearchButton({courses}) {
     const [inputText, setInputText] = useState("");
     const [matches, setMatches] = useState([]);
