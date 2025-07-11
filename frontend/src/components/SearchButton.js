@@ -3,9 +3,9 @@ import { Link, useNavigate } from "react-router";
 
 import { useCoursesContext } from "../hooks/useCoursesContext";
 
-function SearchButton() {
+//ELIMINATE USECOURSESCONTEXT
+function SearchButton({courses}) {
     const [inputText, setInputText] = useState("");
-    const {courses} = useCoursesContext();
     const [matches, setMatches] = useState([]);
     const [activeIndex, setActiveIndex] = useState(-1);
     const [error, setError] = useState(false);
@@ -18,14 +18,13 @@ function SearchButton() {
     function findMatches(wordToMatch, array){
         return array.filter(element => {
             const regex = new RegExp(wordToMatch, "gi");
-            return element.match(regex);
+            return regex.test(element);
         })
     }
     function displayMatches(e){
         const value = e.target.value;
 
-        const courseArray = Object.keys(courses);
-        const matchArray = findMatches(value, courseArray).slice(0,10);
+        const matchArray = findMatches(value, Array.from(courses)).slice(0,10);
         setMatches(matchArray);
     }
 
@@ -116,9 +115,9 @@ function SearchButton() {
                     <p className = "text-red-500 text-sm mt-1">⚠️ Please enter a valid course</p>
                 )}
                 <ul ref = {resultsRef}>
-                    {matches.map((element, index) => {
+                    {matches.map((courseName, index) => {
                         const regex = new RegExp(`(${inputText})`, "gi");
-                        const courseName = element.split(regex).filter(element => element !== "");
+                        const parts = courseName.split(regex).filter(element => element !== "");
 
                         return (
                             <li 
@@ -127,11 +126,14 @@ function SearchButton() {
                                 onMouseEnter={() => setActiveIndex(index)}
                             >
                                 <span className = "courseName">
-                                    {courseName.map((string, index) => {
+                                    {parts.map((string, index) => {
+                                        // console.log(`${string} vs ${regex} : ${string.match(regex)}, ${regex.test(string)}`);
+                                        // console.log(string.match(regex) ? "font-extrabold" : "");
+                                        // console.log(regex.test(string) ? "font-extrabold" : "");
                                         return (
                                             <span 
                                                 key = {index} 
-                                                className = {string.toLowerCase() == inputText.toLowerCase() ? "font-extrabold" : ""}
+                                                className = {regex.test(string) === true ? "font-extrabold" : "font-normal"}
                                             >{string}</span>
                                         );
                                     })}

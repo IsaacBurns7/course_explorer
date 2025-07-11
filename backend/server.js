@@ -5,10 +5,10 @@ const mongoose = require('mongoose');
 const fetch = require('node-fetch')
 const professorRoutes = require('./routes/professor');
 const courseRoutes = require("./routes/course");
-const { populateProfessors, 
-    populateCourses, 
-    populateDepartments, 
-    populateSectionsForCourse} = require("./services/parseData");
+// const { populateProfessors, 
+//     populateCourses, 
+//     populateDepartments, 
+//     populateSectionsForCourse} = require("./services/parseData");
 const Course = require('./models/course');
 const Professor = require('./models/professor')
 const Department = require('./models/department')

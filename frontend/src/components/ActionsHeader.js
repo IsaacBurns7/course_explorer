@@ -81,10 +81,13 @@ function handleSortByRating(cards, cardsDispatch, courses, ascending, e){
     cardsDispatch({type: "SET_CARDS", payload: newCards});
 }
 
-
+//ELIMINATE COURSES AND PROFESSORS CONTEXT
+//professorcontext - needs a way to map card's professor id -> professorname
+//coursescontext 
+//  - card {courseNumber + professorId} -> averageGPA + averageRating
 function ActionsHeader(){
     const { cards, dispatch } = useCardsContext();
-    const { professors } = useProfessorsContext();
+    const { professors } = useProfessorsContext(); 
     const { courses } = useCoursesContext();
     const [nameAscending, setNameAscending] = useState(true);
     const [gradeAscending, setGradeAscending] = useState(true);

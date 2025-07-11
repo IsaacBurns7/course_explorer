@@ -13,3 +13,8 @@ PROFESSORS:
         ARRAY of COURSE Hashmaps ("${dept}${number}" -> SECTIONSARRAY: [{sectionObjects}])
             sectionObjects:
                 {same as in DB}
+
+
+searchresults useeffects do not respect async considerations
+- if you fire two comparison at the same time, one can overwrite the other
+    - much weirder stuff can happen than just that

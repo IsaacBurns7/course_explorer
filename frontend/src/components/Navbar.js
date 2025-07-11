@@ -1,15 +1,12 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
 import SearchButton from "./SearchButton";
 
-import { CoursesActions } from "../context/courses";
-
-import { useCoursesContext } from "../hooks/useCoursesContext";
-
+//ELIMINATE USECOURSESCONTEXT
 const Navbar = () => { 
-    const {courses, dispatch} = useCoursesContext();
+    const [courses, setCourses] = useState(new Set());
 
     useEffect(() => {
         //this should be an API call
@@ -27,25 +24,16 @@ const Navbar = () => {
                 if (typeof data !== 'object' || data === null) {
                     throw new Error('Expected object data');
                 }
-                const defaultCourses = response.data.map((course) => {
+                const allCourses = response.data.map((course) => {
                     return course.replace("_", " ");
                 });
-                function addDefaultCourses(){
-                    const newCourses = defaultCourses.reduce((acc, curr) => {
-                        if(!acc[curr]){
-                            acc[curr] = {
-                                info: {
-
-                                }
-                            }
-                        }
-                        return acc;
-                    }, {});
-                    console.log(newCourses["AGCJ 105"]);
-
-                    dispatch({type: CoursesActions.ADD_COURSES_NO_OVERRIDE, payload: newCourses});
-                }
-                addDefaultCourses();
+                setCourses(prev => {
+                    const newSet = prev;
+                    allCourses.forEach((courseKey) => {
+                        newSet.add(courseKey);
+                    })
+                    return newSet;
+                });
             })
             .catch((error) => {
                 console.error("error: ", error);
@@ -58,7 +46,7 @@ const Navbar = () => {
                 <h1>Home</h1>
             </Link>
 
-            <SearchButton />
+            <SearchButton courses = {courses}/>
 
             <Link to = "/planner">
                 {"<planner>"}

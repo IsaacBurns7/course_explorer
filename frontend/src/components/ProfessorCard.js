@@ -16,6 +16,8 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
     const [rating, setRating] = useState(0.00);
     const [courses, setCourses] = useState([]);
     const [graphData, setGraphData] = useState([]);
+    const hiddenRef = useRef(null);
+    const arrowIconRef = useRef(null);
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -28,9 +30,6 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
             arrowIconRef.current.classList.add("fa-chevron-down");
         }
     }
-
-    const hiddenRef = useRef(null);
-    const arrowIconRef = useRef(null);
 
     //do we need this useeffect call ? 
     //could we place this in searchresults component instead?

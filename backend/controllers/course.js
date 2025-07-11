@@ -199,7 +199,8 @@ const getProfessorInfoForCourse = async (req, res) => {
         wouldTakeAgain: 0,
         professorId: professorID,
         courseNumber,
-        department
+        department,
+        name: selectedProfessor.info.name
     }
 
     for(const [semester, sections] of selectedCourse.sections){
