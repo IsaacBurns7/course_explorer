@@ -4,7 +4,7 @@ todos:
     - speed up react - find unnecessary rerenders and engineer them away
     - shift all backend controllers to mongodb 
     - eliminate large context(professors / courses) from frontend and turn into top->down state handling
-    
+
 
 
 /*
@@ -118,5 +118,8 @@ upsert
 replaceOne
 replaceMany
 updateMany
-
-
+findAndModify: {query: {}, update: {}, new: true}
+deleteOne
+deleteMany
+find({<query>}, {<projection>}). <field>:1 = inclusion, <field>:0 = exclusion
+countDocuments
