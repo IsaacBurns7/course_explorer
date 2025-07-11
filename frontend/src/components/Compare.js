@@ -6,19 +6,13 @@ import BarGraph from "./BarGraph";
 
 
 const Compare = ({categories, series, professorsInfo}) => {
-    //this is actually disgusting that im doing this but to rearchitect everything would be such a pain in the ass. 
-    series.forEach((seriesObject, index) => {
-        if(professorsInfo[index]){
-            seriesObject.name = professorsInfo[index].name ?? "";
-        }
-    });
-
     const [cardsToColor, setCardsToColor] = useState({
         //exampleCard: exampleColor
     });
+    console.log(series, professorsInfo); 
     
     const total = useMemo(() => {
-        const newTotal = series.map((stream) => {
+        const newTotal = Array.from(series.values()).map((stream) => {
             return stream.data.reduce((acc, value) => acc + value, 0);
         })
         return newTotal;
@@ -97,7 +91,7 @@ const Compare = ({categories, series, professorsInfo}) => {
             <div className = "graph bg-black">
                 <Chart 
                     options = {options}
-                    series = {series}
+                    series = {Array.from(series.values())}
                     type = "bar"
                     height = {350}
                     className = "text-white"

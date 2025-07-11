@@ -29,8 +29,8 @@ const SearchResults = () => {
     //for compare
     const { cards: comparedCards } = useCompareContext();
     const comparedProfessorsInfo = useProfessorsInfo(comparedCards);
-    const { series, categories, existingNames } = useGraphData(comparedCards);
     const [cardToProfessorInfo, setCardToProfessorInfo] = useState(new Map());
+    const { series, categories, existingNames } = useGraphData(comparedCards, cardToProfessorInfo);
 
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");

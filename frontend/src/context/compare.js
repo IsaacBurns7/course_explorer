@@ -20,6 +20,7 @@ export const CompareReducer = (state, action) => {
             }
         case "DELETE_CARD":
             const newCards = state.cards.filter((card) => card !== action.payload);
+            // console.log(state.cards, newCards, action.payload);
             return {
                 ...state,
                 cards: newCards

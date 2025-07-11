@@ -2,17 +2,23 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 export const useGraphData = ( comparedCards ) => {
-    const [series, setSeries] = useState([]);
+    const [series, setSeries] = useState(new Map()); //professor id -> series data
     const [categories, setCategories] = useState([]);
-    const [existingNames, setExistingNames] = useState(new Set());
     useEffect(() => {
-        const populateGraphData = (comparedCards) => {
-            for(const card of comparedCards){
-                const course = card.split("_")[0];
-                const dept = course.slice(0,4);
-                const courseNumber = course.slice(4);
+        const updateGraphData = (comparedCards, cardToProfessorInfo) => {
+            const addedCards = comparedCards.filter((card) => {    
+                return !series.has(card);
+            });
+            const deletedCards = Array.from(series.keys()).filter((card) => {
+                return !comparedCards.has(card);
+            })
+
+            for(const card of addedCards){
                 const professorId = card.split("_")[1];
-                const optionsUrl = `/server/api/courses/graph?department=${dept}&courseNumber=${courseNumber}&professorID=${professorId}`;
+                const course = card.split("_")[0];
+                const department = course.slice(0,4);
+                const courseNumber = course.slice(4);
+                const optionsUrl = `/server/api/courses/graph?department=${department}&courseNumber=${courseNumber}&professorID=${professorId}`;
                 const options = {
                     method: "GET",
                     url: optionsUrl
@@ -30,28 +36,34 @@ export const useGraphData = ( comparedCards ) => {
                         const categories = data.map((item => item[0]));
                         setCategories(categories);
                         const newSeriesData = data.map((item => item[1]));
-                        if(!existingNames.has(professorId)){
-                            setSeries([
-                                ...series,
-                                {
-                                    name: professorId,
+
+                        if(!series.has(professorId)){
+                            setSeries(prev => {
+                                const newSeries = new Map(prev);
+                                newSeries.set(card, {
+                                    name: cardToProfessorInfo?.get(professorId)?.name ?? professorId,
                                     data: newSeriesData,
-                                    dept, 
+                                    department,
                                     courseNumber
-                                }
-                            ]);
-                            const newSet = new Set(existingNames);
-                            newSet.add(professorId);
-                            setExistingNames(newSet);
+                                })
+                                return newSeries;
+                            });
                         }
                     })
                     .catch((error) => {
                         console.error("error: ", error);
                     });
             }
+            for(const card of deletedCards){
+                setSeries(prev => {
+                    const newSeries = new Map(prev);
+                    newSeries.delete(card);
+                    return newSeries;
+                }) 
+            }
         }
-        populateGraphData(comparedCards);
+        updateGraphData(comparedCards);
         //return cleanup function 
     }, [comparedCards]);
-    return { series, categories, existingNames};
+    return { series, categories };
 }
