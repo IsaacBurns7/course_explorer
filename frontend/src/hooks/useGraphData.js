@@ -67,3 +67,6 @@ export const useGraphData = ( comparedCards ) => {
     }, [comparedCards]);
     return { series, categories };
 }
+
+
+//object : {other object: {other object: { var1: [array], var2: date, var3: int, var3: string} } }
