@@ -19,7 +19,7 @@
 }
 
 li,
-a,
+.nav,
 button {
     font-family: 'Nunito', sans-serif;
     font-weight: 800;

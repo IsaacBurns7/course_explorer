@@ -34,12 +34,24 @@ const SearchResults = () => {
 
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
-
+    
     useEffect(() => {
         addCourse(dept, courseNumber);
         //affects courses state, then 
     }, [dept, courseNumber]);
 
+    const courseId = `${dept} ${courseNumber}`;
+    const [courseInfo, setCourseInfo] = useState(null);
+
+    useEffect(() => {
+        if (!courses || !courses[courseId]) return;
+        
+        // Waited until the specific course was added to context
+        const info = courses[courseId]?.info;
+        if (info) {
+            setCourseInfo(info);
+        }
+    }, [courses, courseId]);
     //create map (<COURSEID_PROFESSORID> -> { rating, gpa, name }
     useEffect(() => {
         if(cards === null) return;
@@ -66,11 +78,58 @@ const SearchResults = () => {
         setCardToProfessorInfo(prev => updateCardToProfessorInfo(prev));
     }, [courses]);
 
+function linkifyCourseCodes(description) {
+  const regex = /\b([A-Z]{2,4})\s(\d{3})\b/g;
+
+  const parts = [];
+  let lastIndex = 0;
+
+  let match;
+  while ((match = regex.exec(description)) !== null) {
+    const [fullMatch, dept, courseNumber] = match;
+    const matchStart = match.index;
+
+    // Push the text before the match
+    if (matchStart > lastIndex) {
+      parts.push(description.slice(lastIndex, matchStart));
+    }
+
+    // Push the link
+    parts.push(
+      <a
+        key={`${dept}-${courseNumber}-${matchStart}`}
+        href={`/dashboard?dept=${dept}&courseNumber=${courseNumber}`}
+        className="text-blue-600 hover:underline"
+      >
+        {fullMatch}
+      </a>
+    );
+
+    lastIndex = match.index + fullMatch.length;
+  }
+
+  // Push any remaining text
+  if (lastIndex < description.length) {
+    parts.push(description.slice(lastIndex));
+  }
+
+  return parts;
+}
+
+    console.log(courses)
+    const courseTitle = courseInfo?.title;
+    const courseDescription = courseInfo?.description
+
     return (
-        <div className = "search-results">
+        <div className = "search-results pt-20">
+            <div className="ml-4 mb-6">
+                <h2 className="text-2xl font-semibold">{dept} {courseNumber}: {courseTitle}</h2>
+                <p className="text-gray-600 mt-1">{courseDescription ? linkifyCourseCodes(courseDescription) : "Loading..."}</p>
+            </div>
             <SearchOptions />
             <div className = "body grid grid-cols-12">
                 <div className = "cards col-span-6">
+
                     <ActionsHeader cardToProfessorInfo = {cardToProfessorInfo}/>
                     {cards && cards.map((card) => {
                         const dept = card.slice(0,4);

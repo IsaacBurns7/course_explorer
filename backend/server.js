@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const fetch = require('node-fetch')
 const professorRoutes = require('./routes/professor');
 const courseRoutes = require("./routes/course");
+const plannerRoutes = require('./routes/planner')
 // const { populateProfessors, 
 //     populateCourses, 
 //     populateDepartments, 
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
 
 app.use("/api/professors", professorRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/planner", plannerRoutes);
 
 function chunkArray(array, chunkSize) {
   const chunks = [];
@@ -89,7 +91,8 @@ mongoose.connect(process.env.MONGO_ATLAS_URI)
         app.listen(process.env.PORT, () => {
             console.log("Listening for requests on PORT ", process.env.PORT);
         })
-        //const courseData = require('./services/coursedata_FINAL.json')
+
+        //const courseData = require('./services/output/coursedata_FINAL.json')
         //const profData = require('./services/professors-with-ratings.json')
         //const deptData = require('./services/deptdata_FINAL.json')
         //pushClasses(courseData)

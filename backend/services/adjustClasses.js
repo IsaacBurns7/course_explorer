@@ -28,7 +28,7 @@ function semesterSortKey(semesterStr) {
 
 async function addTitleAndDesc(data) {
     for (const key of Object.keys(data)) {
-        if (data[key].info.title != "" && data[key].info.title != undefined) continue
+        if (data[key].info.title != "" && data[key].info.title != undefined && data[key].info.title != "undefined") continue
         console.log(`Changing ${key}`)
         let crn = ""
         let search = ""
@@ -48,7 +48,6 @@ async function addTitleAndDesc(data) {
         }
         if (crn == "") continue;
 
-        console.log(crn + " " + search)
         const response = await fetch(`https://howdy.tamu.edu/api/course-section-details?term=${search}&subject=&course=&crn=` + crn, {
             "headers": {
             },
@@ -60,6 +59,14 @@ async function addTitleAndDesc(data) {
         data[key].info.title = json.COURSE_TITLE
         data[key].info.description = json.COURSE_DESCRIPTION
     }
+    const jsonData = JSON.stringify(data, null, 2); 
+    require('fs').writeFile('output.json', jsonData, (err) => { // Write the JSON string to a file named 'output.json'
+        if (err) {
+            console.error("Error writing file:", err);
+            return;
+        }
+        console.log("JSON file 'output.json' has been written successfully!");
+    });
     return data
 }
 

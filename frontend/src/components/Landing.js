@@ -6,14 +6,6 @@ import AutoCompleteSearch from './Search';
 const Landing = () => {
   return (
 <section className="wave-section bg-black">
-  <header className="header">
-    <a className="logo" href="./index.html">☺</a>
-    <nav>
-      <ul className="navigate_links">
-        <li><a href="./contact.html">Degree Planner</a></li>
-      </ul>
-    </nav>
-  </header>
 
   <div className="wave">
     <span></span>

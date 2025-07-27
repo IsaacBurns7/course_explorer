@@ -91,58 +91,65 @@ function SearchButton({courses}) {
     }, [activeIndex]);
 
     return (
-        <form className = "container flex" onSubmit = {(e) => {
-                e.preventDefault();
-                handleSubmit(matches[0]);
-            }}>
-            <div className = "search-input">
-                <input 
-                className = "mr-4 text-black"
-                type = "text" 
-                value = {inputText}
-                placeholder = "DEPT 123"
-                onChange = {(e) =>  {
-                    setInputText(e.target.value);
-                    setError(false);
-                    displayMatches(e);
-                }}
-                onKeyDown = {handleKeyDown}
-                />
-                {error && (
-                    <p className = "text-red-500 text-sm mt-1">⚠️ Please enter a valid course</p>
-                )}
-                <ul ref = {resultsRef}>
-                    {matches.map((courseName, index) => {
-                        const regex = new RegExp(`(${inputText})`, "gi");
-                        const parts = courseName.split(regex).filter(element => element !== "");
+  <form
+    className="flex items-center gap-3"
+    onSubmit={(e) => {
+      e.preventDefault();
+      handleSubmit(matches[0]);
+    }}
+  >
+    <div className="relative">
+      <input
+        type="text"
+        className="px-4 py-2 rounded-full text-sm bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        value={inputText}
+        placeholder="DEPT 123"
+        onChange={(e) => {
+          setInputText(e.target.value.toUpperCase());
+          setError(false);
+          displayMatches(e);
+        }}
+        onKeyDown={handleKeyDown}
+      />
 
-                        return (
-                            <li 
-                                key = {index} 
-                                className = {`bg-black text-white ${index === activeIndex ? "border border-blue-600": ""}`}
-                                onMouseEnter={() => setActiveIndex(index)}
-                            >
-                                <span className = "courseName">
-                                    {parts.map((string, index) => {
-                                        // console.log(`${string} vs ${regex} : ${string.match(regex)}, ${regex.test(string)}`);
-                                        // console.log(string.match(regex) ? "font-extrabold" : "");
-                                        // console.log(regex.test(string) ? "font-extrabold" : "");
-                                        return (
-                                            <span 
-                                                key = {index} 
-                                                className = {regex.test(string) === true ? "font-extrabold" : "font-normal"}
-                                            >{string}</span>
-                                        );
-                                    })}
-                                </span>
-                            </li>
-                        )
-                    })}
-                </ul>
-            </div>
-            <button type = "submit">Submit</button>
-        </form>
-    )
+      {/* Error message */}
+      {error && (
+        <p className="text-red-500 text-sm mt-1">⚠️ Please enter a valid course</p>
+      )}
+
+      {/* Dropdown results */}
+      <ul
+        ref={resultsRef}
+        className="absolute z-40 mt-2 w-full bg-black rounded-md shadow-lg max-h-60 overflow-y-auto "
+      >
+        {matches.map((courseName, index) => {
+          const regex = new RegExp(`(${inputText})`, "gi");
+          const parts = courseName.split(regex).filter((element) => element !== "");
+
+          return (
+            <li
+              key={index}
+              className={`px-3 py-2 cursor-pointer text-white ${
+                index === activeIndex ? "bg-blue-700" : "hover:bg-gray-800"
+              }`}
+              onMouseEnter={() => setActiveIndex(index)}
+              onClick={() => handleSubmit(courseName)}
+            >
+              {parts.map((string, i) => (
+                <span
+                  key={i}
+                  className={regex.test(string) ? "font-extrabold text-yellow-400" : "font-normal"}
+                >
+                  {string}
+                </span>
+              ))}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </form>
+);
 }
 
 export default SearchButton;

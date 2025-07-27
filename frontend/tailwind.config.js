@@ -9,7 +9,8 @@ module.exports = {
     extend: {
       colors: {
         maroon: "#500000",
-        blackX: "#141414"
+        blackX: "#141414",
+        background: "#1B1111"
       },
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],

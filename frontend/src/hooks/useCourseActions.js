@@ -29,7 +29,6 @@ export const useCourseActions = () => {
                     throw new Error('Expected object data');
                 }
                 coursesDispatch({type: CoursesActions.ADD_COURSES, payload: data});
-
                 const newProfessors = new Map(Object.entries(data[`${courseDept} ${courseNumber}`]));
                 const newCards = [];
                 for(const [professorId, professor] of newProfessors){

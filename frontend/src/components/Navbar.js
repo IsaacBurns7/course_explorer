@@ -41,18 +41,25 @@ const Navbar = () => {
     }, []);
 
     return (
-        <div className = "flex p-4 gap-6 fixed h-16 z-50 bg-maroon w-full opacity-100">
-            <Link to = "/">
-                <h1>Home</h1>
-            </Link>
+<div className="fixed top-0 left-0 w-full h-16 bg-maroon shadow-md z-50 flex items-center justify-between px-8">
 
-            <SearchButton courses = {courses}/>
+    {/* Left section: Home + Input + Submit */}
+    <div className="flex items-center gap-4">
+      <Link to="/">
+        <h1 className="text-white text-lg font-bold hover:text-yellow-300 transition">
+          Home
+        </h1>
+      </Link>
 
-            <Link to = "/planner">
-                {"<planner>"}
-            </Link>
-        </div>
-    )
+      <SearchButton courses = {courses}/>
+    </div>
+
+    {/* Right section: Planner */}
+    <Link to="/planner" className="text-white font-mono hover:text-yellow-300 transition">
+      {"<planner>"}
+    </Link>
+  </div>
+);
 }
 
 export default Navbar;

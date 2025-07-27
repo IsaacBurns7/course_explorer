@@ -10,6 +10,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 //pages
 import Home from "./pages/Home";
 import SearchResults from "./pages/SearchResults";
+import Planner from "./pages/Planner"
 import { CompareContextProvider } from "./context/compare";
 
 const App = () => {
@@ -61,10 +62,10 @@ const App = () => {
 //     }, []);
 
     return (
-        <div className = "App bg-black text-white h-screen relative ">
+        <div className = "App bg-background text-white h-screen relative ">
             <BrowserRouter>
                 <Navbar />
-                <div className = "pages pt-16 min-h-screen">
+                <div className = "pages min-h-screen">
                     <CompareContextProvider>
                         <Routes>
                             <Route 
@@ -73,7 +74,11 @@ const App = () => {
                             />
                             <Route 
                                 path = "/"
-                                element = {<Home />}
+                                element = {<Landing />}
+                            />
+                            <Route 
+                                path = "/planner"
+                                element = {<Planner />}
                             />
                         </Routes>
                     </CompareContextProvider>

@@ -3,6 +3,6 @@ const { getBestClasses } = require('../controllers/planner');
 
 const router = express.Router();
 
-router.get("/:data", getBestClasses);
+router.post("", getBestClasses);
 
 module.exports = router;

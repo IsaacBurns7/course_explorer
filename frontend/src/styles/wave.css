@@ -1,7 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800,900&display=swap");
 
 html, body {
-  background-color: black;
+  background-color: #1B1111;
+  
+
 }
 
 * {
@@ -55,7 +57,7 @@ html, body {
 
 .wave span:nth-child(1) {
   border-radius: 49%;
-  background: rgba(20, 20, 20, 1);
+  background: rgba(20, 20, 20, 0.5);
   animation: animate 10s linear infinite;
 }
 .wave span:nth-child(2) {

@@ -215,8 +215,7 @@ async function populateCourses(deptRaw) {
 
 
 async function parseDegreePlan(pdfBuffer) {
-    //pdfParser.parseBuffer(pdfBuffer);
-    pdfParser.loadPDF("./degree plan.pdf")
+    pdfParser.parseBuffer(pdfBuffer);
     pdfParser.on("pdfParser_dataReady", (pdfData) => {
         const pages = pdfData.Pages;
         const allText = [];
@@ -252,7 +251,7 @@ async function parseDegreePlan(pdfBuffer) {
                 }
             } else if (line.match(/^[A-Z]{2,4} \d{3}/)) { // Course ID (ex: CSCE 120)
                 const course = line.split(" ")
-            currentCourses.push({"dept": course[0], "course": course[1], "title": "", "hours": ""});
+            currentCourses.push({"department": course[0], "number": course[1], "title": "", "hours": ""});
             } else if (currentCourses.length > 0) { // More information (ex: Name of class and credit hours), make sure its not whitespace
                 if (/^\d$/.test(line)) 
                     currentCourses[currentCourses.length - 1].hours = line

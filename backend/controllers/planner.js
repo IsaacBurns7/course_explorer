@@ -4,26 +4,41 @@ const Course = require('../models/course');
 const Professor = require('../models/professor');
 
 const getBestClasses = async (req, res) => {
-    const parsed = parseDegreePlan(req.body.data)
-    Object.keys(parsed).forEach(async (sem) => { // loop thru semesters
-        parsed[sem].forEach(async (courses, i) => { // loop thru classes
-            parsed[sem][i].title = parsed[sem][i].title.trim() // would be a good idea to sanitize the string
+    const parsed = req.body;
+    return res.status(200).json(require('../output.json'))
+    try {
+        for (const sem of Object.keys(parsed)) {
+            for (let i = 0; i < parsed[sem].length; i++) {
+                const courseData = parsed[sem][i];
+                courseData.title = courseData.title.trim();
 
-            const course = await Course.find({"info.department": courses.dept, "info.number": courses.course}) // find the identified course
-            // might want to switch this out, some might be taking classes that not exist anymore or newer classes not in database
-            if(!course) { 
-                return res.status(404).json({error: `Class ${courses.dept} ${courses.course} not found.`});
-            }
+                const course = await Course.findOne({
+                    "info.department": courseData.department,
+                    "info.number": courseData.number
+                });
 
-            const professors = await Professor.find({"_id": {$in: course.professors}}) // find the entire list of professors that teach the course
-            if(!professors) { 
-                return res.status(404).json({error: `No Professors Found`});
+                if (!course) {
+                    continue
+                }
+
+                const professors = await Professor.find({ "_id": { $in: course.professors } });
+
+                if (!professors || professors.length === 0) {
+                    return res.status(404).json({ error: `No professors found for ${courseData.department} ${courseData.number}` });
+                }
+
+                professors.sort((a, b) => (b.info.averageGPA + b.info.averageRating) - (a.info.averageGPA + a.info.averageRating));
+
+                parsed[sem][i].info = course;
+                parsed[sem][i].professors = professors;
             }
-            professors.sort((a, b) => (a.info.averageGPA + a.info.averageRating) - (b.info.averageGPA + b.info.averageRating)) // sort by a combination of average GPA + rating
-            parsed[sem][i].professors = professors // add to parsed info
-        })
-    })
-    return res.status(200).json(parsed);
-}
+        }
+        console.log(parsed)
+        return res.status(200).json(parsed);
+    } catch (err) {
+        console.error("Planner error:", err);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};
 
 module.exports = { getBestClasses };
