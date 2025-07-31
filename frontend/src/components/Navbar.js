@@ -1,47 +1,29 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-
 import SearchButton from "./SearchButton";
-
+import { getAllCourses } from "../hooks/useAllCourses";
 //ELIMINATE USECOURSESCONTEXT
 const Navbar = () => { 
     const [courses, setCourses] = useState(new Set());
 
     useEffect(() => {
-        //this should be an API call
-        const url = `/server/api/courses/getAll`;
-        const options = {
-            method: "GET",
-            url
-        }
-        axios(options)
-            .then((response) => {
-                if(!response || !response.data){
-                    throw new Error("Invalid response structure");
-                }
-                const data = response.data;
-                if (typeof data !== 'object' || data === null) {
-                    throw new Error('Expected object data');
-                }
-                const allCourses = response.data.map((course) => {
-                    return course.replace("_", " ");
-                });
-                setCourses(prev => {
+    getAllCourses()
+        .then(courseSet => {
+        // use the Set however you want
+         setCourses(prev => {
                     const newSet = prev;
-                    allCourses.forEach((courseKey) => {
+                    courseSet.forEach((courseKey) => {
                         newSet.add(courseKey);
                     })
                     return newSet;
                 });
-            })
-            .catch((error) => {
-                console.error("error: ", error);
-            })
+        })
+        .catch(err => console.error("Failed to load courses", err));
     }, []);
 
     return (
-<div className="fixed top-0 left-0 w-full h-16 bg-maroon shadow-md z-50 flex items-center justify-between px-8">
+<div className="fixed top-0 left-0 w-full h-16 bg-maroon shadow-md z-40 flex items-center justify-between px-8">
 
     {/* Left section: Home + Input + Submit */}
     <div className="flex items-center gap-4">

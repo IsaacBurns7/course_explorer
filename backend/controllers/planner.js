@@ -41,4 +41,33 @@ const getBestClasses = async (req, res) => {
     }
 };
 
-module.exports = { getBestClasses };
+const getClassInfo = async (req, res) => {
+    try {
+    const parsed = req.body.class;
+    const courseData = parsed.split(" ")
+     const course = await Course.findOne({
+        "info.department": courseData[0],
+        "info.number": courseData[1]
+    });
+
+    if (!course) {
+        return res.status(404).json({error: `Class not found`})
+    }
+
+    const professors = await Professor.find({ "_id": { $in: course.professors } });
+
+    if (!professors || professors.length === 0) {
+        return res.status(404).json({ error: `No professors found for ${courseData.department} ${courseData.number}` });
+    }
+
+    professors.sort((a, b) => (b.info.averageGPA + b.info.averageRating) - (a.info.averageGPA + a.info.averageRating));
+
+    return res.status(200).json({info: course, professors: professors})
+    } catch (err) {
+        console.error("Planner error:", err);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+
+module.exports = { getBestClasses, getClassInfo };
