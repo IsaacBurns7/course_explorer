@@ -48,6 +48,10 @@ module.exports = {
         poppins: ['Poppins', 'sans-serif'],
       },
       keyframes: {
+        'slide-in-top': {
+          '0%': { transform: 'translateY(-100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
         waveRotate: {
           '0%': {
             transform: 'translate(-50%, -75%) rotate(0deg)',
@@ -61,6 +65,7 @@ module.exports = {
         wave1: 'waveRotate 5s linear infinite',
         wave2: 'waveRotate 10s linear infinite',
         wave3: 'waveRotate 15s linear infinite',
+        'slide-in-top': 'slide-in-top 0.3s ease-out',
       },
     },
   },

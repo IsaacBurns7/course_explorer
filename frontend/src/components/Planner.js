@@ -272,11 +272,11 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="">
       {/* Alert Component */}
       <Alert message={alert.message} type={alert.type} isVisible={alert.isVisible} onClose={closeAlert} />
       {/* View Toggle and Add Button */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-6">
         <h2 className="text-2xl font-bold text-gray-100">Academic Plan</h2>
         <button
           onClick={() => setShowAddModal(true)}

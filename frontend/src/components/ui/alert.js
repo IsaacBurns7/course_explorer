@@ -17,13 +17,13 @@ export default function Alert({ message, type = "info", isVisible, onClose, dura
   const getAlertStyles = () => {
     switch (type) {
       case "success":
-        return "bg-green-600 border-green-500 text-green-100 z-50"
+        return "bg-green-600 border-dark-semester-closed text-green-100 z-50"
       case "error":
-        return "bg-red-600 border-red-500 text-red-100 z-50"
+        return "bg-red-600 border-dark-semester-closed text-red-100 z-50"
       case "warning":
-        return "bg-yellow-600 border-yellow-500 text-yellow-100 z-50"
+        return "bg-yellow-600 border-dark-semester-closed text-yellow-100 z-50"
       default:
-        return "bg-blue-600 border-blue-500 text-blue-100 z-50"
+        return "bg-blue-600 border-dark-semester-closed text-blue-100 z-50"
     }
   }
 
@@ -73,8 +73,8 @@ export default function Alert({ message, type = "info", isVisible, onClose, dura
   }
 
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md">
-      <div className={`border rounded-lg p-4 shadow-lg ${getAlertStyles()} animate-in slide-in-from-top duration-300`}>
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-fit px-4">
+      <div className={`border rounded-full p-4 shadow-full ${getAlertStyles()} animate-slide-in-top`}>
         <div className="flex items-center">
           <div className="flex-shrink-0">{getIcon()}</div>
           <div className="ml-3 flex-1">

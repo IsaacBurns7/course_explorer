@@ -6,8 +6,22 @@ import axios from "axios"
 
 export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, semesters, showAlert }) {
    const [courses, setCourses] = useState(new Set());
-  
-      useEffect(() => {
+  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [selectedSemester, setSelectedSemester] = useState("")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [mode, setMode] = useState("class") // 'class' or 'semester'
+  const [newSemesterTerm, setNewSemesterTerm] = useState("Spring")
+  const [newSemesterYear, setNewSemesterYear] = useState(new Date().getFullYear())
+  const courseCacheRef = useRef(new Map());
+  const courseListRef = useRef(null);
+
+  useEffect(() => {
+  if (courseListRef.current) {
+    courseListRef.current.scrollTop = 0;
+  }
+}, [searchTerm]);
+
+useEffect(() => {
       getAllCourses()
           .then(courseSet => {
           // use the Set however you want
@@ -22,13 +36,6 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
           .catch(err => console.error("Failed to load courses", err));
       }, []);
 
-  const [selectedCourse, setSelectedCourse] = useState(null)
-  const [selectedSemester, setSelectedSemester] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [mode, setMode] = useState("class") // 'class' or 'semester'
-  const [newSemesterTerm, setNewSemesterTerm] = useState("Spring")
-  const [newSemesterYear, setNewSemesterYear] = useState(new Date().getFullYear())
-  const courseCacheRef = useRef(new Map());
   if (!isOpen) return null
 
   const filteredCourses = Array.from(courses).filter(
@@ -171,7 +178,7 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
             {/* Course Selection */}
             <div className="mb-4">
               <h4 className="text-md font-medium text-gray-200 mb-2">Select Course:</h4>
-              <div className="space-y-2 max-h-40 overflow-y-auto border border-dark-border rounded p-2">
+              <div className="space-y-2 max-h-40 overflow-y-auto border border-dark-border rounded p-2" ref={courseListRef}>
                 {filteredCourses.map((course, index) => (
                   <button
                     key={index}
