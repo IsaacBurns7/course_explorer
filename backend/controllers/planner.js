@@ -5,7 +5,7 @@ const Professor = require('../models/professor');
 
 const getBestClasses = async (req, res) => {
     const parsed = req.body;
-    return res.status(200).json(require('../output.json'))
+    // return res.status(200).json(require('../output.json'))
     try {
         for (const sem of Object.keys(parsed)) {
             for (let i = 0; i < parsed[sem].length; i++) {
