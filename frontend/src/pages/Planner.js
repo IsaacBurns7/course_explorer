@@ -1,12 +1,19 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import axios from "axios"
 import PlannerDisplay from "../components/Planner"
 
 export default function PlannerPage() {
   const [plannerData, setPlannerData] = useState(null)
+  
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [planner, setPlanner] = useState(plannerData)
 
+    const updatePlanner = (newPlanner) => {
+      setPlanner(newPlanner)
+    }
+
+  
   const fetchPlannerData = async () => {
     setLoading(true)
     setError(null)
@@ -287,6 +294,8 @@ export default function PlannerPage() {
     }
   }
 
+
+
   return (
     <div className="min-h-screen w-full px-4 sm:px-6 lg:px-8 py-6 bg-background-900">
       <div className="w-full">
@@ -313,7 +322,7 @@ export default function PlannerPage() {
 
         {plannerData && (
           <div className="w-full bg-background-800 p-6 rounded-md border border-gray-700">
-            <PlannerDisplay planner={plannerData} />
+            <PlannerDisplay planner={plannerData} onUpdatePlanner={updatePlanner} />
           </div>
         )}
       </div>

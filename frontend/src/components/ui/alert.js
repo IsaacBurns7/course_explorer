@@ -17,13 +17,13 @@ export default function Alert({ message, type = "info", isVisible, onClose, dura
   const getAlertStyles = () => {
     switch (type) {
       case "success":
-        return "bg-green-600 border-green-500 text-green-100 z-100"
+        return "bg-green-600 border-green-500 text-green-100 z-50"
       case "error":
-        return "bg-red-600 border-red-500 text-red-100 z-100"
+        return "bg-red-600 border-red-500 text-red-100 z-50"
       case "warning":
-        return "bg-yellow-600 border-yellow-500 text-yellow-100 z-100"
+        return "bg-yellow-600 border-yellow-500 text-yellow-100 z-50"
       default:
-        return "bg-blue-600 border-blue-500 text-blue-100 z-100"
+        return "bg-blue-600 border-blue-500 text-blue-100 z-50"
     }
   }
 

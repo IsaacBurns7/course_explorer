@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { getAllCourses } from "../../hooks/useAllCourses";
+import axios from "axios"
 
 export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, semesters, showAlert }) {
    const [courses, setCourses] = useState(new Set());
@@ -27,7 +28,7 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
   const [mode, setMode] = useState("class") // 'class' or 'semester'
   const [newSemesterTerm, setNewSemesterTerm] = useState("Spring")
   const [newSemesterYear, setNewSemesterYear] = useState(new Date().getFullYear())
-
+  const courseCacheRef = useRef(new Map());
   if (!isOpen) return null
 
   const filteredCourses = Array.from(courses).filter(
@@ -51,6 +52,21 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
       return
     }
 
+    const courseAlreadyExists = semesters.some((semester) =>
+    semester.courses.some(
+      (course) =>
+        course.department === selectedCourse.department &&
+        course.number === selectedCourse.number
+    )
+  );
+
+  if (courseAlreadyExists) {
+    showAlert(
+      `${selectedCourse.department} ${selectedCourse.number} has already been added to your planner.`,
+      "error"
+    );
+    return;
+  }
     onAdd(selectedCourse, selectedSemester)
     showAlert(
       `Successfully added ${selectedCourse.department} ${selectedCourse.number} to ${selectedSemester}!`,
@@ -88,17 +104,26 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
     onClose()
   }
 
+
+  
   const handleCourseSelect = async (courseString) => {
-    try {
+  try {
+    const cache = courseCacheRef.current;
+    if (cache.has(courseString)) {
+      setSelectedCourse(cache.get(courseString));
+    } else {
+      console.log("NEW COURSE FOUND");
       const response = await axios.post("/server/api/planner/class", { class: courseString });
-      setSelectedCourse(response.data); // Set to full course object
-    } catch (error) {
-      console.error("Failed to fetch course info:", error);
-      showAlert("Failed to load course information. Please try again.", "error");
+      setSelectedCourse(response.data);
+      cache.set(courseString, response.data);
     }
-  };
+  } catch (error) {
+    console.error("Failed to fetch course info:", error);
+    showAlert("Failed to load course information. Please try again.", "error");
+  }
+};
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 h-max">
 
       <div className="bg-dark-card border border-dark-border rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
@@ -198,7 +223,7 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
                     - {selectedCourse.title}
                   </div>
                   <div>{selectedCourse.hours} credit hours</div>
-                  <div>Professors: {selectedCourse.professors.map((p) => p.info.name).join(", ")}</div>
+                  <div>Professors: {selectedCourse.professors.length}</div>
                 </div>
               </div>
             )}
