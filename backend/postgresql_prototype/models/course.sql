@@ -39,3 +39,30 @@
 --         }]
 --     }
 -- });
+
+DROP TABLE CourseExplorer.courses CASCADE;
+DROP TABLE CourseExplorer.courses_info CASCADE;
+DROP TABLE CourseExplorer.courses_professors CASCADE;
+
+CREATE TABLE CourseExplorer.courses( 
+    id  VARCHAR(255) PRIMARY KEY
+);
+
+CREATE TABLE CourseExplorer.courses_info(
+    id  SERIAL PRIMARY KEY,
+    department VARCHAR(255), --should this reference department id ? 
+    number numeric,
+    title VARCHAR(255),
+    description TEXT,
+    averageGPA numeric,
+    totalSections numeric,
+    totalStudents numeric,
+    averageRating numeric,
+    totalRatings numeric
+);
+
+CREATE TABLE CourseExplorer.courses_professors(
+    id VARCHAR(255) REFERENCES CourseExplorer.courses(id),
+    professor_id VARCHAR(255), -- this will probably be referenced by something later
+    PRIMARY KEY (id, professor_id)
+)

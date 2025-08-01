@@ -43,7 +43,6 @@ async function migrateUserSchema(){
         const courses = department.courses;
         const id = department._id;
         const name = department.info.name;
-        console.log(name);
         await pgPool.query(`INSERT INTO CourseExplorer.departments (id, name) VALUES ($1, $2) ON CONFLICT DO NOTHING`, 
             [id, name],
             // (err, res) => {
@@ -57,9 +56,6 @@ async function migrateUserSchema(){
         );
 
         for(const course of courses){
-            console.log([
-                    id, course.courseNumber, course.courseTitle, course.courseDescription
-                ]);
             await pgPool.query(`INSERT INTO CourseExplorer.department_courses (department_id, course_number, title, description)
                 VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
                 [
