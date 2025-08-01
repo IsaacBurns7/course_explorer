@@ -1,0 +1,41 @@
+-- const courseSchema = new Schema({
+--     _id: String,
+--     info: {
+--         department: String,
+--         number: Number,
+--         title: String,
+--         description: String,
+--         averageGPA: Number,
+--         totalSections: Number,
+--         totalStudents: Number,
+--         averageRating: Number,
+--         totalRatings: Number,
+--     },
+--     professors: [String], //professorId
+--     sections: { //key is semester
+--         type: Map,
+--         of: [{
+--             section: Number,
+--             A: Number,
+--             B: Number,
+--             C: Number,
+--             D: Number,
+--             F: Number,
+--             I: Number,
+--             S: Number,
+--             U: Number,
+--             Q: Number,
+--             X: Number,
+--             prof: String,
+--             year: Number,
+--             semester: String,
+--             gpa: Number,
+--             crn: String,
+--             hours: String,
+--             site: String,
+--             times: Object,
+--             prof_id: String,
+--             students: Number
+--         }]
+--     }
+-- });
