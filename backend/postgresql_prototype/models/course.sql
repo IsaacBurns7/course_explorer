@@ -43,16 +43,18 @@
 DROP TABLE CourseExplorer.courses CASCADE;
 DROP TABLE CourseExplorer.courses_info CASCADE;
 DROP TABLE CourseExplorer.courses_professors CASCADE;
+DROP TABLE CourseExplorer.courses_sections CASCADE;
+DROP TABLE CourseExplorer.courses_section_times CASCADE;
 
 CREATE TABLE CourseExplorer.courses( 
-    id  VARCHAR(255) PRIMARY KEY
+    id  TEXT PRIMARY KEY
 );
 
 CREATE TABLE CourseExplorer.courses_info(
     id  SERIAL PRIMARY KEY,
-    department VARCHAR(255), --should this reference department id ? 
+    department TEXT, --should this reference department id ? 
     number numeric,
-    title VARCHAR(255),
+    title TEXT,
     description TEXT,
     averageGPA numeric,
     totalSections numeric,
@@ -62,7 +64,46 @@ CREATE TABLE CourseExplorer.courses_info(
 );
 
 CREATE TABLE CourseExplorer.courses_professors(
-    id VARCHAR(255) REFERENCES CourseExplorer.courses(id),
-    professor_id VARCHAR(255), -- this will probably be referenced by something later
-    PRIMARY KEY (id, professor_id)
-)
+    course_id TEXT REFERENCES CourseExplorer.courses(id),
+    professor_id TEXT, -- this will probably be referenced by something later
+    PRIMARY KEY (course_id, professor_id)
+);
+
+CREATE TABLE CourseExplorer.courses_sections(
+    course_id TEXT REFERENCES CourseExplorer.courses(id), -- e.g "AGCJ_404"
+    semester_id TEXT, --e.g FALL 2025
+    section_id INTEGER, 
+    A INTEGER,
+    B INTEGER,
+    C INTEGER,
+    D INTEGER,
+    F INTEGER,
+    I INTEGER,
+    S INTEGER,
+    U INTEGER,
+    Q INTEGER,
+    X INTEGER,
+    prof TEXT,
+    year INTEGER,
+    semester TEXT,
+    gpa NUMERIC,
+    crn INTEGER,
+    hours INTEGER,
+    site TEXT,
+    professor_id TEXT, --should reference professor_id, maybe make an integer.
+    -- check professor_id in the course_id in courses_professors
+    -- times_id TEXT,
+    -- does this need an ID? 
+    PRIMARY KEY(course_id, semester_id, section_id)
+);
+
+CREATE TABLE CourseExplorer.courses_section_times(
+    course_id TEXT,
+    semester_id TEXT, 
+    section_id INTEGER, 
+    times_id TEXT, -- M - monday, T - tuesday, W - wednesday, R - thursday, F - friday 
+    time TEXT,
+    FOREIGN KEY (course_id, semester_id, section_id)
+        REFERENCES CourseExplorer.courses_sections(course_id, semester_id, section_id),
+    PRIMARY KEY(course_id, semester_id, section_id, times_id, time)
+);
