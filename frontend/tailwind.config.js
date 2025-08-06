@@ -1,4 +1,4 @@
-
+const colors = require('tailwindcss/colors')
 
 module.exports = {
   content: [
@@ -37,7 +37,8 @@ module.exports = {
         // Extra A&M theme
         maroon: "#500000",
         blackX: "#141414",
-        background: "#1B1111"
+        background: "#1B1111",
+        ...colors
       },
       borderRadius: {
         lg: "var(--radius)",

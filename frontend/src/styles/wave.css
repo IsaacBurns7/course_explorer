@@ -16,14 +16,33 @@ html, body {
 .wave-section {
   position: relative;
   width: 100%;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  flex-direction: column;
+  z-index: 1;
+  padding: 4rem 1rem; /* prevent crowding on small screens */
 }
 
+.wave {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 0;
+  background: #500000;
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+  animation: waveEntrance 1.5s ease-out forwards;
+  pointer-events: none;
+}
+
+.content, .relative.z-10 {
+  position: relative;
+  z-index: 2; /* Ensure it's above the wave */
+}
 @keyframes waveEntrance {
   0% {
     transform: translateY(15%);
@@ -33,17 +52,7 @@ html, body {
   }
 }
 
-/* Apply entrance animation to the entire .wave container */
-.wave {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #500000;
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
-  transition: 0.5s;
-  animation: waveEntrance 1.5s ease-out forwards;
-}
+
 
 .wave span {
   content: "";
@@ -58,18 +67,22 @@ html, body {
 .wave span:nth-child(1) {
   border-radius: 49%;
   background: rgba(20, 20, 20, 0.5);
-  animation: animate 10s linear infinite;
+  animation: animate 20s linear infinite;
+  z-index: 1;
 }
+
 .wave span:nth-child(2) {
   border-radius: 40%;
   background: rgba(20, 20, 20, 0.5);
-  animation: animate 10s linear infinite;
+  animation: animate 20s linear infinite;
+   z-index: 1;
 }
 
 .wave span:nth-child(3) {
   border-radius: 42.5%;
   background: rgba(20, 20, 20, 0.5);
-  animation: animate 15s linear infinite;
+  animation: animate 25s linear infinite;
+   z-index: 1;
 }
 
 .fade-in {

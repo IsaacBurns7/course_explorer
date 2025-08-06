@@ -1,0 +1,15 @@
+@keyframes float-sync {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0px);
+  }
+  25% {
+    transform: translate(-50%, -50%) translateY(-5px);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(2.5px);
+  }
+  75% {
+    transform: translate(-50%, -50%) translateY(-5px);
+  }
+}
+

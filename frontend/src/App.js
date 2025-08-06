@@ -3,7 +3,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Landing from "./components/Landing";
 import Navbar from "./components/Navbar";
-
+import Test from './components/Test'
 //hooks
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 
@@ -64,7 +64,7 @@ const App = () => {
     return (
         <div className = "App bg-background text-white h-screen relative ">
             <BrowserRouter>
-                <Navbar />
+            <Navbar />
                 <div className = "pages min-h-screen">
                     <CompareContextProvider>
                         <Routes>

@@ -215,6 +215,13 @@ useEffect(() => {
                     <span className="text-sm text-gray-400 ml-2">({semester.courses.length} courses)</span>
                   </button>
                 ))}
+                <button
+                      key="Add Semester"
+                      onClick={() => setMode("semester")}
+                      className={`p-2 rounded text-sm font-medium transition bg-dark-input border border-dark-border hover:bg-dark-hover text-gray-200`}
+                    >
+                      Add Semester
+                    </button>
               </div>
             </div>
 
@@ -265,6 +272,7 @@ useEffect(() => {
                       {term}
                     </button>
                   ))}
+                  
                 </div>
               </div>
 

@@ -1,331 +1,173 @@
-import { useState, useEffect } from "react"
-import axios from "axios"
+"use client"
+
+import { useState } from "react"
 import PlannerDisplay from "../components/Planner"
+import UploadPlannerModal from "../components/modals/upload"
 
-export default function PlannerPage() {
-  const [plannerData, setPlannerData] = useState(null)
-  
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [planner, setPlanner] = useState(plannerData)
+export default function Planner() {
+  const [currentView, setCurrentView] = useState("landing") // 'landing' or 'planner'
+  const [planner, setPlanner] = useState({})
+  const [showUploadModal, setShowUploadModal] = useState(false)
 
-    const updatePlanner = (newPlanner) => {
-      setPlanner(newPlanner)
-    }
-
-  
-  const fetchPlannerData = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await axios.post("/server/api/planner", {
-        "Fall 2025": [
-          {
-            department: "CSCE",
-            number: "221",
-            title: "DATA STRUC & ALGORITHMS",
-            hours: 4,
-          },
-          {
-            department: "CSCE",
-            number: "222",
-            title: "DISCRETE STRUC COMPUTING",
-            hours: 3,
-          },
-          {
-            department: "ECEN",
-            number: "248",
-            title: "INTRO TO DGTL SYM DSGN",
-            hours: 4,
-          },
-          {
-            department: "PHYS",
-            number: "207",
-            title: "ELEC & MAGNETISM ENGR & SCI",
-            hours: 3,
-          },
-          {
-            department: "PHYS",
-            number: "217",
-            title: "EX PHYS ENGR LAB III ELEC MAGN",
-            hours: 2,
-          },
-        ],
-        "Spring 2026": [
-          {
-            department: "CSCE",
-            number: "313",
-            title: "INTRO TO COMPUTER SYSTEM",
-            hours: 4,
-          },
-          {
-            department: "ECEN",
-            number: "214",
-            title: "ELEC CIRCUIT THEORY",
-            hours: 4,
-          },
-          {
-            department: "ECEN",
-            number: "350",
-            title: "COMPUTER ARCH & DESIGN",
-            hours: 4,
-          },
-          {
-            department: "MATH",
-            number: "311",
-            title: "TOP IN APPLIED MATH I",
-            hours: 3,
-          },
-          {
-            department: "PHYS",
-            number: "221",
-            title: "OPTICS&THERMAL PHYSICS",
-            hours: 3,
-          },
-        ],
-        "Summer 2026": [
-          {
-            department: "ENGL",
-            number: "210",
-            title: "TECHNICAL PROFESSIONAL WRITING",
-            hours: 3,
-          },
-        ],
-        "Fall 2026": [
-          {
-            department: "CSCE",
-            number: "331",
-            title: "FOUNDATIONS SOFTWARE ENGINEER",
-            hours: 4,
-          },
-          {
-            department: "CSCE",
-            number: "462",
-            title: "MICROCOMPUTER SYSTEMS",
-            hours: 3,
-          },
-          {
-            department: "CSCE",
-            number: "481",
-            title: "SEMINAR",
-            hours: 1,
-          },
-          {
-            department: "ECEN",
-            number: "314",
-            title: "SIGNALS AND SYSTEMS",
-            hours: 3,
-          },
-        ],
-        "Spring 2027": [
-          {
-            department: "CSCE",
-            number: "441",
-            title: "COMPUTER GRAPHICS",
-            hours: 3,
-          },
-          {
-            department: "ECEN",
-            number: "325",
-            title: "ELECTRONICS",
-            hours: 4,
-          },
-          {
-            department: "ECEN",
-            number: "454",
-            title: "DIG INTEGRATEDCKT DES",
-            hours: 3,
-          },
-          {
-            department: "OCNG",
-            number: "310",
-            title: "PHYSICAL OCEANOGRAPHY",
-            hours: 4,
-          },
-          {
-            department: "OCNG",
-            number: "469",
-            title: "PYTHON FOR GEOSCIENCES",
-            hours: 3,
-          },
-        ],
-        "Fall 2027": [
-          {
-            department: "CSCE",
-            number: "399",
-            title: "HIGH-IMPACT EXPERIENCE",
-            hours: 0,
-          },
-          {
-            department: "CSCE",
-            number: "447",
-            title: "DATA VISUALIZATION",
-            hours: 3,
-          },
-          {
-            department: "CSCE",
-            number: "483",
-            title: "COMPUTER SYS DESIGN",
-            hours: 3,
-          },
-          {
-            department: "ECEN",
-            number: "449",
-            title: "MICROPROCSR SYS DSGN",
-            hours: 3,
-          },
-          {
-            department: "OCNG",
-            number: "330",
-            title: "GEOLOGICAL OCEANOGRAPHY",
-            hours: 4,
-          },
-        ],
-        "Spring 2028": [
-          {
-            department: "CSCE",
-            number: "443",
-            title: "GAME DEVELOPMENT",
-            hours: 3,
-          },
-          {
-            department: "CSCE",
-            number: "446",
-            title: "VIRTUAL REALITY",
-            hours: 3,
-          },
-          {
-            department: "MATH",
-            number: "411",
-            title: "MATH PROBABILITY",
-            hours: 3,
-          },
-          {
-            department: "PERF",
-            number: "301",
-            title: "PERF IN WORLD CULTURES",
-            hours: 3,
-          },
-        ],
-        "Fall 2024": [
-          {
-            department: "CHEM",
-            number: "107",
-            title: "GEN CHEM FOR ENGINEERS",
-            hours: 3,
-          },
-          {
-            department: "CHEM",
-            number: "117",
-            title: "GEN CHEM FOR ENGR LAB",
-            hours: 1,
-          },
-          {
-            department: "CLEN",
-            number: "181",
-            title: "ENGR LC SUCCESS SEMINAR",
-            hours: 0,
-          },
-          {
-            department: "ENGR",
-            number: "102",
-            title: "ENGR LAB I COMPUTATION",
-            hours: 2,
-          },
-          {
-            department: "MATH",
-            number: "251",
-            title: "ENGINEERING MATH III",
-            hours: 3,
-          },
-          {
-            department: "POLS",
-            number: "207",
-            title: "STATE & LOCAL GOVT",
-            hours: 3,
-          },
-        ],
-        "Spring 2025": [
-          {
-            department: "CSCE",
-            number: "120",
-            title: "PROGRAM DESIGN & CONCEPTS",
-            hours: 3,
-          },
-          {
-            department: "ENGR",
-            number: "216",
-            title: "EX PHYS ENGR LAB II MECHANICS",
-            hours: 2,
-          },
-          {
-            department: "MATH",
-            number: "308",
-            title: "DIFFERENTIAL EQUATIONS",
-            hours: 3,
-          },
-          {
-            department: "OCNG",
-            number: "251",
-            title: "THE BLUE PLANET OUR OCEANS",
-            hours: 3,
-          },
-          {
-            department: "PHYS",
-            number: "206",
-            title: "NEWTONIAN MECHANICS ENGR & SCI",
-            hours: 3,
-          },
-          {
-            department: "STAT",
-            number: "211",
-            title: "PRIN OF STATISTICS I",
-            hours: 3,
-          },
-        ],
-      })
-      console.log(response.data)
-      setPlannerData(response.data)
-    } catch (err) {
-      console.error("Failed to fetch planner data:", err)
-      setError("Failed to load planner data.")
-    } finally {
-      setLoading(false)
-    }
+  const updatePlanner = (newPlanner) => {
+    setPlanner(newPlanner)
   }
 
+  const handleStartFromScratch = () => {
+    setPlanner({})
+    setCurrentView("planner")
+  }
 
+  const handlePlannerUploaded = (plannerData) => {
+    setPlanner(plannerData)
+    setCurrentView("planner")
+  }
 
-  return (
-    <div className="min-h-screen w-full px-4 sm:px-6 lg:px-8 py-6 bg-background-900">
-      <div className="w-full">
-        <h1 className="text-3xl font-semibold mb-6 text-gray-100">Planner Viewer</h1>
-        <button
-          onClick={fetchPlannerData}
-          className="mb-6 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors"
-          disabled={loading}
-        >
-          {loading ? "Generating..." : "Generate Plan"}
-        </button>
+  const handleBackToLanding = () => {
+    setPlanner({})
+    setCurrentView("landing")
+  }
 
-        {loading && (
-          <div className="flex justify-center my-8">
-            <p className="text-gray-300">Loading your academic plan...</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="mb-6 p-4 bg-red-900/50 border border-red-800 rounded-md">
-            <p className="text-red-200">{error}</p>
-          </div>
-        )}
-
-        {plannerData && (
-          <div className="w-full bg-background-800 p-6 rounded-md border border-gray-700">
-            <PlannerDisplay planner={plannerData} onUpdatePlanner={updatePlanner} />
-          </div>
-        )}
+  if (currentView === "planner") {
+    return (
+      <div className="min-h-screen bg-background-900 p-4 pt-24">
+        <div className="mb-4">
+          <button
+            onClick={handleBackToLanding}
+            className="px-4 py-2 bg-gray-600 text-gray-200 rounded hover:bg-gray-500 transition flex items-center space-x-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 12H5" />
+              <path d="M12 19l-7-7 7-7" />
+            </svg>
+            <span>Back to Home</span>
+          </button>
+        </div>
+        <PlannerDisplay planner={planner} onUpdatePlanner={updatePlanner} />
       </div>
+    )
+  }
+
+  // Landing view
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="max-w-4xl w-full">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-white mb-4">Academic Planner</h1>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            Plan your academic journey with ease. Create a new planner from scratch or upload your existing academic
+            plan to get started.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-800 border border-gray-700 rounded-xl p-8 hover:border-emerald-500 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2"
+                  strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                  <path d="M12 5v14" />
+                  <path d="M5 12h14" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-semibold text-white mb-4">Start from Scratch</h2>
+              <p className="text-gray-400 mb-6">
+                Create a brand new academic plan. Perfect for new students or those wanting to completely redesign their
+                course schedule.
+              </p>
+              <button
+                onClick={handleStartFromScratch}
+                className="w-full px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors font-medium"
+              >
+                Create New Planner
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 border border-gray-700 rounded-xl p-8 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2"
+                  strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7,10 12,15 17,10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-semibold text-white mb-4">Upload Existing Planner</h2>
+              <p className="text-gray-400 mb-6">
+                Already have an academic plan? Upload your existing planner from a PDF document or paste the text
+                directly.
+              </p>
+              <button
+                onClick={() => setShowUploadModal(true)}
+                className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors font-medium"
+              >
+                Upload Planner
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <h3 className="text-2xl font-semibold text-white mb-6">Features</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-gray-800/50 rounded-lg p-6">
+              <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"
+                  strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+              <h4 className="text-lg font-medium text-white mb-2">Semester Management</h4>
+              <p className="text-gray-400 text-sm">Add, remove, and organize courses across multiple semesters</p>
+            </div>
+
+            <div className="bg-gray-800/50 rounded-lg p-6">
+              <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"
+                  strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                </svg>
+              </div>
+              <h4 className="text-lg font-medium text-white mb-2">Professor Selection</h4>
+              <p className="text-gray-400 text-sm">Choose professors and view ratings, GPA data, and availability</p>
+            </div>
+
+            <div className="bg-gray-800/50 rounded-lg p-6">
+              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"
+                  strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                  <polyline points="22,12 18,12 15,21 9,3 6,12 2,12" />
+                </svg>
+              </div>
+              <h4 className="text-lg font-medium text-white mb-2">Credit Tracking</h4>
+              <p className="text-gray-400 text-sm">Automatically calculate credit hours per semester and total</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Upload Modal */}
+      <UploadPlannerModal
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        onPlannerUploaded={handlePlannerUploaded}
+      />
     </div>
   )
 }

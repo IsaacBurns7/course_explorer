@@ -7,8 +7,7 @@ const { getAnexData,
     getDepartmentCourses,
     getDegreePlan } = require("./fetchData");
 const cheerio = require("cheerio");
-const pdf_package = require('pdf2json')
-const pdfParser = new pdf_package();
+const PDFParser = require('pdf2json')
 
 //later update ratings aswell    
 async function populateSectionsForCourse(dept, number){
@@ -215,21 +214,30 @@ async function populateCourses(deptRaw) {
 
 
 async function parseDegreePlan(pdfBuffer) {
-    pdfParser.parseBuffer(pdfBuffer);
-    pdfParser.on("pdfParser_dataReady", (pdfData) => {
-        const pages = pdfData.Pages;
-        const allText = [];
+    return new Promise((resolve, reject) => {
+        const pdfParser = new PDFParser(); // NEW INSTANCE EVERY TIME
+        pdfParser.on("pdfParser_dataReady", (pdfData) => {
+            const pages = pdfData.Pages;
+            const allText = [];
 
-        pages.forEach((page, pageIndex) => {
-            const texts = page.Texts.map(t => decodeURIComponent(t.R[0].T));
-            allText.push(...texts);
+            pages.forEach((page) => {
+                const texts = page.Texts.map(t => decodeURIComponent(t.R[0].T));
+                allText.push(...texts);
+            });
+
+            const result = extractSemesters(allText);
+            resolve(result);
         });
-        return extractSemesters(allText)
+
+        pdfParser.on("pdfParser_dataError", (err) => {
+            reject(err.parserError);
+        });
+
+        pdfParser.parseBuffer(pdfBuffer);
     });
 
-    // Get the data for each semester from the PDF
     function extractSemesters(textArray) {
-        const semesterPattern =/^(Fall|Spring|Summer)\s2\d{3}$/;
+        const semesterPattern = /^(Fall|Spring|Summer)\s2\d{3}$/;
         const results = {};
         let currentSemester = null;
         let currentCourses = [];
@@ -237,34 +245,39 @@ async function parseDegreePlan(pdfBuffer) {
         for (let i = 0; i < textArray.length; i++) {
             const line = textArray[i];
 
-            if (semesterPattern.test(line)) { // Find start of a new semester
+            if (semesterPattern.test(line)) {
                 if (currentSemester) {
-                    results[currentSemester] = [...currentCourses]; // Push old semester into the list just in case
+                    results[currentSemester] = [...currentCourses];
                 }
                 currentSemester = line.trim();
                 currentCourses = [];
-            } else if (/^Term Total Credits:/i.test(line)) { // The course list is finished
+            } else if (/^Term Total Credits:/i.test(line)) {
                 if (currentSemester) {
-                    results[currentSemester] = [...currentCourses]; // Save the list
+                    results[currentSemester] = [...currentCourses];
                     currentSemester = null;
-                    currentCourses = []; // Reset to defaults
+                    currentCourses = [];
                 }
-            } else if (line.match(/^[A-Z]{2,4} \d{3}/)) { // Course ID (ex: CSCE 120)
-                const course = line.split(" ")
-            currentCourses.push({"department": course[0], "number": course[1], "title": "", "hours": ""});
-            } else if (currentCourses.length > 0) { // More information (ex: Name of class and credit hours), make sure its not whitespace
-                if (/^\d$/.test(line)) 
-                    currentCourses[currentCourses.length - 1].hours = line
-                else 
-                    currentCourses[currentCourses.length - 1].title += ' ' + line
-                
+            } else if (line.match(/^[A-Z]{2,4} \d{3}/)) {
+                const course = line.split(" ");
+                currentCourses.push({
+                    department: course[0],
+                    number: course[1],
+                    title: "",
+                    hours: ""
+                });
+            } else if (currentCourses.length > 0) {
+                if (/^\d$/.test(line)) {
+                    currentCourses[currentCourses.length - 1].hours = line;
+                } else {
+                    currentCourses[currentCourses.length - 1].title += ' ' + line;
+                }
             }
         }
 
-        if (currentSemester) { // failsafe
+        if (currentSemester) {
             results[currentSemester] = [...currentCourses];
         }
-        console.log(results)
+
         return results;
     }
 }
