@@ -9,7 +9,7 @@ const newProfessors = {
     "professorId1": {
         //metadata such as other classes taught, overall ratings, overall gpa, etc
         courses: [array of courses keys(e.g "DEPT_123")]
-    }
+    },
 }
 
 */
@@ -25,6 +25,7 @@ export const ProfessorsActions = {
 }
 
 export const ProfessorsReducer = (state, action) => {
+    console.log(state);
     switch(action.type){
         case ProfessorsActions.SET_PROFESSORS:
             return {

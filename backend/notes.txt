@@ -123,3 +123,11 @@ deleteOne
 deleteMany
 find({<query>}, {<projection>}). <field>:1 = inclusion, <field>:0 = exclusion
 countDocuments
+
+
+/*
+getSemestersForCourse
+getProfessorDataForCourse,
+getCourseData,
+getGraphData,
+*/

@@ -1,6 +1,7 @@
 /*
 this ones pretty simple...
 EXAMPLE
+(right now does not support multiple classes)
 const defaultSearchOptions = {
     minGPA: 3.00,
     minRating: 3.00,
@@ -9,7 +10,43 @@ const defaultSearchOptions = {
         "FALL 2024",
         "SPRING 2025",
         "SUMMER 2025"
-    ]
+    ],
+    professors: {
+        professorId1:{
+            //to make grades work with semesters would require the frontend to handle all sections 
+            averageRating: 4.8,
+            numRatings: 123, 
+            averageGPA: 1,
+            numStudents,
+            numSections,
+            name,
+        }
+    },
+    courses: {
+        DEPT_123: {
+            professors: [
+                id1,
+                id2   
+            ],
+            //^^same is true of these grades variable
+            averageGPA,
+            averageRating,
+            numStudents,
+            numRatings,
+            numSections
+            ?prereqs: []
+            ?postreqs: []
+        }
+    },
+    cards: ["DEPT123_id1"] //may not be necessary since this is contained within courses
+    // comparedCards: ["DEPT123_id1"] - this could be a separate context ? XD
+    graph: {
+        "DEPT123_id1": {
+            data: [array of data]
+            meta: { professorId: '100615', department: 'CSCE', courseNumber: '120'}
+            name: "CSCE 120 <professorName>"
+        }
+    }
 }
 */
 import { createContext, useReducer, useMemo } from "react"; 
@@ -20,29 +57,36 @@ export const SearchActions = {
     SET_SEARCH_OPTIONS: "SET_SEARCH_OPTIONS"
 }
 
-export const SearchReducer = (state, action) => {
-    switch(action.type){
-        case SearchActions.SET_SEARCH_OPTIONS:
-            return {
-                ...state,
-                search_options: action.payload
-            }
-        default: 
-            return state
-    }
-}
-
 export const SearchContextProvider = ( {children} ) => {
-    const [state, dispatch] = useReducer(SearchReducer, {
-        search_options: null    
-    });
+    const [minGPA, setMinGPA] = useState(0);
+    const [minRatings, setMinRatings] = useState(0);
+    const [teachingNextSemester, setTeachingNextSemester] = useState(false);
+    const [semesters, setSemesters] = useState([]);
+    const [courses, setCourses] = useState({});
+    const [professors, setProfessors] = useState({});
+    const [comparedCards, setComparedCards] = useState([]);
+    const [graphData, setGraphData] = useState({});
 
-    const contextValue = useMemo(() => {
-        return {
-            ...state,
-            dispatch
-        }
-    })
+
+    const contextValue = {
+        minGPA,
+        minRatings,
+        teachingNextSemester,
+        semesters,
+        courses,
+        professors,
+        comparedCards,
+        graphData,
+    
+        setMinGPA,
+        setMinRatings,
+        setTeachingNextSemester,
+        setSemesters,
+        setCourses,
+        setProfessors,
+        setComparedCards,
+        setGraphData
+    };
 
     return <SearchContext.Provider value = {contextValue}>
         {children}

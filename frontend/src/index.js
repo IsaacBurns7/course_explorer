@@ -24,3 +24,7 @@ root.render(
     </React.StrictMode>
 )
 
+{
+    courses:
+        <old courses object></old>
+}
