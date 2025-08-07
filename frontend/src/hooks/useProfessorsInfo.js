@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+//note: Compare gets its comparedProfessorsInfo from this hook, but the cards are from CompareContext
+
 export const useProfessorsInfo = (comparedCards) => {
     const [comparedProfessorsInfo, setComparedProfessorsInfo] = useState([]);
     useEffect(() => {
@@ -12,14 +14,17 @@ export const useProfessorsInfo = (comparedCards) => {
                 const [course, professorId] = card.split("_");
                 const dept = course.slice(0,4);
                 const courseNumber = course.slice(4);
+                // console.log({ course, professorId, dept, courseNumber });
                 
-                return !comparedProfessorsInfo.some(info => 
-                    info.professorId === professorId &&
-                    info.department === dept && 
-                    info.courseNumber === courseNumber
-                )
+                return !comparedProfessorsInfo.some(info => {
+                    // console.log("Comparing with:", info);
+                    //problem, the professorId is present in the objects of comparedProfessorInfo, but department and courseNumber are not.
+                    return info.professorId === professorId
+                    // info.department === dept && 
+                    // info.courseNumber === courseNumber);
+                });
             });
-
+            console.log(newCards);
             for(const card of newCards){
                 if(processedCards.has(card)) continue;
                 processedCards.add(card);

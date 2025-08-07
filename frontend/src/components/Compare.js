@@ -6,10 +6,13 @@ import BarGraph from "./BarGraph";
 
 
 const Compare = ({categories, series, professorsInfo}) => {
+    //maybe pass down comparedCards so I can get dept and coursenumber
     const [cardsToColor, setCardsToColor] = useState({
         //exampleCard: exampleColor
     });
-    console.log(series, professorsInfo); 
+    // console.log(series, professorsInfo); //should series be a map ?
+    //series should probably be an array of objects...
+    console.log(Array.from(series.values())); //series needs a metadata attribute with metadata
     
     const total = useMemo(() => {
         const newTotal = Array.from(series.values()).map((stream) => {
@@ -56,9 +59,22 @@ const Compare = ({categories, series, professorsInfo}) => {
             style: {
                 
             },
-            custom: function({series: seriesInput, seriesIndex, dataPointIndex}){
-                const {name: id, data, dept, courseNumber} = series[seriesIndex];
-                const name = professorsInfo[seriesIndex] ? professorsInfo[seriesIndex].name : id;
+            custom: function({series: seriesInput, seriesIndex, dataPointIndex, w}){
+                //find a way to give this tooltip the courseNumber and dept
+                const cardKey = w.config.series[seriesIndex].name;
+                // console.log(series, cardKey, series[cardKey]);
+                const seriesData = series.get(cardKey);
+                if (!seriesData) {
+                    console.error("No data found for key:", cardKey);
+                    console.log("Available keys:", Array.from(series.keys())); // Debug: show all keys
+                    return "Data not available";
+                }
+                const {data} = seriesData; 
+                const courseId = cardKey.split("_")[0];
+                const dept = courseId.slice(0,4);
+                const courseNumber = courseId.slice(4);
+                const professorId = cardKey.split("_")[1];
+                const name = professorsInfo[seriesIndex] ? professorsInfo[seriesIndex].name : professorId;
                 const value = data[dataPointIndex];
                 const percentage = ((value / total[seriesIndex]) * 100).toFixed(2);
                 return `

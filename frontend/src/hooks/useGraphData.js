@@ -6,11 +6,13 @@ export const useGraphData = ( comparedCards ) => {
     const [categories, setCategories] = useState([]);
     useEffect(() => {
         const updateGraphData = (comparedCards, cardToProfessorInfo) => {
+            // console.log(series);
             const addedCards = comparedCards.filter((card) => {    
                 return !series.has(card);
             });
+            // console.log(addedCards);
             const deletedCards = Array.from(series.keys()).filter((card) => {
-                return !comparedCards.has(card);
+                return !comparedCards.includes(card);
             })
 
             for(const card of addedCards){
@@ -37,14 +39,18 @@ export const useGraphData = ( comparedCards ) => {
                         setCategories(categories);
                         const newSeriesData = data.map((item => item[1]));
 
+                        // console.log(cardToProfessorInfo.get(professorId)); -- this is the problem
                         if(!series.has(professorId)){
                             setSeries(prev => {
                                 const newSeries = new Map(prev);
                                 newSeries.set(card, {
-                                    name: cardToProfessorInfo?.get(professorId)?.name ?? professorId,
+                                    name: department + courseNumber + "_" + cardToProfessorInfo?.get(professorId)?.name ?? professorId,
                                     data: newSeriesData,
-                                    department,
-                                    courseNumber
+                                    meta: {
+                                        professorId, 
+                                        department,
+                                        courseNumber
+                                    }
                                 })
                                 return newSeries;
                             });
@@ -62,7 +68,8 @@ export const useGraphData = ( comparedCards ) => {
                 }) 
             }
         }
-        updateGraphData(comparedCards);
+        updateGraphData(comparedCards); //need to create cardToProfessorInfo with a name attribute
+        console.log(series);
         //return cleanup function 
     }, [comparedCards]);
     return { series, categories };
