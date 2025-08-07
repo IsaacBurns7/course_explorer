@@ -1,3 +1,24 @@
+/*
+const departmentSchema = new Schema(
+{
+    _id: String, -> "CSCE" - computer science / computer engineering
+    info: {
+        name: String
+    },
+    courses: [
+        {
+            courseNumber: Number,
+            courseTitle: String,
+            courseDescription: String,
+            courseId: String  
+        }
+    ]
+    courses -> guaranteed(this is very important) -> department_id, course_number are unique 
+}
+(FAKEDEPT 120)
+);
+*/
+
 DROP TABLE CourseExplorer.departments CASCADE; 
 DROP TABLE CourseExplorer.department_courses CASCADE;
 CREATE TABLE CourseExplorer.departments(
@@ -20,3 +41,8 @@ CREATE TABLE CourseExplorer.department_courses( --this may not be necessary b/c 
     UNIQUE(department_id, course_number)
 );
 
+-- obj1.courses.[<courses_number>]
+-- FIND ME a department_courses entry WHERE dept_id = obj1 AND courses_number = <courses_number>
+-- THE REASON THIS IS BETTER!!! -> BECAUSE it effectively deletes nesting. 
+-- courses.obj1 
+-- courses and obj1 OR I CAN SAY obj1 and courses
