@@ -1,5 +1,5 @@
 //libraries
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 
 //components
@@ -13,6 +13,7 @@ import { SearchContext } from "../context/search";
 import { useSearchParams } from "react-router";
 
 //hooks
+import { useSearchData } from "../hooks/useSearchData";
 // import { useSearchParams } from "react-router";
 // import { useSearchContext } from "../hooks/useSearchContext";
 // import { useCourseActions } from "../hooks/useCourseActions";
@@ -24,45 +25,41 @@ import { useSearchParams } from "react-router";
 
 const SearchResults = () => {
     const [searchParams, setSearchParams] = useSearchParams(); 
-    const { comparedCards, courses, professors, professorFilters, graphData} = useContext(SearchContext);
-
+    const { comparedCards, courses, professors, professorFilters, graphData, cards} = useContext(SearchContext);
+    useSearchData(); //fetch the shit
+    console.log(cards);
     // const { series, categories, existingNames } = useGraphData(comparedCards, cardToProfessorInfo);
 
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
     
-    const courseId = `${dept} ${courseNumber}`;
-
-    //4 useEffects for graphData, courses, professors, and ?semesters
-    useEffect(() => {
-    
-    });
+    // const courseId = `${dept} ${courseNumber}`;
 
     //create map (<COURSEID_PROFESSORID> -> { rating, gpa, name }
-    useEffect(() => {
-        if(cards === null) return;
-        const updateCardToProfessorInfo = (prevMap) => {
-            const map = new Map(prevMap);
-            // console.log(cards, course
-            for(const card of cards){
-                if(map.has(card)) continue;
-                const professorId = card.split("_")[1];
-                if(professorId === "info") continue;
-                const courseIdRaw = card.split("_")[0];
-                const dept = courseIdRaw.slice(0,4);
-                const courseNumber = courseIdRaw.slice(4);
-                const courseId = dept + " " + courseNumber;
-                const professorInfo = courses[courseId][professorId].info;
-                const { averageRating, averageGPA, name} = professorInfo;
-                const neededInfo = {
-                    averageRating, averageGPA, name
-                }
-                map.set(card, neededInfo);
-            }
-            return map;    
-        }
-        setCardToProfessorInfo(prev => updateCardToProfessorInfo(prev));
-    }, [courses]);
+    // useEffect(() => {
+    //     if(cards === null) return;
+    //     const updateCardToProfessorInfo = (prevMap) => {
+    //         const map = new Map(prevMap);
+    //         // console.log(cards, course
+    //         for(const card of cards){
+    //             if(map.has(card)) continue;
+    //             const professorId = card.split("_")[1];
+    //             if(professorId === "info") continue;
+    //             const courseIdRaw = card.split("_")[0];
+    //             const dept = courseIdRaw.slice(0,4);
+    //             const courseNumber = courseIdRaw.slice(4);
+    //             const courseId = dept + " " + courseNumber;
+    //             const professorInfo = courses[courseId][professorId].info;
+    //             const { averageRating, averageGPA, name} = professorInfo;
+    //             const neededInfo = {
+    //                 averageRating, averageGPA, name
+    //             }
+    //             map.set(card, neededInfo);
+    //         }
+    //         return map;    
+    //     }
+    //     setCardToProfessorInfo(prev => updateCardToProfessorInfo(prev));
+    // }, [courses]);
 
 function linkifyCourseCodes(description) {
   const regex = /\b([A-Z]{2,4})\s(\d{3})\b/g;
@@ -102,32 +99,29 @@ function linkifyCourseCodes(description) {
   return parts;
 }
 
-    console.log(courses);
-    const courseTitle = courseInfo?.title;
-    const courseDescription = courseInfo?.description
-
     return (
         <div className = "search-results pt-20">
             <div className="ml-4 mb-6">
                 <h2 className="text-2xl font-semibold">{dept} {courseNumber}: {courseTitle}</h2>
                 <p className="text-gray-600 mt-1">{courseDescription ? linkifyCourseCodes(courseDescription) : "Loading..."}</p>
             </div>
-            <SearchOptions />
+            {/* <SearchOptions /> */}
             <div className = "body grid grid-cols-12">
                 <div className = "cards col-span-6">
 
-                    <ActionsHeader cardToProfessorInfo = {cardToProfessorInfo}/>
+                    {/* <ActionsHeader cardToProfessorInfo = {cardToProfessorInfo}/> */}
                     {cards && cards.map((card) => {
-                        const dept = card.slice(0,4);
-                        const number = card.slice(4,7);
-                        const professorId = card.split("_")[1];
+                        const dept = card.split("_")[0];
+                        const number = card.split("_")[1];
+                        const courseId = dept + " " + number;
+                        const professorId = card.split("_")[2];
                         if(professorId === "info"){
                             return;
                         }
-                        const professor = courses[`${dept} ${number}`][professorId];
+                        const professor = professors[professorId];
                         //verify professor matches search results
-                        if(search_options){
-                            const { minGPA, minRating } = search_options;
+                        if(professorFilters){
+                            const { minGPA, minRating } = professorFilters;
                             if(minGPA && professor.info.averageGPA < minGPA){
                                 return;
                             }
@@ -137,21 +131,20 @@ function linkifyCourseCodes(description) {
                         }
                         // console.log(courses[`${dept} ${number}`]);
                         return <ProfessorCard 
-                            key = {`${professorId}-${dept}-${number}`}
+                            key = {`${courseId}_${professorId}`}
                             professorId = {professorId}
                             professor = {professor}
-                            dept = {dept}
-                            number = {number}
+                            courseId = {courseId}
                         />
                     })}
                 </div>
                 <div className = "compare col-span-6">
-                    <Compare 
+                    {/* <Compare 
                         categories = {categories}
                         series = {series}
                         names = {existingNames}
                         professorsInfo = {comparedProfessorsInfo}
-                    />
+                    /> */}
                 </div>
             </div>
         </div>

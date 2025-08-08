@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useMemo, useState } from "react"
-import { getAllCourses } from "../hooks/useAllCourses"
 
 const ParticlesBackground = () => {
   const [courses, setCourses] = useState(new Set())

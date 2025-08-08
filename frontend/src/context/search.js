@@ -49,7 +49,7 @@ const defaultSearchOptions = {
     }
 }
 */
-import { createContext, useReducer, useMemo } from "react"; 
+import { createContext, useReducer, useMemo, useState } from "react"; 
 
 export const SearchContext = createContext();
 
@@ -64,6 +64,7 @@ export const SearchContextProvider = ( {children} ) => {
         teachingNextSemester: false,
         semesters: []
     });
+    const [cards, setCards] = useState([]);
     const [courses, setCourses] = useState({});
     const [professors, setProfessors] = useState({});
     const [comparedCards, setComparedCards] = useState([]);
@@ -71,12 +72,14 @@ export const SearchContextProvider = ( {children} ) => {
 
 
     const contextValue = {
+        cards,
         professorFilters,
         courses,
         professors,
         comparedCards,
         graphData,
     
+        setCards,
         setProfessorFilters,
         setCourses,
         setProfessors,

@@ -1,7 +1,5 @@
 import { useState, useRef } from "react";
 
-import { useCardsContext } from "../hooks/useCardsContext";
-
 function handleSortByName(cards, cardsDispatch, cardToProfessorInfo, ascending, e){
     if(cards === null){
         return;

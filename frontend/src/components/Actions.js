@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useCompareContext } from "../hooks/useCompareContext";
+
 
 function Actions({arrowIconRef, department, courseNumber, professorId}){
     const compareSVGRef = useRef(null);

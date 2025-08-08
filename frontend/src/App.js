@@ -11,7 +11,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import Home from "./pages/Home";
 import SearchResults from "./pages/SearchResults";
 import Planner from "./pages/Planner"
-import { CompareContextProvider } from "./context/compare";
+import { SearchContextProvider } from "./context/search";
 
 const App = () => {
    //const [professors, setProfessors] = useState([]);
@@ -64,9 +64,9 @@ const App = () => {
     return (
         <div className = "App bg-background text-white h-screen relative ">
             <BrowserRouter>
-            <Navbar />
+            {/* <Navbar /> */}
                 <div className = "pages min-h-screen">
-                    <CompareContextProvider>
+                    <SearchContextProvider>
                         <Routes>
                             <Route 
                                 path = "/dashboard"
@@ -81,7 +81,7 @@ const App = () => {
                                 element = {<Planner />}
                             />
                         </Routes>
-                    </CompareContextProvider>
+                    </SearchContextProvider>
                 </div>
             </BrowserRouter>
         </div>

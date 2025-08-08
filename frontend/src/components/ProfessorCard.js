@@ -5,17 +5,11 @@ import StarRating from "./StarRating";
 import BarGraph from "./BarGraph";
 import ProfessorRatingCard from "./ProfessorRatingCard";
 import Actions from "./Actions";
+import { SearchContext } from "../context/search";
 
-export default function ProfessorCard({ professorId, professor, dept, number, nameOfClass }){
+export default function ProfessorCard({ professorId, courseId }){
     // console.log(professorId);
-    const [ratingObject, setRatingObject] = useState(null);
-    const [tags, setTags] = useState(null);
-    const [ratingCount, setRatingCount] = useState(0);
-    const [rating, setRating] = useState(0.00);
-    const [courses, setCourses] = useState([]);
-    const [graphData, setGraphData] = useState([]);
-    const hiddenRef = useRef(null);
-    const arrowIconRef = useRef(null);
+    const { professors } = useContext(SearchContext); //subscribe to only professors[professorId]
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -29,115 +23,7 @@ export default function ProfessorCard({ professorId, professor, dept, number, na
         }
     }
 
-    //do we need this useeffect call ? 
-    //could we place this in searchresults component instead?
-    //  the answer is yes!
-    useEffect(() => {
-        const optionsUrl = `/server/api/courses/graph?department=${dept}&courseNumber=${number}&professorID=${professorId}`;
-        // console.log(optionsUrl);
-        const options = {
-            method: "GET",
-            url: optionsUrl
-        };
-
-        axios(options)
-            .then((response) => {
-                // console.log(response.data);
-                setGraphData(response.data);
-            })
-            .catch((error) => {
-                // console.error("error: ", error);
-            });
-    }, []);
-
-    //does this useEffect call need to be placed inside of professorCard? 
-    //does this useEffect call need to exist at all? can api call be resolved by searchresults page? 
-    useEffect(() => {
-        const url = `/server/api/professors/ratings/?professorID=${professorId}&department=${dept}&courseNumber=${number}`;
-        const options = {
-            method: "GET",
-            url,
-        }
-        axios(options)
-            .then((response) => {
-                if(!response | !response.data){
-                    throw new Error("Invalid response structure");
-                }
-                const data = response.data;
-                if(data === null | typeof data !== "object"){
-                    throw new Error("Expected object data");
-                }
-                setRating(data.averageRating.toFixed(2) | 0.0);
-                setRatingObject(data);
-                setTags(data.tags);
-                const totalRatings = ratingObject ? Object.values(ratingObject.ratings).reduce((acc,value) => {
-                    acc + value
-                }, 0) : 0;
-                setRatingCount(totalRatings);
-            })
-            .catch(function (error){
-                if(error.response?.status === 404){
-                    console.error("No ratings found for this professor, expected to happen for less popular professors");
-                    //this is expected to happen when ratings arent found for specific professor
-                    return;
-                }
-                if (error.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
-                    console.log(error.response.data);
-                    console.log(error.response.status);
-                    console.log(error.response.headers);
-                } else if (error.request) {
-                    // The request was made but no response was received
-                    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                    // http.ClientRequest in node.js
-                    console.log(error.request);
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    console.log('Error', error.message);
-                }
-                console.log(error.config);
-
-            })
-            .finally(() => {
-
-            })
-    }, [professorId, dept, number]);
-    
-    useEffect(() => {
-        const url = `/server/api/professors/coursesTaught/?professorID=${professorId}`;
-        const options = {
-            method: "GET",
-            url
-        };
-
-        axios(options)
-            .then((response) => {
-                if(!response | !response.data){
-                    throw new Error("Invalid response structure");
-                }
-                const data = response.data;
-                if(data === null | !Array.isArray(data)){
-                    throw new Error("Expected array data");
-                }
-                // const newProfessor = {
-                //     ...professors[professorId],
-                //     courses: data
-                // };
-                // dispatch({type: ProfessorsActions.ADD_PROFESSOR, payload: {
-                //     professorId,
-                //     professor: newProfessor
-                // }});
-                setCourses(data);
-            })
-            .catch((error) => {
-                // console.error("error: ", error)
-            })
-    }, [professorId]);
-
-    const { name, averageGPA, wouldTakeAgain} = professor.info;
-
-    const difficulty = 3.7;
+  
 
 
     return (

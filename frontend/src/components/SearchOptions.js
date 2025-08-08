@@ -1,9 +1,5 @@
 import { useRef, useState, useEffect } from "react";
 
-import { SearchActions } from "../context/search";
-
-import { useSearchContext } from "../hooks/useSearchContext";
-
 //make this fancier in the future but for now I cannot be bothered
 const defaultSemesters = [
     "FALL 2024",

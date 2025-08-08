@@ -2,24 +2,33 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import SearchButton from "./SearchButton";
-import { getAllCourses } from "../hooks/useAllCourses";
 //ELIMINATE USECOURSESCONTEXT
 const Navbar = () => { 
     const [courses, setCourses] = useState(new Set());
 
     useEffect(() => {
-    getAllCourses()
-        .then(courseSet => {
-        // use the Set however you want
-         setCourses(prev => {
-                    const newSet = prev;
-                    courseSet.forEach((courseKey) => {
-                        newSet.add(courseKey);
-                    })
-                    return newSet;
-                });
-        })
-        .catch(err => console.error("Failed to load courses", err));
+      const fetchAllCourses = async () => {
+          try{
+              const abortController = new AbortController();
+              const signal = abortController.signal;
+              const response = await axios.get(`/server/api/courses/getAll`, {signal});
+              if(!response || !response.data){
+                    throw new Error("Invalid response structure");
+              }
+              const data = response.data;
+              if (typeof data !== 'object' || data === null) {
+                  throw new Error('Expected object data');
+              }
+              const defaultCourses = data.map((course) => course.replace("_", " "));
+              setCourses(defaultCourses);
+          }catch(error){
+
+          }
+      }
+      fetchAllCourses();
+      return () => {
+        abortController.abort();
+      }
     }, []);
 
     return (
