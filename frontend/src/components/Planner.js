@@ -266,7 +266,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
 
                         <span className="ml-auto flex gap-x-4">
                           <button
-                            onClick={() => setShowDeleteSemesterConfirm(semester.name)}
+                            onClick={(e) => { e.stopPropagation();setShowDeleteSemesterConfirm(semester.name)}}
                             className="text-red-300 hover:text-red-100 transition text-lg"
                             title="Delete Semester"
                           >
@@ -288,7 +288,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                           </button>
 
                           <button
-                            onClick={() => {setSelectedSemester(semester.name); setShowAddModal(true);}}
+                            onClick={(e) => {e.stopPropagation(); setSelectedSemester(semester.name); setShowAddModal(true);}}
                             className="text-green-300 hover:text-green-100 transition text-lg"
                             title="Add Class"
                           >
