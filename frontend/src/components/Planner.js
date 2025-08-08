@@ -4,23 +4,25 @@ import { useState, useEffect } from "react"
 import DeleteConfirmModal from "./modals/delete"
 import MoveClassModal from "./modals/move"
 import AddClassModal from "./modals/add"
+import ClearConfirmModal from './modals/clear'
 import Alert from "./ui/alert"
 
-export default function PlannerDisplay({ planner, onUpdatePlanner }) {
-  const [viewMode, setViewMode] = useState("table") // 'table' or 'detailed'
-  const [selectedYear, setSelectedYear] = useState(null)
+export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToLanding }) {
   const [openSemesters, setOpenSemesters] = useState({})
   const [openCourses, setOpenCourses] = useState({})
-  const [selectedProfessors, setSelectedProfessors] = useState({}) // Track selected professors for each course
   const [collapsedSemesters, setCollapsedSemesters] = useState({}) // Track collapsed semesters in table view
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null) // Track which course to delete
   const [showMoveModal, setShowMoveModal] = useState(null) // Track which course to move
   const [showAddModal, setShowAddModal] = useState(false) // Track add class modal
+  const [showClearModal, setShowClearModal] = useState(false)
   const [alert, setAlert] = useState({ message: "", type: "info", isVisible: false })
-
+  const [selectedSemester, setSelectedSemester] = useState(null)
+  const [showDeleteSemesterConfirm, setShowDeleteSemesterConfirm] = useState(null)
+  
   // Group semesters by year and sort chronologically
   const plannerData = {}
   const sortedSemesters = []
+
   for (const key of Object.keys(planner)) {
     const year = key.split(" ")[1]
     if (!plannerData[year]) plannerData[year] = []
@@ -48,51 +50,25 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
     setCollapsedSemesters(initialCollapsedState)
   }, [planner])
 
-  // Handle professor selection
+  // Handle professor selection - Now updates the planner object directly
   const handleProfessorSelect = (semesterName, courseIndex, professorIndex) => {
-    const courseKey = `${semesterName}_${courseIndex}`
-    setSelectedProfessors((prev) => ({
-      ...prev,
-      [courseKey]: professorIndex,
-    }))
+    const updatedPlanner = { ...planner }
+    const semesterCourses = updatedPlanner[semesterName]
+    if (semesterCourses && semesterCourses[courseIndex]) {
+      semesterCourses[courseIndex].selectedProf = professorIndex
+    }
+    onUpdatePlanner(updatedPlanner)
   }
 
-  // Get selected professor for a course
-  const getSelectedProfessor = (semesterName, courseIndex, course) => {
-    const courseKey = `${semesterName}_${courseIndex}`
-    const selectedIndex = selectedProfessors[courseKey]
+  // Get selected professor for a course - Reads directly from the course object
+  const getSelectedProfessor = (course) => {
+    const selectedIndex = course.selectedProf
     if (selectedIndex !== undefined && course.professors && course.professors[selectedIndex]) {
       return course.professors[selectedIndex]
     }
     return null
   }
 
-  // Checks if the professor typically teaches during this semester
-  const profTeachesSemester = (semester, prof, course) => {
-    console.log(semester)
-    console.log(prof)
-    console.log(course)
-    if (prof == null || course == null) return null
-    const type = semester.split(" ")[0]
-    const findSem = Object.keys(course.info.sections).filter((x) => x.startsWith(type))
-    if (findSem.length == 0) return "Course rarely taught this term"
-    let latest = 0
-    let found = false
-    for (const sem of findSem) {
-      const year = Number.parseInt(sem.split(" ")[1])
-      console.log(year)
-      if (year > latest) latest = year
-      const profFound = course.info.sections[sem].filter((x) => x.prof == prof.info.name)
-      if (profFound.length > 0) {
-        found = true
-      }
-    }
-    console.log("Latest:")
-    console.log(latest)
-    if (latest <= new Date().getFullYear() - 2) return `Hasn't taught in 2+ years`
-    if (found) return null
-    return `Doesn't typically teach ${type}`
-  }
 
   // Toggle semester collapse in table view
   const toggleSemesterCollapse = (semesterName) => {
@@ -105,27 +81,8 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
   // Handle delete class with confirmation
   const handleDeleteClass = (semesterName, courseIndex) => {
     const updatedPlanner = { ...planner }
+    // Delete the course and its selected professor property
     updatedPlanner[semesterName].splice(courseIndex, 1)
-
-    // Clean up selected professor for this course
-    const courseKey = `${semesterName}_${courseIndex}`
-    setSelectedProfessors((prev) => {
-      const updated = { ...prev }
-      delete updated[courseKey]
-
-      // Update keys for courses that come after the deleted one
-      Object.keys(updated).forEach((key) => {
-        const [keysemester, keyIndex] = key.split("_")
-        if (keysemester === semesterName && Number.parseInt(keyIndex) > courseIndex) {
-          const newKey = `${keysemester}_${Number.parseInt(keyIndex) - 1}`
-          updated[newKey] = updated[key]
-          delete updated[key]
-        }
-      })
-
-      return updated
-    })
-
     onUpdatePlanner(updatedPlanner)
     setShowDeleteConfirm(null)
   }
@@ -144,34 +101,15 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
     }
     updatedPlanner[toSemester].push(courseToMove)
 
-    // Update selected professor mapping
-    const oldCourseKey = `${fromSemester}_${courseIndex}`
-    const newCourseKey = `${toSemester}_${updatedPlanner[toSemester].length - 1}`
-
-    setSelectedProfessors((prev) => {
-      const updated = { ...prev }
-
-      // Move the professor selection to new key
-      if (updated[oldCourseKey] !== undefined) {
-        updated[newCourseKey] = updated[oldCourseKey]
-        delete updated[oldCourseKey]
-      }
-
-      // Update keys for courses that come after the moved one in the original semester
-      Object.keys(updated).forEach((key) => {
-        const [keysemester, keyIndex] = key.split("_")
-        if (keysemester === fromSemester && Number.parseInt(keyIndex) > courseIndex) {
-          const newKey = `${keysemester}_${Number.parseInt(keyIndex) - 1}`
-          updated[newKey] = updated[key]
-          delete updated[key]
-        }
-      })
-
-      return updated
-    })
-
     onUpdatePlanner(updatedPlanner)
     setShowMoveModal(null)
+  }
+
+  const handleDeleteSemester = (semesterName) => {
+    const updatedPlanner = { ...planner }
+    delete updatedPlanner[semesterName]
+    onUpdatePlanner(updatedPlanner)
+    setShowDeleteSemesterConfirm(null)
   }
 
   // Handle add class to semester
@@ -205,28 +143,6 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
     setAlert((prev) => ({ ...prev, isVisible: false }))
   }
 
-  // Toggle functions for detailed view
-  const toggleSemester = (semesterName) => {
-    setOpenSemesters((prev) => ({
-      ...prev,
-      [semesterName]: !prev[semesterName],
-    }))
-  }
-
-  const toggleCourse = (semesterName, index) => {
-    const courseKey = `${semesterName}_${index}`
-    setOpenCourses((prev) => ({
-      ...prev,
-      [courseKey]: !prev[courseKey],
-    }))
-  }
-
-  const getGridCols = (semesterCount) => {
-    if (semesterCount === 1) return "grid-cols-1"
-    if (semesterCount === 2) return "grid-cols-1 lg:grid-cols-2"
-    return "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
-  }
-
   const hasSemesterPassed = (name) => {
     const split = name.split(" ")
     const term = split[0]
@@ -242,18 +158,6 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
     if (year < currentYear) return true
     if (year > currentYear) return false
     return semesterOrder[term] < semesterOrder[currentSemester]
-  }
-
-  const getSiteByProfessor = (course, professorName) => {
-    for (const semester in course.info.sections) {
-      const sections = course.info.sections[semester]
-      for (const section of sections) {
-        if (section.prof === professorName) {
-          return section.site
-        }
-      }
-    }
-    return null // If no matching section is found
   }
 
   // Get course name for modals
@@ -277,28 +181,57 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
       <Alert message={alert.message} type={alert.type} isVisible={alert.isVisible} onClose={closeAlert} />
       {/* View Toggle and Add Button */}
       <div className="flex items-center justify-between pb-6">
-        <h2 className="text-2xl font-bold text-gray-100">Academic Plan</h2>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-500 transition flex items-center space-x-2"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 5v14" />
-            <path d="M5 12h14" />
-          </svg>
-          <span>Add Class</span>
-        </button>
-      </div>
+  <h2 className="text-2xl font-bold text-gray-100">Academic Plan</h2>
+
+  {/* Grouped buttons */}
+  <div className="flex items-center space-x-3">
+    <button
+  onClick={() => { setSelectedSemester(null); setShowClearModal(true); }}
+  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition flex items-center space-x-2 shadow-md"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+    <path d="M10 11v6" />
+    <path d="M14 11v6" />
+    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+  </svg>
+  <span>Clear Planner</span>
+</button>
+    <button
+      onClick={() => { setSelectedSemester(null); setShowAddModal(true); }}
+      className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-500 transition flex items-center space-x-2"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 5v14" />
+        <path d="M5 12h14" />
+      </svg>
+      <span>Add Class/Semester</span>
+    </button>
+
+  
+  </div>
+</div>
 
       <div className="bg-dark-card rounded-lg overflow-hidden shadow-lg border border-dark-border">
         <div className="overflow-x-auto">
@@ -324,12 +257,59 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
                         onClick={() => toggleSemesterCollapse(semester.name)}
                         className="w-full text-left p-3 font-bold text-gray-100 text-base hover:bg-dark-hover transition-colors duration-200 flex items-center justify-between"
                       >
-                        <span>{semester.name}</span>
-                        {hasSemesterPassed(semester.name) ? (
-                          <span className="text-gray-400 ml-auto">Already Taken</span>
-                        ) : null}
+                        <span className="flex justify-between w-full">
+                          <span>{semester.name}</span>
+                          {hasSemesterPassed(semester.name) && (
+                            <span className="text-gray-400 mr-5">(Already Taken)</span>
+                          )}
+                        </span>
+
+                        <span className="ml-auto flex gap-x-4">
+                          <button
+                            onClick={() => setShowDeleteSemesterConfirm(semester.name)}
+                            className="text-red-300 hover:text-red-100 transition text-lg"
+                            title="Delete Semester"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                              <path d="M3 6h18" />
+                              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
+                          </button>
+
+                          <button
+                            onClick={() => {setSelectedSemester(semester.name); setShowAddModal(true);}}
+                            className="text-green-300 hover:text-green-100 transition text-lg"
+                            title="Add Class"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M12 5v14" />
+                              <path d="M5 12h14" />
+                            </svg>
+                          </button>
+                        </span>
                         <svg
-                          className={`w-5 h-5 transition-transform duration-200 ${
+                          className={`w-5 h-5 transition-transform duration-200 ml-5 ${
                             collapsedSemesters[semester.name] ? "rotate-0" : "rotate-90"
                           }`}
                           fill="currentColor"
@@ -348,8 +328,8 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
                   {!collapsedSemesters[semester.name] &&
                     semester.courses.map((course, courseIndex) => {
                       const courseKey = `${semester.name}_${courseIndex}`
-                      const selectedProf = getSelectedProfessor(semester.name, courseIndex, course)
-                      const profLabel = profTeachesSemester(semester.name, selectedProf, course)
+                      const selectedProf = getSelectedProfessor(course)
+                      const profLabel = selectedProf?.info?.warning
                       return (
                         <tr key={courseIndex} className="border-b border-dark-border hover:bg-dark-hover">
                           <td className="p-3">
@@ -397,37 +377,31 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
                                       </div>
                                       <div className="flex space-x-2">
                                         <span className="bg-blue-dark text-blue-light px-2 py-1 rounded text-xs">
-                                          GPA: {selectedProf.info.averageGPA.toFixed(2)}
+                                          GPA: {selectedProf.info.averageGPA}
                                         </span>
                                         <span className="bg-yellow-dark text-yellow-light px-2 py-1 rounded text-xs">
-                                          Overall Rating: {selectedProf.info.averageRating.toFixed(1)}
+                                          Overall Rating: {selectedProf.info.averageRating}
                                         </span>
                                         <span className="bg-green-dark text-green-light px-2 py-1 rounded text-xs">
                                           Class Rating:{" "}
-                                          {selectedProf.ratings?.[
-                                            `${course.department}_${course.number}`
-                                          ]?.averageRating?.toFixed(1) ?? "N/A"}
+                                          {selectedProf.info.courseRating ?? "N/A"}
                                         </span>
                                         <span className="bg-purple-dark text-purple-light px-2 py-1 rounded text-xs">
-                                          {getSiteByProfessor(course, selectedProf.info.name)}
+                                          {selectedProf.info.site ?? "Unknown"}
                                         </span>
                                       </div>
                                     </div>
                                     <div className="flex flex-col items-end space-y-1 mt-2">
                                       {typeof profLabel === "string" && profLabel.trim() !== "" && (
                                         <button
-                                          onClick={() =>
-                                            setSelectedProfessors((prev) => ({ ...prev, [courseKey]: undefined }))
-                                          }
+                                          onClick={() => handleProfessorSelect(semester.name, courseIndex, undefined)}
                                           className="bg-red-dark text-red-light px-2 py-1 rounded text-xs hover:brightness-110 transition text-right"
                                         >
                                           {profLabel}
                                         </button>
                                       )}
                                       <button
-                                        onClick={() =>
-                                          setSelectedProfessors((prev) => ({ ...prev, [courseKey]: undefined }))
-                                        }
+                                        onClick={() => handleProfessorSelect(semester.name, courseIndex, undefined)}
                                         className="text-blue-400 hover:text-blue-300 underline text-xs"
                                       >
                                         Change Professor
@@ -438,7 +412,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
                                   // Show dropdown for selection
                                   <select
                                     className="w-full p-2 border border-dark-border rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-dark-input text-gray-200"
-                                    value=""
+                                    value={course.selectedProf ?? ""}
                                     onChange={(e) =>
                                       handleProfessorSelect(semester.name, courseIndex, Number.parseInt(e.target.value))
                                     }
@@ -446,8 +420,8 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
                                     <option value="">Select Professor</option>
                                     {course.professors.map((prof, profIndex) => (
                                       <option key={profIndex} value={profIndex}>
-                                        {prof.info.name} | GPA: {prof.info.averageGPA.toFixed(2)} | Rating:{" "}
-                                        {prof.info.averageRating.toFixed(1)}
+                                        {prof.info.name} | GPA: {prof.info.averageGPA} | Rating:{" "}
+                                        {prof.info.averageRating}
                                       </option>
                                     ))}
                                   </select>
@@ -511,16 +485,28 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
                     })}
                   {/* Semester Total Row - Only show if not collapsed */}
                   {!collapsedSemesters[semester.name] && (
-                    <tr className="bg-dark-header border-b-2 border-dark-accent">
-                      <td className="p-3 font-semibold text-gray-100" colSpan={2}>
-                        Total Credit Hours:
-                      </td>
-                      <td className="p-3 text-center font-semibold text-gray-100">
-                        {semester.courses.reduce((sum, course) => sum + course.hours, 0)}
-                      </td>
-                      <td colSpan={2}></td>
-                    </tr>
-                  )}
+  <>
+   <tr className="bg-dark-header border-b-2 border-dark-accent">
+  <td className="p-3 font-semibold text-gray-100" colSpan={2}>
+    Total Credit Hours:
+  </td>
+
+  <td className="p-3 text-center font-semibold text-gray-100">
+    {semester.courses.reduce((sum, course) => sum + course.hours, 0)}
+  </td>
+
+  <td className="p-3 text-left text-yellow-200 text-xs" colSpan={2}>
+  {semester.courses.reduce((sum, course) => sum + course.hours, 0) > 19 && (
+    <span className="bg-yellow-900 px-3 py-1 rounded">
+      This semester exceeds the typical 19 credit hour limit. Advisor approval may be required.
+    </span>
+  )}
+</td>
+
+</tr>
+    
+  </>
+)}
                 </React.Fragment>
               ))}
               {/* Grand Total Row */}
@@ -554,8 +540,21 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
         courseName={showDeleteConfirm ? getCourseInfo(showDeleteConfirm)?.name : undefined}
       />
 
+      <DeleteConfirmModal
+  isOpen={showDeleteSemesterConfirm}
+  onClose={() => setShowDeleteSemesterConfirm(null)}
+  onConfirm={() => handleDeleteSemester(showDeleteSemesterConfirm)}
+  courseName={showDeleteSemesterConfirm}
+  semesterCourses={
+    showDeleteSemesterConfirm
+      ? planner[showDeleteSemesterConfirm]?.map(c => `${c.department} ${c.number}`) ?? []
+      : []
+  }
+/>
+
+
       <MoveClassModal
-        isOpen={!!showMoveModal}
+        isOpen={showMoveModal}
         onClose={() => setShowMoveModal(null)}
         onMove={(targetSemester) => {
           const courseInfo = getCourseInfo(showMoveModal)
@@ -575,6 +574,12 @@ export default function PlannerDisplay({ planner, onUpdatePlanner }) {
         onAddSemester={handleAddSemester}
         semesters={sortedSemesters}
         showAlert={showAlert}
+        currentSemester={selectedSemester}
+      />
+      <ClearConfirmModal
+          isOpen={showClearModal}
+          onClose={() => setShowClearModal(false)}
+          onConfirm={() => handleBackToLanding()}
       />
     </div>
   )

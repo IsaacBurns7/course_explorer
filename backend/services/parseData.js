@@ -213,7 +213,7 @@ async function populateCourses(deptRaw) {
 }
 
 
-async function parseDegreePlan(pdfBuffer) {
+async function parseDegreePlanPDF(pdfBuffer) {
     return new Promise((resolve, reject) => {
         const pdfParser = new PDFParser(); // NEW INSTANCE EVERY TIME
         pdfParser.on("pdfParser_dataReady", (pdfData) => {
@@ -282,6 +282,139 @@ async function parseDegreePlan(pdfBuffer) {
     }
 }
 
+function parseViewPlanFormat(text) {
+  const termPattern = /^(\d{4})\s+(Fall|Spring|Summer)/i;
+  const coursePattern = /^([A-Z]{2,4})\s+(\d{3})\s+(.+?)\s+(\d+)\s/;
+
+  const terms = {};
+  let currentTerm = null;
+  let foundAnyCourses = false;
+
+  const lines = text.split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const termMatch = trimmed.match(termPattern);
+    if (termMatch) {
+      const [, year, season] = termMatch;
+      currentTerm = `${season.charAt(0).toUpperCase() + season.slice(1)} ${year}`;
+      terms[currentTerm] = [];
+      continue;
+    }
+    if (currentTerm) {
+      const courseMatch = trimmed.match(coursePattern);
+      if (courseMatch) {
+        const [, dept, num, title, hours] = courseMatch;
+        terms[currentTerm].push({
+          department: dept,
+          number: num,
+          title: title.trim(),
+          hours: parseInt(hours, 10),
+        });
+        foundAnyCourses = true;
+      }
+    }
+  }
+
+  if (Object.keys(terms).length === 0) {
+    return {error: "Parsing failed: No valid courses found."};
+  }
+  if (!foundAnyCourses) {
+    return {error: "No courses found — you may have copied from the wrong view (use 'View Plan')."};
+  }
+  return terms;
+}
+
+function parseAlternateDegreePlan(text) {
+  const termPattern = /^(\d{4})\s*-\s*(Fall|Spring|Summer)/i;
+  const coursePattern = /^([A-Z]{2,4})\s*-\s*(\d{3})\s*\((\d+)\)/;
+
+  const terms = {};
+  let currentTerm = null;
+  let foundAnyCourses = false;
+
+  const lines = text.split(/\r?\n/);
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+
+    // Detect a term header
+    const termMatch = trimmed.match(termPattern);
+    if (termMatch) {
+      const [, year, season] = termMatch;
+      currentTerm = `${season.charAt(0).toUpperCase() + season.slice(1)} ${year}`;
+      terms[currentTerm] = [];
+      continue;
+    }
+
+    // Detect course line
+    if (currentTerm) {
+      const courseMatch = trimmed.match(coursePattern);
+      if (courseMatch) {
+        const [, dept, num, hours] = courseMatch;
+
+        // Get title from next non-empty line
+        let title = "";
+        let j = i + 1;
+        while (j < lines.length && title === "") {
+          const nextLine = lines[j].trim();
+          if (nextLine && !/^[A-Z]{1,4}$/.test(nextLine)) {
+            title = nextLine;
+            break;
+          }
+          j++;
+        }
+
+        // Check if TCR label exists right after title
+        let skipCourse = false;
+        let k = j + 1;
+        while (k < lines.length) {
+          const nextLine = lines[k].trim();
+          if (nextLine) {
+            if (nextLine.toUpperCase() === "TCR") {
+              skipCourse = true;
+            }
+            break;
+          }
+          k++;
+        }
+
+        // Only add if not skipped
+        if (!skipCourse) {
+          terms[currentTerm].push({
+            department: dept,
+            number: num,
+            title: title.trim(),
+            hours: parseInt(hours, 10),
+          });
+          foundAnyCourses = true;
+        }
+      }
+    }
+  }
+
+  if (Object.keys(terms).length === 0) {
+    return {error: "Parsing failed: No valid courses found."};
+  }
+  if (!foundAnyCourses) {
+    return {error: "No courses found — please make sure you copied from the correct view."}
+  }
+  return terms;
+}
+
+function parseDegreePlanText(text) {
+  const hasViewPlanPattern = /^\d{4}\s+(Fall|Spring|Summer)/m.test(text);
+  const hasAlternatePattern = /^\d{4}\s*-\s*(Fall|Spring|Summer)/m.test(text);
+
+  if (hasViewPlanPattern && !hasAlternatePattern) {
+    return parseViewPlanFormat(text);
+  }
+  if (hasAlternatePattern && !hasViewPlanPattern) {
+    return parseAlternateDegreePlan(text);
+  }
+
+  // If it matches neither or both (ambiguous)
+  return {error: "Parsing failed: No valid courses found."};
+}
 
 async function populateDepartments(data) {
     const departments = {}
@@ -315,5 +448,6 @@ async function populateDepartments(data) {
 module.exports = { populateSectionsForCourse, 
     populateCourses, 
     populateDepartments,
-    parseDegreePlan    
+    parseDegreePlanPDF,
+    parseDegreePlanText
 }

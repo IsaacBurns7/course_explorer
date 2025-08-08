@@ -18,7 +18,8 @@ module.exports = {
 "dark-hover": "#442828",      
 "dark-border": "#5a3a3a",  
 "dark-accent": "#704040",    
-"dark-input": "#241616",    
+"dark-input": "#241616", 
+"dark-select": "#6E2E2E",
 
         // Badge colors for dark theme
         "blue-dark": "#1E3A5F",

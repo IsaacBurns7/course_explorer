@@ -1,29 +1,63 @@
+// src/app/Planner.js
+
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import PlannerDisplay from "../components/Planner"
 import UploadPlannerModal from "../components/modals/upload"
 
 export default function Planner() {
-  const [currentView, setCurrentView] = useState("landing") // 'landing' or 'planner'
+  // Use a function to initialize state from local storage
+  const [currentView, setCurrentView] = useState("landing")
   const [planner, setPlanner] = useState({})
   const [showUploadModal, setShowUploadModal] = useState(false)
+  const [loading, setLoading] = useState(true) // Add a new loading state
+
+  // Use a single useEffect to handle initial loading from local storage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedPlanner = localStorage.getItem("academicPlanner")
+      if (savedPlanner && savedPlanner !== "{}") {
+        const parsedPlanner = JSON.parse(savedPlanner)
+        setPlanner(parsedPlanner)
+        setCurrentView("planner")
+      }
+    }
+    setLoading(false) // Set loading to false after checking local storage
+  }, []) // Empty dependency array ensures this runs only once on mount
+
+  // Use another useEffect to save the planner to local storage whenever it changes
+  useEffect(() => {
+    if (!loading && typeof window !== "undefined") {
+      localStorage.setItem("academicPlanner", JSON.stringify(planner))
+    }
+  }, [planner, loading])
+
+  // Conditional rendering for the loading state
+  if (loading) {
+    // You can return null for a blank page or a loading spinner
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+      </div>
+    )
+  }
 
   const updatePlanner = (newPlanner) => {
     setPlanner(newPlanner)
   }
 
   const handleStartFromScratch = () => {
-    setPlanner({})
+    setPlanner({}) // This will trigger the save effect
     setCurrentView("planner")
   }
 
   const handlePlannerUploaded = (plannerData) => {
-    setPlanner(plannerData)
+    setPlanner(plannerData) // This will trigger the save effect
     setCurrentView("planner")
   }
 
   const handleBackToLanding = () => {
+    // Optionally clear the planner when going back to landing
     setPlanner({})
     setCurrentView("landing")
   }
@@ -31,29 +65,8 @@ export default function Planner() {
   if (currentView === "planner") {
     return (
       <div className="min-h-screen bg-background-900 p-4 pt-24">
-        <div className="mb-4">
-          <button
-            onClick={handleBackToLanding}
-            className="px-4 py-2 bg-gray-600 text-gray-200 rounded hover:bg-gray-500 transition flex items-center space-x-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5" />
-              <path d="M12 19l-7-7 7-7" />
-            </svg>
-            <span>Back to Home</span>
-          </button>
-        </div>
-        <PlannerDisplay planner={planner} onUpdatePlanner={updatePlanner} />
+
+        <PlannerDisplay planner={planner} onUpdatePlanner={updatePlanner} handleBackToLanding = {handleBackToLanding} />
       </div>
     )
   }
@@ -71,7 +84,7 @@ export default function Planner() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-8">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-8 hover:border-emerald-500 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
+          <div className="bg-dark-card border border-gray-700 rounded-xl p-8 hover:border-emerald-500 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
             <div className="text-center">
               <div className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2"
@@ -94,7 +107,7 @@ export default function Planner() {
             </div>
           </div>
 
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-8 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
+          <div className="bg-dark-card border border-gray-700 rounded-xl p-8 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2"
