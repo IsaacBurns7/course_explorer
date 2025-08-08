@@ -230,7 +230,7 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
 
           <div className="mt-6 pt-4 border-t border-dark-border">
             <p className="text-sm text-gray-400 text-center">
-              Your data is processed securely and not stored permanently on our servers.
+              We do not collect any personal information. Only course data is processed and stored.
             </p>
           </div>
         </div>
