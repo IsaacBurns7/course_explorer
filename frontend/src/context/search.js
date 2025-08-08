@@ -58,10 +58,12 @@ export const SearchActions = {
 }
 
 export const SearchContextProvider = ( {children} ) => {
-    const [minGPA, setMinGPA] = useState(0);
-    const [minRatings, setMinRatings] = useState(0);
-    const [teachingNextSemester, setTeachingNextSemester] = useState(false);
-    const [semesters, setSemesters] = useState([]);
+    const [professorFilters, setProfessorFilters] = useState({
+        minGPA: 0,
+        minRatings: 0,
+        teachingNextSemester: false,
+        semesters: []
+    });
     const [courses, setCourses] = useState({});
     const [professors, setProfessors] = useState({});
     const [comparedCards, setComparedCards] = useState([]);
@@ -69,19 +71,13 @@ export const SearchContextProvider = ( {children} ) => {
 
 
     const contextValue = {
-        minGPA,
-        minRatings,
-        teachingNextSemester,
-        semesters,
+        professorFilters,
         courses,
         professors,
         comparedCards,
         graphData,
     
-        setMinGPA,
-        setMinRatings,
-        setTeachingNextSemester,
-        setSemesters,
+        setProfessorFilters,
         setCourses,
         setProfessors,
         setComparedCards,

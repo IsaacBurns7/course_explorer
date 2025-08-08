@@ -8,50 +8,36 @@ import ActionsHeader from "../components/ActionsHeader";
 import SearchOptions from "../components/SearchOptions";
 import Compare from "../components/Compare";
 
-//hooks
+//context
+import { SearchContext } from "../context/search";
 import { useSearchParams } from "react-router";
-import { useSearchContext } from "../hooks/useSearchContext";
-import { useCourseActions } from "../hooks/useCourseActions";
-import { useCoursesContext } from "../hooks/useCoursesContext";
-import { useCardsContext } from "../hooks/useCardsContext";
-import { useCompareContext } from "../hooks/useCompareContext";
-import { useProfessorsInfo } from "../hooks/useProfessorsInfo";
-import { useGraphData } from "../hooks/useGraphData";
+
+//hooks
+// import { useSearchParams } from "react-router";
+// import { useSearchContext } from "../hooks/useSearchContext";
+// import { useCourseActions } from "../hooks/useCourseActions";
+// import { useCoursesContext } from "../hooks/useCoursesContext";
+// import { useCardsContext } from "../hooks/useCardsContext";
+// import { useCompareContext } from "../hooks/useCompareContext";
+// import { useProfessorsInfo } from "../hooks/useProfessorsInfo";
+// import { useGraphData } from "../hooks/useGraphData";
 
 const SearchResults = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const {search_options, dispatch: searchDispatch} = useSearchContext();
-    // const { professors } = useProfessorsContext(); //use professors to find ratings and such
-    const { courses } = useCoursesContext(); //try to delete this as well
-    const { addCourse } = useCourseActions(); //good god who thought this was a good idea.
-    const { cards } = useCardsContext();
+    const [searchParams, setSearchParams] = useSearchParams(); 
+    const { comparedCards, courses, professors, professorFilters, graphData} = useContext(SearchContext);
 
-    //for compare
-    const { cards: comparedCards } = useCompareContext();
-    const comparedProfessorsInfo = useProfessorsInfo(comparedCards);
-    const [cardToProfessorInfo, setCardToProfessorInfo] = useState(new Map());
-    const { series, categories, existingNames } = useGraphData(comparedCards, cardToProfessorInfo);
+    // const { series, categories, existingNames } = useGraphData(comparedCards, cardToProfessorInfo);
 
     const dept = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
     
-    useEffect(() => {
-        addCourse(dept, courseNumber);
-        //affects courses state, then 
-    }, [dept, courseNumber]);
-
     const courseId = `${dept} ${courseNumber}`;
-    const [courseInfo, setCourseInfo] = useState(null);
 
+    //4 useEffects for graphData, courses, professors, and ?semesters
     useEffect(() => {
-        if (!courses || !courses[courseId]) return;
-        
-        // Waited until the specific course was added to context
-        const info = courses[courseId]?.info;
-        if (info) {
-            setCourseInfo(info);
-        }
-    }, [courses, courseId]);
+    
+    });
+
     //create map (<COURSEID_PROFESSORID> -> { rating, gpa, name }
     useEffect(() => {
         if(cards === null) return;
@@ -116,7 +102,7 @@ function linkifyCourseCodes(description) {
   return parts;
 }
 
-    console.log(courses)
+    console.log(courses);
     const courseTitle = courseInfo?.title;
     const courseDescription = courseInfo?.description
 
