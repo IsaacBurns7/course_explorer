@@ -1,8 +1,9 @@
 const express = require('express');
-const { getBestClasses, getClassInfo } = require('../controllers/planner');
+const { getBestClassesPDF, getBestClassesText, getClassInfo } = require('../controllers/planner');
 
 const router = express.Router();
 
-router.post("/", express.raw({ type: "application/pdf", limit: "10mb" }), getBestClasses);
+router.post("/pdf", express.raw({ type: "application/pdf", limit: "10mb" }), getBestClassesPDF);
+router.post("/text", getBestClassesText);
 router.post("/class", getClassInfo)
 module.exports = router;

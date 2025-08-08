@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 // import { getAllCourses } from "../../hooks/useAllCourses";
 import axios from "axios"
 
-export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, semesters, showAlert }) {
+export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, semesters, showAlert, currentSemester }) {
    const [courses, setCourses] = useState(new Set());
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [selectedSemester, setSelectedSemester] = useState("")
@@ -14,6 +14,14 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
   const [newSemesterYear, setNewSemesterYear] = useState(new Date().getFullYear())
   const courseCacheRef = useRef(new Map());
   const courseListRef = useRef(null);
+  const semesterRefs = useRef({});
+
+  useEffect(() => {
+    console.log(currentSemester)
+  if (isOpen && currentSemester) {
+    setSelectedSemester(currentSemester)
+  }
+}, [isOpen, currentSemester])
 
   useEffect(() => {
   if (courseListRef.current) {
@@ -46,6 +54,19 @@ useEffect(() => {
       }
     }, []);
 
+useEffect(() => {
+  if (isOpen && currentSemester) {
+    setSelectedSemester(currentSemester);
+
+    // Scroll to the current semester if ref exists
+    setTimeout(() => {
+      const ref = semesterRefs.current[currentSemester];
+      if (ref) {
+        ref.scrollIntoView({ behavior: "instant", block: "nearest" });
+      }
+    }, 0);
+  }
+}, [isOpen, currentSemester]);
   if (!isOpen) return null
 
   const filteredCourses = Array.from(courses).filter(
@@ -157,7 +178,7 @@ useEffect(() => {
           <button
             onClick={() => setMode("class")}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition ${
-              mode === "class" ? "bg-emerald-600 text-white" : "text-gray-300 hover:text-gray-100"
+              mode === "class" ? "bg-dark-select text-white" : "text-gray-300 hover:text-gray-100"
             }`}
           >
             Add Class
@@ -165,7 +186,7 @@ useEffect(() => {
           <button
             onClick={() => setMode("semester")}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition ${
-              mode === "semester" ? "bg-emerald-600 text-white" : "text-gray-300 hover:text-gray-100"
+              mode === "semester" ? "bg-dark-select text-white" : "text-gray-300 hover:text-gray-100"
             }`}
           >
             Add Semester
@@ -181,7 +202,7 @@ useEffect(() => {
                 placeholder="Search courses..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full p-2 border border-dark-border rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-dark-input text-gray-200"
+                className="w-full p-2 border border-dark-border rounded-md text-sm focus:ring-2 focus:ring-dark-select focus:border-dark-select bg-dark-input text-gray-200"
               />
             </div>
 
@@ -194,8 +215,8 @@ useEffect(() => {
                     key={index}
                     onClick={() => handleCourseSelect(course)}
                     className={`w-full text-left p-2 rounded transition ${
-                      selectedCourse === course
-                        ? "bg-dark-semester text-white border border-dark-border"
+                      `${selectedCourse?.department} ${selectedCourse?.number}` === course
+                        ? "bg-dark-select text-white border border-dark-border"
                         : "bg-dark-input border border-dark-border hover:bg-dark-hover text-gray-200"
                     }`}
                   >
@@ -212,19 +233,20 @@ useEffect(() => {
               <h4 className="text-md font-medium text-gray-200 mb-2">Select Semester:</h4>
               <div className="space-y-2 max-h-32 overflow-y-auto">
                 {semesters.map((semester) => (
-                  <button
-                    key={semester.name}
-                    onClick={() => setSelectedSemester(semester.name)}
-                    className={`w-full text-left p-2 rounded transition ${
-                      selectedSemester === semester.name
-                        ? "bg-emerald-600 text-white"
-                        : "bg-dark-input border border-dark-border hover:bg-dark-hover text-gray-200"
-                    }`}
-                  >
-                    {semester.name}
-                    <span className="text-sm text-gray-400 ml-2">({semester.courses.length} courses)</span>
-                  </button>
-                ))}
+  <button
+    key={semester.name}
+    ref={(el) => (semesterRefs.current[semester.name] = el)}
+    onClick={() => setSelectedSemester(semester.name)}
+    className={`w-full text-left p-2 rounded transition ${
+      selectedSemester === semester.name
+        ? "bg-dark-select text-white"
+        : "bg-dark-input border border-dark-border hover:bg-dark-hover text-gray-200"
+    }`}
+  >
+    {semester.name}
+    <span className="text-sm text-gray-400 ml-2">({semester.courses.length} courses)</span>
+  </button>
+))}
                 <button
                       key="Add Semester"
                       onClick={() => setMode("semester")}
@@ -256,7 +278,7 @@ useEffect(() => {
               <button
                 onClick={handleAddClass}
                 disabled={!selectedCourse || !selectedSemester}
-                className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-dark-select text-white rounded hover:bg-dark-select transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add Class
               </button>
@@ -275,7 +297,7 @@ useEffect(() => {
                       onClick={() => setNewSemesterTerm(term)}
                       className={`p-2 rounded text-sm font-medium transition ${
                         newSemesterTerm === term
-                          ? "bg-emerald-600 text-white"
+                          ? "bg-dark-select text-white"
                           : "bg-dark-input border border-dark-border hover:bg-dark-hover text-gray-200"
                       }`}
                     >
@@ -291,7 +313,7 @@ useEffect(() => {
                 <select
                   value={newSemesterYear}
                   onChange={(e) => setNewSemesterYear(Number.parseInt(e.target.value))}
-                  className="w-full p-2 border border-dark-border rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-dark-input text-gray-200"
+                  className="w-full p-2 border border-dark-border rounded-md text-sm focus:ring-2 focus:ring-dark-select focus:border-dark-select bg-dark-input text-gray-200"
                 >
                   {availableYears.map((year) => (
                     <option key={year} value={year}>
@@ -312,7 +334,7 @@ useEffect(() => {
             <div className="flex space-x-3 justify-end">
               <button
                 onClick={handleAddSemester}
-                className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-500 transition"
+                className="px-4 py-2 bg-dark-select text-white rounded hover:bg-dark-select transition"
               >
                 Add Semester
               </button>
