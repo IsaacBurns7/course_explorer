@@ -149,10 +149,10 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
                 <div className="bg-dark-input border border-dark-border rounded-lg p-4 mb-4">
                   <h5 className="font-medium text-gray-200 mb-2">Instructions:</h5>
                   <ul className="text-sm text-gray-300 space-y-1">
-                    <li>• Copy your academic plan from your student portal or degree audit</li>
-                    <li>• Include semester names (e.g., "Fall 2024", "Spring 2025")</li>
-                    <li>• Include course codes, titles, and credit hours</li>
-                    <li>• The system will automatically parse and organize your courses</li>
+                    <li>• Go to your Degree Planner and generate your plan</li>
+                    <li>• Select "View Plan" on the navigation bar</li>
+                    <li>• Select the entire page (CTRL + A, CTRL + C)</li>
+                    <li>• Paste the contents into the text box (CTRL + V)</li>
                   </ul>
                 </div>
                 <textarea
@@ -171,33 +171,51 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+           <div className="space-y-4">
               <div>
                 <h4 className="text-md font-medium text-gray-200 mb-2">Upload PDF File</h4>
                 <div className="bg-dark-input border border-dark-border rounded-lg p-4 mb-4">
-                  <h5 className="font-medium text-gray-200 mb-2">Where to find your PDF:</h5>
+                  <h5 className="font-medium text-gray-200 mb-2">Instructions:</h5>
                   <ul className="text-sm text-gray-300 space-y-1">
-                    <li>• <strong>Student Portal:</strong> Look for "Degree Audit" or "Academic Plan"</li>
-                    <li>• <strong>Advisor:</strong> Request a copy of your degree plan</li>
-                    <li>• <strong>Registrar:</strong> Download from your student records</li>
-                    <li>• <strong>Department:</strong> Get your major's curriculum sheet</li>
+                    <li>• Go to your Degree Planner and generate your plan</li>
+                    <li>• Click on the "Print" button next to Add/Edit plan</li>
+                    <li>• Save the document as a PDF</li>
+                    <li>• Upload the PDF below</li>
                   </ul>
                 </div>
-                <div className="border-2 border-dashed border-dark-border rounded-lg p-8 text-center">
-                  <input type="file" accept=".pdf" onChange={handleFileSelect} className="hidden" id="file-upload" />
-                  <label htmlFor="file-upload" className="cursor-pointer">
-                    <div className="w-16 h-16 bg-dark-input rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="7,10 12,15 17,10" />
-                        <line x1="12" y1="15" x2="12" y2="3" />
-                      </svg>
-                    </div>
-                    <p className="text-gray-300 mb-2">
-                      {selectedFile ? selectedFile.name : "Click to select PDF file"}
-                    </p>
-                    <p className="text-sm text-gray-400">PDF files only</p>
-                  </label>
+                <div
+                  className="border-2 border-dashed border-dark-border rounded-lg w-full h-64 flex flex-col items-center justify-center text-center p-4 cursor-pointer"
+                  onClick={() => document.getElementById("file-upload").click()}
+                >
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <div className="w-16 h-16 bg-dark-input rounded-full flex items-center justify-center mb-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-gray-300"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7,10 12,15 17,10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-300 mb-2 break-words max-w-full">
+                    {selectedFile ? selectedFile.name : "Click to select PDF file"}
+                  </p>
+                  <p className="text-sm text-gray-400">PDF files only</p>
                 </div>
               </div>
               <button
