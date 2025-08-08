@@ -284,7 +284,7 @@ async function parseDegreePlanPDF(pdfBuffer) {
 
 function parseViewPlanFormat(text) {
   const termPattern = /^(\d{4})\s+(Fall|Spring|Summer)/i;
-  const coursePattern = /^([A-Z]{2,4})\s+(\d{3})\s+(.+?)\s+(\d+)\s/;
+  const coursePattern = /^([A-Z]{2,4})[\t ]+(\d{3})[\t ]+(.+?)[\t ]+(\d+)(?:[\t ].*)?$/;
 
   const terms = {};
   let currentTerm = null;
@@ -293,13 +293,18 @@ function parseViewPlanFormat(text) {
   const lines = text.split(/\r?\n/);
   for (const line of lines) {
     const trimmed = line.trim();
+     if (/no planned course/i.test(trimmed)) {
+      continue;
+    }
     const termMatch = trimmed.match(termPattern);
+    
     if (termMatch) {
       const [, year, season] = termMatch;
       currentTerm = `${season.charAt(0).toUpperCase() + season.slice(1)} ${year}`;
       terms[currentTerm] = [];
       continue;
     }
+
     if (currentTerm) {
       const courseMatch = trimmed.match(coursePattern);
       if (courseMatch) {
