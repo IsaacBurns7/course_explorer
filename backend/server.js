@@ -5,14 +5,15 @@ const mongoose = require('mongoose');
 const fetch = require('node-fetch')
 const professorRoutes = require('./routes/professor');
 const courseRoutes = require("./routes/course");
-const plannerRoutes = require('./routes/planner')
+const plannerRoutes = require('./routes/planner');
+const searchRoutes = require("./routes/search");
 // const { populateProfessors, 
 //     populateCourses, 
 //     populateDepartments, 
 //     populateSectionsForCourse} = require("./services/parseData");
 const Course = require('./models/course');
-const Professor = require('./models/professor')
-const Department = require('./models/department')
+const Professor = require('./models/professor');
+const Department = require('./models/department');
 const cors = require("cors");
 
 const app = express();
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
 app.use("/api/professors", professorRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/planner", plannerRoutes);
+app.use("/api/search", searchRoutes);
 
 function chunkArray(array, chunkSize) {
   const chunks = [];

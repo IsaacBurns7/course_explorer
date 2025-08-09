@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext} from "react";
 import axios from "axios";
 
 import StarRating from "./StarRating";
@@ -10,6 +10,20 @@ import { SearchContext } from "../context/search";
 export default function ProfessorCard({ professorId, courseId }){
     // console.log(professorId);
     const { professors } = useContext(SearchContext); //subscribe to only professors[professorId]
+    const hiddenRef = useRef(null);
+    const arrowIconRef = useRef(null);
+
+    const professor = professors[professorId] || {};
+    const info = professor.info || {}; 
+    const {
+        department = "DEPT",
+        courseNumber = "123",
+        name = "name",
+        averageRating: rating = 0.0,
+        title: courseTitle = "title",
+        averageGPA: GPA = 0.0,
+    } = info;
+    const tags = professor.tags || {};
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -31,19 +45,19 @@ export default function ProfessorCard({ professorId, courseId }){
             <button onClick = {(e) => {toggleDetails(e);}} className="grid grid-cols-12 p-3 gap-6 border -b border-gray-200">
                 <Actions 
                     arrowIconRef = {arrowIconRef}
-                    department = {dept}
-                    courseNumber = {number}
+                    department = {department}
+                    courseNumber = {courseNumber}
                     professorId = {professorId}
                 />
-                <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{dept} {number} {name} {nameOfClass}</div>
-                <div className="col-span-1 text-center text-white font-semibold text-xl px-6 py-2 rounded-full bg-green-400">{averageGPA}</div>
-                {ratingObject && <StarRating className = "col-span-3" rating = {rating}/>}
+                <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{department} {courseNumber} {name} {courseTitle}</div>
+                <div className="col-span-1 text-center text-white font-semibold text-xl px-6 py-2 rounded-full bg-green-400">{GPA}</div>
+                {<StarRating className = "col-span-3" rating = {rating}/>}
             </button>
 
 
-            <div id = {`${professor.info.name}${dept}${number}`} ref = {hiddenRef} hidden = {true}>
-                <BarGraph data = {graphData} professorName = {professor.info.name} dept = {dept} number = {number}/>
-                <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, ratingCount}}/>
+            <div id = {`${name}${department}${courseNumber}`} ref = {hiddenRef} hidden = {true}>
+                {/* <BarGraph data = {graphData} professorName = {professor.info.name} department = {department} courseNumber = {courseNumber}/> */}
+                {/* <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, ratingCount}}/> */}
 
                 <div className = "flex flex-wrap gap-3 mb-6">
                     {tags && Object.entries(tags).map(([key, value]) => (
@@ -68,11 +82,11 @@ export default function ProfessorCard({ professorId, courseId }){
                 <div className="courses-title font-semibold text-blue-200 mb-2">Courses Taught</div>
                 <div className="courses-list flex flex-wrap gap-2">
                 
-                {courses && courses.map((courseId) => (
+                {/* {courses && courses.map((courseId) => (
                     <span key={courseId} className="course-tag text-yellow-200 text-xs font-medium px-2.5 py-0.5 rounded">
                         {courseId.replace("_", " ")}
                     </span>
-                ))}
+                ))} */}
                 </div>
             </div>
         </div>

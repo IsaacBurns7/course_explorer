@@ -25,13 +25,11 @@ import { useSearchData } from "../hooks/useSearchData";
 
 const SearchResults = () => {
     const [searchParams, setSearchParams] = useSearchParams(); 
-    const { comparedCards, courses, professors, professorFilters, graphData, cards} = useContext(SearchContext);
-    useSearchData(); //fetch the shit
-    console.log(cards);
-    // const { series, categories, existingNames } = useGraphData(comparedCards, cardToProfessorInfo);
-
-    const dept = searchParams.get("dept");
+    const department = searchParams.get("dept");
     const courseNumber = searchParams.get("courseNumber");
+    const searchQuery = `department=${department}&courseNumber=${courseNumber}`;
+    useSearchData(searchQuery);
+    const { comparedCards, courses, professors, professorFilters, graphData, cards} = useContext(SearchContext);
     
     // const courseId = `${dept} ${courseNumber}`;
 
@@ -98,11 +96,20 @@ function linkifyCourseCodes(description) {
 
   return parts;
 }
+    const courseId = `${department}_${courseNumber}`;
+    const currentCourse = courses[courseId] || {};
+    const info = currentCourse.info || {};
+    const {title: courseTitle = "Placeholder title", 
+        description: courseDescription = "Placeholder description"} 
+    = info; 
+    console.log(courses);
+    console.log(professors);
+    console.log(cards);
 
     return (
         <div className = "search-results pt-20">
             <div className="ml-4 mb-6">
-                <h2 className="text-2xl font-semibold">{dept} {courseNumber}: {courseTitle}</h2>
+                <h2 className="text-2xl font-semibold">{department} {courseNumber}: {courseTitle}</h2>
                 <p className="text-gray-600 mt-1">{courseDescription ? linkifyCourseCodes(courseDescription) : "Loading..."}</p>
             </div>
             {/* <SearchOptions /> */}

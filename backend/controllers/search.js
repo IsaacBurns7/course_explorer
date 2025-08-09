@@ -24,13 +24,19 @@ const getProfessorDataForCourse = async(req, res) => {
         if(!selectedCourse) return res.status(404).json({error: "course not found"});
 
         const professorIds = selectedCourse.professors || [];
-        if(professorIds.length == 0) return res.json({});
         const professors = await Professor.find({_id: {$in: professorIds}});
 
         const results = {};
 
         for(const professor of professors){
-            if(!professor.ratings || !professor.ratings[courseId]) continue;
+            if(!professor.ratings || !professor.ratings[courseId]){
+                //dont change anything
+                results[professor._id] = {
+                    ...professor.toObject()
+                }
+                continue;
+            }
+
             const ratings = professor.ratings;
             const courseObj = ratings[courseId];
 
@@ -77,8 +83,8 @@ const getCourseData = async (req, res) => {
     try { 
         const { department, courseNumber } = req.query;
         const courseId = `${department}_${courseNumber}`;
-        const selectedCourse = Course.findOne({_id: courseId});
-        return res.json({courseId: selectedCourse});
+        const selectedCourse = await Course.findOne({_id: courseId});
+        return res.json({[courseId]: selectedCourse});
     } catch (error) {
         console.error("Error in search controller: getCourseData");
         return res.status(500).json({error: "Internal server error"});

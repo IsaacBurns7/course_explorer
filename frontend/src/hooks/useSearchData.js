@@ -3,7 +3,7 @@ import axios from "axios";
 import { SearchContext } from "../context/search";
 
 export function useSearchData(searchQuery){
-    const { setGraphData, setCourses, setProfessors, setSemesters, setCards} = useContext(SearchContext);
+    const { setGraphData, setCourses, setProfessors, setSemesters, setCards, courses} = useContext(SearchContext);
     useEffect(() => {
         const abortController = new AbortController();
         const signal = abortController.signal;
@@ -11,23 +11,20 @@ export function useSearchData(searchQuery){
         const fetchAllData = async () => {
             try{
                 const urls = [
-                    `/server/api/search/graphData?query=${searchQuery}`,
-                    `/server/api/search/courses?query=${searchQuery}`,
-                    `/server/api/search/professors?query=${searchQuery}`,
+                    `/server/api/search/graphData?${searchQuery}`,
+                    `/server/api/search/courses?${searchQuery}`,
+                    `/server/api/search/professors?${searchQuery}`,
+                    //could also do query=${searchQuery}, where searchQuery looks like 
+                    //{ department: "CSCE", courseNumber: 120 }
                 ];
                 const [graphData, courses, professors] = await Promise.all(
                     urls.map(url => axios.get(url, {signal}))
                 ); 
 
-                setGraphData(graphData);
-                setCourses(courses);
-                setProfessors(professors);
-                for(const [courseId, course] of courses){
-                    for(const professorId of course.professors){
-                        addedCards.push(courseId + " " + professorId);
-                    }
-                }
-                setCards(oldCards => [...oldCards, ...addedCards]);
+                setGraphData(graphData.data);
+                setCourses(courses.data);
+                setProfessors(professors.data);
+               
             } catch(error){
                 // setError(error);
             }   
@@ -39,5 +36,17 @@ export function useSearchData(searchQuery){
             abortController.abort();
         }
 
-    }, [setGraphData, setCourses, setProfessors, searchQuery]);
+    }, [setGraphData, setCourses, setProfessors, setCards, searchQuery]);
+
+    useEffect(() => {
+        const newCards = [];
+        if(Object.entries(courses).length === 0) return;
+        for(const [courseId, course] of Object.entries(courses)){
+            if(!course.professors || course.professors.length === 0) break;
+            for(const professorId of course.professors){
+                newCards.push(courseId + " " + professorId);
+            }
+        }
+        setCards(newCards);
+    }, [courses]);
 }

@@ -8,7 +8,6 @@ function Actions({arrowIconRef, department, courseNumber, professorId}){
     const plannerRef = useRef(null);
     const [isCompareChecked, setIsCompareChecked] = useState(false);
     const [isPlannerChecked, setIsPlannerChecked] = useState(false);
-    const { cards, dispatch } = useCompareContext();
 
     function handleAddToCompare(){
         if(!isCompareChecked){
