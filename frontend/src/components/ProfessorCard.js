@@ -9,11 +9,14 @@ import { SearchContext } from "../context/search";
 
 export default function ProfessorCard({ professorId, courseId }){
     // console.log(professorId);
-    const { professors } = useContext(SearchContext); //subscribe to only professors[professorId]
+    const { professors, graphData } = useContext(SearchContext); //subscribe to only professors[professorId]
     const hiddenRef = useRef(null);
     const arrowIconRef = useRef(null);
 
     const professor = professors[professorId] || {};
+    // console.log(professors, professors[professorId]);
+    const graphKey = courseId.replace(" ", "") + "_" + professorId;
+    // console.log(courseId + professorId, graphData, graphData[graphKey]);
     const info = professor.info || {}; 
     const {
         department = "DEPT",
@@ -56,7 +59,7 @@ export default function ProfessorCard({ professorId, courseId }){
 
 
             <div id = {`${name}${department}${courseNumber}`} ref = {hiddenRef} hidden = {true}>
-                {/* <BarGraph data = {graphData} professorName = {professor.info.name} department = {department} courseNumber = {courseNumber}/> */}
+                <BarGraph graphKey = {graphKey}/>
                 {/* <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, ratingCount}}/> */}
 
                 <div className = "flex flex-wrap gap-3 mb-6">

@@ -102,9 +102,9 @@ function linkifyCourseCodes(description) {
     const {title: courseTitle = "Placeholder title", 
         description: courseDescription = "Placeholder description"} 
     = info; 
-    console.log(courses);
-    console.log(professors);
-    console.log(cards);
+    // console.log(courses);
+    // console.log(professors);
+    // console.log(cards);
 
     return (
         <div className = "search-results pt-20">
@@ -122,6 +122,7 @@ function linkifyCourseCodes(description) {
                         const number = card.split("_")[1];
                         const courseId = dept + " " + number;
                         const professorId = card.split("_")[2];
+                        // console.log(card, professorId);
                         if(professorId === "info"){
                             return;
                         }

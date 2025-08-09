@@ -4,12 +4,29 @@
 
 //in courses, find course with courseId
 //for that course, find professors with professorId
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useContext } from "react";
 import Chart from "react-apexcharts"; 
 import axios from "axios";
+import { SearchContext } from "../context/search";
 
-function BarGraph({data, professorName, dept, number}){
-
+function BarGraph({graphKey}){
+    const { graphData } = useContext(SearchContext);
+    const graphInfo = graphData[graphKey] || {};
+    console.log(graphInfo);
+    /*
+    data = {graphData[graphKey]} professorName = {name} department = {department} courseNumber = {courseNumber}
+    */
+    const { 
+        data = [],
+        meta = {},
+        professorName = "name"
+    } = graphInfo;
+    const {
+        professorId = "123456",
+        department = "DEPT",
+        courseNumber = "123"
+    } = meta;
+    
     const categories = data.map((item => item[0]));
     const seriesData = data.map((item => item[1]));
     const total = useMemo(() => {

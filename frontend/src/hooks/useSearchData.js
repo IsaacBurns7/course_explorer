@@ -44,7 +44,7 @@ export function useSearchData(searchQuery){
         for(const [courseId, course] of Object.entries(courses)){
             if(!course.professors || course.professors.length === 0) break;
             for(const professorId of course.professors){
-                newCards.push(courseId + " " + professorId);
+                newCards.push(courseId + "_" + professorId);
             }
         }
         setCards(newCards);
