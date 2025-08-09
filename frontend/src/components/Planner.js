@@ -18,6 +18,8 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
   const [alert, setAlert] = useState({ message: "", type: "info", isVisible: false })
   const [selectedSemester, setSelectedSemester] = useState(null)
   const [showDeleteSemesterConfirm, setShowDeleteSemesterConfirm] = useState(null)
+  const [profSortOption, setProfSortOption] = useState("Name"); // NEW: sorting option
+
   
   // Group semesters by year and sort chronologically
   const plannerData = {}
@@ -68,6 +70,19 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
     }
     return null
   }
+
+  const sortProfessors = (professors) => {
+    if (!professors) return [];
+    const sorted = [...professors];
+    switch (profSortOption) {
+      case "GPA":
+        return sorted.sort((a, b) => (b.info.averageGPA ?? 0) - (a.info.averageGPA ?? 0));
+      case "Rating":
+        return sorted.sort((a, b) => (b.info.averageRating ?? 0) - (a.info.averageRating ?? 0));
+      default: // Name
+        return sorted.sort((a, b) => a.info.name.localeCompare(b.info.name));
+    }
+  };
 
 
   // Toggle semester collapse in table view
@@ -185,29 +200,15 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
 
   {/* Grouped buttons */}
   <div className="flex items-center space-x-3">
-    <button
-  onClick={() => { setSelectedSemester(null); setShowClearModal(true); }}
-  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition flex items-center space-x-2 shadow-md"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="3 6 5 6 21 6" />
-    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-    <path d="M10 11v6" />
-    <path d="M14 11v6" />
-    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-  </svg>
-  <span>Clear Planner</span>
-</button>
+<select
+      className="px-4 py-2 bg-dark-input border border-dark-border rounded text-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-gray-200"
+      value={profSortOption}
+      onChange={(e) => setProfSortOption(e.target.value)}
+    >
+      <option value="Name">Sort Professors by Name</option>
+      <option value="GPA">Sort Professors by GPA</option>
+      <option value="Rating">Sort Professors by Rating</option>
+    </select>
     <button
       onClick={() => { setSelectedSemester(null); setShowAddModal(true); }}
       className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-500 transition flex items-center space-x-2"
@@ -411,20 +412,19 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                                 ) : (
                                   // Show dropdown for selection
                                   <select
-                                    className="w-full p-2 border border-dark-border rounded-md text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-dark-input text-gray-200"
-                                    value={course.selectedProf ?? ""}
-                                    onChange={(e) =>
-                                      handleProfessorSelect(semester.name, courseIndex, Number.parseInt(e.target.value))
-                                    }
-                                  >
-                                    <option value="">Select Professor</option>
-                                    {course.professors.map((prof, profIndex) => (
-                                      <option key={profIndex} value={profIndex}>
-                                        {prof.info.name} | GPA: {prof.info.averageGPA} | Rating:{" "}
-                                        {prof.info.averageRating}
-                                      </option>
-                                    ))}
-                                  </select>
+                                  className="w-full p-2 border border-dark-border rounded-md text-sm focus:ring-1 focus:ring-gray-200 focus:border-gray-200 bg-dark-input text-gray-200"
+                                  value={course.selectedProf ?? ""}
+                                  onChange={(e) =>
+                                    handleProfessorSelect(semester.name, courseIndex, Number.parseInt(e.target.value))
+                                  }
+                                >
+                                  <option value="">Select Professor</option>
+                                  {sortProfessors(course.professors).map((prof, profIndex) => (
+                                    <option key={profIndex} value={course.professors.indexOf(prof)}>
+                                      {prof.info.name} | GPA: {prof.info.averageGPA} | Rating: {prof.info.averageRating}
+                                    </option>
+                                  ))}
+                                </select>
                                 )}
                               </div>
                             ) : (
@@ -526,7 +526,31 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
           </table>
         </div>
       </div>
-
+      <div className="flex justify-end py-4">
+  <button
+    onClick={() => { setSelectedSemester(null); setShowClearModal(true); }}
+    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition flex items-center space-x-2 shadow-md"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+    </svg>
+    <span>Clear Planner</span>
+  </button>
+</div>
       {/* Modals */}
       <DeleteConfirmModal
         isOpen={!!showDeleteConfirm}

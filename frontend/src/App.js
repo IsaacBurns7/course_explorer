@@ -3,7 +3,6 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Landing from "./components/Landing";
 import Navbar from "./components/Navbar";
-import Test from './components/Test'
 //hooks
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 

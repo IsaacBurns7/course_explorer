@@ -2,6 +2,7 @@
 import AutoCompleteSearch from "./Search"
 import ParticlesBackground from "./Background"
 import Carousel from './Carousel'
+import TextType from './TextType';
 import '../styles/wave.css'
 const Landing = () => {
   return (
@@ -17,16 +18,24 @@ const Landing = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-background/10 via-transparent to-background/10 pointer-events-none z-10"></div>
 
       {/* 📐 Two-column Layout */}
-      <div className="flex flex-col md:flex-row w-full max-w-full z-20 pt-15">
+      <div className="flex flex-col md:flex-row w-full max-w-full z-20">
         {/* Left: Main Content */}
         <div className="flex-1 flex flex-col items-center justify-center text-center pl-20 space-y-6">
   <h1 className="text-4xl md:text-6xl font-extrabold text-white drop-shadow-2xl">
     Aggie Course Explorer
   </h1>
 
-  <p className="text-lg md:text-xl bg-gradient-to-r from-yellow-400 to-yellow-200 text-transparent bg-clip-text drop-shadow-lg">
-    Your Gateway to Texas A&M Courses
-  </p>
+  <span className="text-lg md:text-xl">
+  <span className="bg-gradient-to-r from-yellow-400 to-yellow-200 text-transparent bg-clip-text drop-shadow-lg">
+    ACE your <TextType 
+      text={["classes.", "semester.", "future."]}
+      typingSpeed={75}
+      pauseDuration={1500}
+      showCursor={true}
+      cursorCharacter="|"
+    />
+  </span>
+</span>
   <div className = "relative -left-7">
   <AutoCompleteSearch />
   </div>

@@ -32,7 +32,7 @@ const Navbar = () => {
     }, []);
 
     return (
-<div className="fixed top-0 left-0 w-full h-16 bg-maroon shadow-md z-40 flex items-center justify-between px-8">
+<div className="right-0 width-[100vw] fixed top-0 left-0 w-full h-16 bg-maroon shadow-md z-40 flex items-center justify-between px-8">
 
     {/* Left section: Home + Input + Submit */}
     <div className="flex items-center gap-4">
