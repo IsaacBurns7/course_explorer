@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
+import { SearchContext } from "../context/search";
 
 
 function Actions({arrowIconRef, department, courseNumber, professorId}){
@@ -9,11 +10,14 @@ function Actions({arrowIconRef, department, courseNumber, professorId}){
     const [isCompareChecked, setIsCompareChecked] = useState(false);
     const [isPlannerChecked, setIsPlannerChecked] = useState(false);
 
+    const { setComparedCards } = useContext(SearchContext);
+    const cardKey = `${department}${courseNumber}_${professorId}`;
+
     function handleAddToCompare(){
         if(!isCompareChecked){
-            dispatch({type: "ADD_CARD", payload: `${department}${courseNumber}_${professorId}`});
+            setComparedCards(oldCards => [...oldCards, cardKey]);
         }else{
-            dispatch({type: "DELETE_CARD", payload: `${department}${courseNumber}_${professorId}`});
+            setComparedCards(oldCards => oldCards.filter(card => card != cardKey)); //delete card with string cardKey
         }
         setIsCompareChecked(!isCompareChecked);
     }

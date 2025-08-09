@@ -1,5 +1,5 @@
 function ProfessorRatingCard({props}){
-    const {rating, difficulty, totalRatings, wouldTakeAgain} = props;
+    const {rating, totalRatings, wouldTakeAgain, GPA} = props;
     
     return (
         <div className = "bg-black text-white p-6 rounded-xl w-full max-w-2xl mx-auto shadow-lg">
@@ -9,8 +9,8 @@ function ProfessorRatingCard({props}){
                     <p className = "text-sm">Professor Rating</p>
                 </div>
                 <div>
-                    <p className="text-2xl font-bold">{difficulty}</p>
-                    <p className="text-sm">Difficulty</p>
+                    <p className="text-2xl font-bold">{GPA}</p>
+                    <p className="text-sm">GPA</p>
                 </div>
                 <div>
                     <p className="text-2xl font-bold">{totalRatings}</p>

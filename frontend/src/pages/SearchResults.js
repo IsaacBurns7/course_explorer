@@ -105,6 +105,7 @@ function linkifyCourseCodes(description) {
     // console.log(courses);
     // console.log(professors);
     // console.log(cards);
+    // console.log(graphData);
 
     return (
         <div className = "search-results pt-20">
@@ -147,12 +148,8 @@ function linkifyCourseCodes(description) {
                     })}
                 </div>
                 <div className = "compare col-span-6">
-                    {/* <Compare 
-                        categories = {categories}
-                        series = {series}
-                        names = {existingNames}
-                        professorsInfo = {comparedProfessorsInfo}
-                    /> */}
+                    <Compare 
+                    />
                 </div>
             </div>
         </div>

@@ -121,9 +121,8 @@ const getGraphData = async(req, res) => {
     });
     for(const professor of professors){
         const graphId = `${department}${courseNumber}_${professor._id}`;
-
         results[graphId] = {
-            data: data, //this is empty
+            data: JSON.parse(JSON.stringify(data)), //needs to create a deep clone
             meta: {
                 professorId: professor._id,
                 department: department,
@@ -133,12 +132,13 @@ const getGraphData = async(req, res) => {
         };
     }
     const validProfessorIds = new Set(professorIds);
-
     for(const [semester, sections] of selectedCourse.sections){
-        // if(semester in validSemesters)
+        // console.log(sections);
         for(const section of sections){
-            if(!section.prof_id || validProfessorIds.has(section.prof_id)) continue;
+            if(!section.prof_id || !validProfessorIds.has(section.prof_id)) continue;
             const graphId = `${department}${courseNumber}_${section.prof_id}`;
+            // console.log(graphId);
+            // console.log(results[graphId]);
             for(const category of categories){
                 const value = section[category];
                 if(!results[graphId] || !results[graphId].data){
@@ -146,8 +146,10 @@ const getGraphData = async(req, res) => {
                 }
                 // below vs const graphData = results[graphId].data
                 const index = results[graphId].data.findIndex(item => item[0] === category);
+                // console.log(index, results[graphId].data[index][1], Number(value));
                 results[graphId].data[index][1] += Number(value);
             }
+            // console.log(results[graphId]);
         }
     }
 

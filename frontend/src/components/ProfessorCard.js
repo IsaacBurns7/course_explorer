@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useContext} from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 import StarRating from "./StarRating";
@@ -9,7 +10,7 @@ import { SearchContext } from "../context/search";
 
 export default function ProfessorCard({ professorId, courseId }){
     // console.log(professorId);
-    const { professors, graphData } = useContext(SearchContext); //subscribe to only professors[professorId]
+    const { professors } = useContext(SearchContext); //subscribe to only professors[professorId]
     const hiddenRef = useRef(null);
     const arrowIconRef = useRef(null);
 
@@ -18,15 +19,18 @@ export default function ProfessorCard({ professorId, courseId }){
     const graphKey = courseId.replace(" ", "") + "_" + professorId;
     // console.log(courseId + professorId, graphData, graphData[graphKey]);
     const info = professor.info || {}; 
+    const department = courseId.split(" ")[0] || "DEPT";
+    const courseNumber = courseId.split(" ")[1] || "123";
     const {
-        department = "DEPT",
-        courseNumber = "123",
         name = "name",
         averageRating: rating = 0.0,
         title: courseTitle = "title",
         averageGPA: GPA = 0.0,
+        totalRatings = 0,
+        wouldTakeAgain = 0,
     } = info;
     const tags = professor.tags || {};
+    const courses = professor.courses || [];
 
     function toggleDetails(e){
         if(e.target.type === "checkbox") return;
@@ -52,7 +56,7 @@ export default function ProfessorCard({ professorId, courseId }){
                     courseNumber = {courseNumber}
                     professorId = {professorId}
                 />
-                <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{department} {courseNumber} {name} {courseTitle}</div>
+                <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{courseId} {name} </div>
                 <div className="col-span-1 text-center text-white font-semibold text-xl px-6 py-2 rounded-full bg-green-400">{GPA}</div>
                 {<StarRating className = "col-span-3" rating = {rating}/>}
             </button>
@@ -60,7 +64,7 @@ export default function ProfessorCard({ professorId, courseId }){
 
             <div id = {`${name}${department}${courseNumber}`} ref = {hiddenRef} hidden = {true}>
                 <BarGraph graphKey = {graphKey}/>
-                {/* <ProfessorRatingCard props = {{rating, difficulty, wouldTakeAgain, ratingCount}}/> */}
+                <ProfessorRatingCard props = {{rating, totalRatings, wouldTakeAgain, GPA}}/>
 
                 <div className = "flex flex-wrap gap-3 mb-6">
                     {tags && Object.entries(tags).map(([key, value]) => (
@@ -85,11 +89,15 @@ export default function ProfessorCard({ professorId, courseId }){
                 <div className="courses-title font-semibold text-blue-200 mb-2">Courses Taught</div>
                 <div className="courses-list flex flex-wrap gap-2">
                 
-                {/* {courses && courses.map((courseId) => (
-                    <span key={courseId} className="course-tag text-yellow-200 text-xs font-medium px-2.5 py-0.5 rounded">
+                {/* MAKE THIS CLICKABLE :)) */}
+                {courses && courses.map((courseId) => (
+                    <Link key={courseId} 
+                        className="course-tag text-yellow-200 text-xs font-medium px-2.5 py-0.5 rounded"
+                        to = {`/dashboard?dept=${courseId.split("_")[0]}&courseNumber=${courseId.split("_")[1]}`}
+                    >
                         {courseId.replace("_", " ")}
-                    </span>
-                ))} */}
+                    </Link>
+                ))}
                 </div>
             </div>
         </div>

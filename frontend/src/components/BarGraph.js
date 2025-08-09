@@ -12,21 +12,21 @@ import { SearchContext } from "../context/search";
 function BarGraph({graphKey}){
     const { graphData } = useContext(SearchContext);
     const graphInfo = graphData[graphKey] || {};
-    console.log(graphInfo);
+    console.log(graphKey, graphData);
     /*
     data = {graphData[graphKey]} professorName = {name} department = {department} courseNumber = {courseNumber}
     */
     const { 
         data = [],
         meta = {},
-        professorName = "name"
+        name = "DEPT 123 Name"
     } = graphInfo;
     const {
         professorId = "123456",
         department = "DEPT",
         courseNumber = "123"
     } = meta;
-    
+
     const categories = data.map((item => item[0]));
     const seriesData = data.map((item => item[1]));
     const total = useMemo(() => {
@@ -77,7 +77,7 @@ function BarGraph({graphKey}){
                 return `
                     <div class = "apexcharts-tooltip-custom">
                         <h1><strong>${data[seriesIndex][0]}</strong></h1>
-                        <div>${dept} ${number} ${professorName !== "info" ? professorName: ""} ${value}(${percentage}%)</div>
+                        <div>${name} ${value}(${percentage}%)</div>
                     </div>
                 `;
             }

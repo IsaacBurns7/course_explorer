@@ -69,7 +69,7 @@ export const SearchContextProvider = ( {children} ) => {
     const [professors, setProfessors] = useState({});
     const [comparedCards, setComparedCards] = useState([]);
     const [graphData, setGraphData] = useState({});
-
+    const [categories, setCategories] = useState(["A", "B", "C", "D", "F", "I", "S", "U", "Q", "X"]);
 
     const contextValue = {
         cards,
@@ -78,7 +78,9 @@ export const SearchContextProvider = ( {children} ) => {
         professors,
         comparedCards,
         graphData,
+        categories,
     
+        setCategories,
         setCards,
         setProfessorFilters,
         setCourses,
