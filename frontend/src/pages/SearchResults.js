@@ -113,11 +113,11 @@ function linkifyCourseCodes(description) {
                 <h2 className="text-2xl font-semibold">{department} {courseNumber}: {courseTitle}</h2>
                 <p className="text-gray-600 mt-1">{courseDescription ? linkifyCourseCodes(courseDescription) : "Loading..."}</p>
             </div>
-            {/* <SearchOptions /> */}
+            <SearchOptions />
             <div className = "body grid grid-cols-12">
                 <div className = "cards col-span-6">
 
-                    {/* <ActionsHeader cardToProfessorInfo = {cardToProfessorInfo}/> */}
+                    <ActionsHeader />
                     {cards && cards.map((card) => {
                         const dept = card.split("_")[0];
                         const number = card.split("_")[1];

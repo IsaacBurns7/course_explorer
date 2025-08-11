@@ -64,7 +64,7 @@ const App = () => {
     return (
         <div className = "App bg-background text-white h-screen relative ">
             <BrowserRouter>
-            {/* <Navbar /> */}
+            <Navbar />
                 <div className = "pages min-h-screen">
                     <SearchContextProvider>
                         <Routes>

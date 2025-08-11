@@ -55,10 +55,11 @@ export default function ProfessorCard({ professorId, courseId }){
                     department = {department}
                     courseNumber = {courseNumber}
                     professorId = {professorId}
+                    className = "col-span-2"
                 />
                 <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{courseId} {name} </div>
-                <div className="col-span-1 text-center text-white font-semibold text-xl px-6 py-2 rounded-full bg-green-400">{GPA}</div>
-                {<StarRating className = "col-span-3" rating = {rating}/>}
+                <div className="col-span-2 text-center text-white font-semibold text-xl px-6 py-2 rounded-full bg-green-400">{GPA}</div>
+                {<StarRating className = "col-span-2" rating = {rating}/>}
             </button>
 
 
@@ -103,3 +104,9 @@ export default function ProfessorCard({ professorId, courseId }){
         </div>
     );
 }
+
+/*
+rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
+    -e "ssh -i ~/.ssh/public.pem" \
+    . ubuntu@ec2-13-59-245-176.us-east-2.compute.amazonaws.com:~/app
+*/

@@ -1,4 +1,5 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useContext } from "react";
+import { SearchContext } from "../context/search";
 
 //make this fancier in the future but for now I cannot be bothered
 const defaultSemesters = [
@@ -8,56 +9,35 @@ const defaultSemesters = [
 ]
 
 function SearchOptions (){
-    const {search_options, dispatch} = useSearchContext();
     const [semestersDropDownFocus, setSemestersDropdownFocus] = useState(false);
-
-    useEffect(() => {
-        const newSearchOptions = {
-            ...search_options,
-            semesters: defaultSemesters
-        }
-        dispatch({
-            type: SearchActions.SET_SEARCH_OPTIONS, 
-            payload: newSearchOptions
-        });
-    }, []);
-
+    const { professorFilters, setProfessorFilters } = useContext(SearchContext);
 
     function selectAllSemesters(){
         console.log("Selecting all semesters");
     }
     
     const handleGPAChange = (e) => {
-        const newSearchOptions = {
-            ...search_options,
+        const newProfessorFilters = {
+            ...professorFilters,
             minGPA: e.target.value
         };
-        dispatch({
-            type: SearchActions.SET_SEARCH_OPTIONS,
-            payload: newSearchOptions
-        });
+        setProfessorFilters(newProfessorFilters);
+    
     }
-
     const handleRatingChange = (e) => {
-        const newSearchOptions = {
-            ...search_options,
+        const newProfessorFilters = {
+            ...professorFilters,
             minRating: e.target.value
         };
-        dispatch({
-            type: SearchActions.SET_SEARCH_OPTIONS,
-            payload: newSearchOptions
-        });
+        setProfessorFilters(newProfessorFilters);
     }
 
     const handleTeachingNextSemesterChange = (e) => {
-        const newSearchOptions = {
-            ...search_options,
+        const newProfessorFilters = {
+            ...professorFilters,
             teachingNextSemester: e.target.checked
         };
-        dispatch({
-            type: SearchActions.SET_SEARCH_OPTIONS,
-            payload: newSearchOptions
-        });
+        setProfessorFilters(newProfessorFilters);
     }
 
     return (

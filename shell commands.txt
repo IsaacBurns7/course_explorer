@@ -1,0 +1,17 @@
+rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
+    -e "ssh -i ~/.ssh/public.pem" \
+    . ubuntu@ec2-13-59-245-176.us-east-2.compute.amazonaws.com:~/app
+
+FRONTEND
+NODE_OPTIONS="--max-old-space-size=4096" npx webpack --config webpack.config.js &&
+NODE_OPTIONS="--max-old-space-size=4096" npx webpack serve --host 0.0.0.0 --port 3000
+
+nohup <command> > output.log 2>&1 &
+
+nohup bash -c 'NODE_OPTIONS="--max-old-space-size=4096" npx webpack serve --host 0.0.0.0 --port 3000' > output.log 2>&1 &
+
+BACKEND 
+node server.js
+
+CONNECT
+ssh -i ~/.ssh/"public.pem" ubuntu@ec2-13-59-245-176.us-east-2.compute.amazonaws.com
