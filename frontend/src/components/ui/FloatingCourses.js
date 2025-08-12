@@ -1,9 +1,30 @@
 import '../../styles/squares.css'
-const FloatingCourses = ({ courseCodes, colors }) => {
-    console.log(courseCodes)
+import { useEffect, useState } from "react"
+import { getAllCourses } from '../../hooks/useAllCourses'
+
+const FloatingCourses = ({ colors }) => {
+  const [courseCodes, setCourses] = useState(new Set());
+
+  useEffect(() => {
+    getAllCourses()
+      .then(courseSet => {
+        setCourses(prev => {
+          const newSet = new Set(prev);
+          courseSet.forEach((courseKey) => {
+            newSet.add(courseKey);
+          });
+          return newSet;
+        });
+      })
+      .catch(err => console.error("Failed to load courses", err));
+  }, []);
+
+  // Convert Set to Array so you can slice and map
+  const courseArray = Array.from(courseCodes);
+
   return (
     <div className="absolute inset-0 pointer-events-none">
-      {courseCodes.slice(0, 9).map((code, index) => (
+      {courseArray.slice(0, 9).map((code, index) => (
         <div
           key={index}
           className="absolute text-white font-bold text-sm transition-all duration-1000 ease-in-out"
