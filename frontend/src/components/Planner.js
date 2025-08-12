@@ -191,7 +191,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
   }
 
   return (
-    <div className="">
+    <div className="pt-4">
       {/* Alert Component */}
       <Alert message={alert.message} type={alert.type} isVisible={alert.isVisible} onClose={closeAlert} />
       {/* View Toggle and Add Button */}
