@@ -246,7 +246,8 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                 <th className="text-center p-3 font-semibold text-gray-100 w-1/12">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody>   
+
               {sortedSemesters.map((semester, semesterIndex) => (
                 <React.Fragment key={semester.name}>
                   {/* Semester Header Row - Now clickable with arrow */}

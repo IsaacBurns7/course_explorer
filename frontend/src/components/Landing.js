@@ -1,56 +1,66 @@
 "use client"
+import { motion } from "framer-motion"
 import AutoCompleteSearch from "./Search"
 import ParticlesBackground from "./Background"
 import Carousel from './Carousel'
 import TextType from './TextType';
 import '../styles/wave.css'
+
 const Landing = () => {
   return (
-    <section className="wave-section bg-black">
-      <div className="wave">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
-      {/* 💡 Gradients */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background/20 pointer-events-none z-10"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-background/10 via-transparent to-background/10 pointer-events-none z-10"></div>
-
-      {/* 📐 Two-column Layout */}
-      <div className="flex flex-col md:flex-row w-full max-w-full z-20">
-        {/* Left: Main Content */}
-        <div className="flex-1 flex flex-col items-center justify-center text-center pl-20 space-y-6">
-  <h1 className="text-4xl md:text-6xl font-extrabold text-white drop-shadow-2xl">
-    Aggie Course Explorer
-  </h1>
-
-  <span className="text-lg md:text-xl">
-  <span className="bg-gradient-to-r from-yellow-400 to-yellow-200 text-transparent bg-clip-text drop-shadow-lg">
-    ACE your <TextType 
-      text={["classes.", "semester.", "future."]}
-      typingSpeed={75}
-      pauseDuration={1500}
-      showCursor={true}
-      cursorCharacter="|"
-    />
-  </span>
-</span>
-  <div className = "relative -left-7">
-  <AutoCompleteSearch />
-  </div>
-
-  <p className="text-sm text-gray-300 drop-shadow-md">
-    Powered by Aggie Spirit &bull; Built for Students, by Students
-  </p>
-</div>
-
-        {/* Right: Floating Text Effects */}
-        <div className="flex-1 flex items-center justify-center p-4">
-          <Carousel autoplay loop pauseOnHover = {true} baseWidth={550} />
+    <div className="overflow-y-hidden "> 
+      <motion.section
+        className="wave-section bg-black overflow-y-hidden" 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <div className="wave">
+          <span></span>
+          <span></span>
+          <span></span>
         </div>
-      </div>
-    </section>
+
+        {/* 💡 Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background/20 pointer-events-none z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-background/10 via-transparent to-background/10 pointer-events-none z-10"></div>
+
+        {/* 📐 Two-column Layout */}
+        <div className="flex flex-col md:flex-row w-full max-w-full z-20 h-full"> {/* Added h-full */}
+          {/* Left: Main Content */}
+          <div className="flex-1 flex flex-col items-center justify-center text-center pl-20 space-y-6">
+            <h1 className="text-4xl md:text-6xl font-extrabold text-white drop-shadow-2xl">
+              Aggie Course Explorer
+            </h1>
+
+            <span className="text-lg md:text-xl">
+              <span className="bg-gradient-to-r from-yellow-400 to-yellow-200 text-transparent bg-clip-text drop-shadow-lg">
+                ACE your <TextType
+                  text={["classes.", "semester.", "future."]}
+                  typingSpeed={75}
+                  pauseDuration={1500}
+                  showCursor={true}
+                  cursorCharacter="|"
+                />
+              </span>
+            </span>
+            <div className="relative -left-7">
+              <AutoCompleteSearch />
+            </div>
+
+            <p className="text-sm text-gray-300 drop-shadow-md">
+              Powered by Aggie Spirit &bull; Built for Students, by Students
+            </p>
+          </div>
+
+          {/* Right: Floating Text Effects */}
+          <div className="flex-1 flex items-center justify-center p-4">
+            <Carousel autoplay loop pauseOnHover={true} baseWidth={550} />
+          </div>
+        </div>
+      </motion.section>
+    </div>
   )
 }
 
