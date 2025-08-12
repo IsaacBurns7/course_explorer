@@ -9,6 +9,7 @@ module.exports = {
     },
     target: "web",
     devServer: {
+        allowedHosts: ["aggieclasses.com", "www.aggieclasses.com", "13.59.245.176"],
         static: ["./public"],
         port: "3000",
         proxy: [
