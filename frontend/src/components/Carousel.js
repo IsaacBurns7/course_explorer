@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import FloatingCourses from "./ui/FloatingCourses"
 import FloatingProfessors from "./ui/FloatingProfessors"
+import FloatingPlanner from './ui/FloatingPlanner'
 
 // replace icons with your own if needed
 import "../styles/carousel.css";
@@ -40,6 +41,12 @@ const DEFAULT_ITEMS = [
     description: "Lorem ipsum dolor sit amet",
     id: 2,
     icon: <FloatingProfessors professors={professors} colors={professorColors} />
+  },
+  {
+    title: "Degree Planner",
+    description: "Plan your academic journey effectively",
+    id: 3,
+    icon: <FloatingPlanner colors={professorColors} />,
   }
 ]
 
@@ -82,59 +89,77 @@ export default function Carousel({
     }
   }, [pauseOnHover]);
 
-  useEffect(() => {
-    if (autoplay && (!pauseOnHover || !isHovered)) {
-      const timer = setInterval(() => {
-        setCurrentIndex((prev) => {
-          if (prev === items.length - 1 && loop) {
-            return prev + 1;
-          }
-          if (prev === carouselItems.length - 1) {
-            return loop ? 0 : prev;
-          }
-          return prev + 1;
-        });
-      }, autoplayDelay);
-      return () => clearInterval(timer);
-    }
-  }, [
-    autoplay,
-    autoplayDelay,
-    isHovered,
-    loop,
-    items.length,
-    carouselItems.length,
-    pauseOnHover,
-  ]);
-
   const effectiveTransition = isResetting ? { duration: 0 } : SPRING_OPTIONS;
 
-  const handleAnimationComplete = () => {
-    if (loop && currentIndex === carouselItems.length - 1) {
+  useEffect(() => {
+  if (autoplay && (!pauseOnHover || !isHovered)) {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => {
+        if (loop) {
+          if (prev >= items.length) {
+            // Prevent index going beyond duplicated slide
+            return 0;
+          }
+          return prev + 1;
+        } else {
+          if (prev >= items.length - 1) {
+            return prev; // stop at last slide
+          }
+          return prev + 1;
+        }
+      });
+    }, autoplayDelay);
+    return () => clearInterval(timer);
+  }
+}, [autoplay, autoplayDelay, isHovered, loop, pauseOnHover, items.length]);
+
+const itemCount = items.length;
+const totalItems = loop ? itemCount + 1 : itemCount; // +1 for duplicate slide
+
+const handleAnimationComplete = () => {
+  if (!loop) return;
+
+  if (currentIndex === totalItems - 1) {
+    // If on duplicate slide, snap instantly back to slide 0
+    setIsResetting(true);
+    x.set(0);
+    setCurrentIndex(0);
+    setTimeout(() => setIsResetting(false), 50);
+  } else if (currentIndex === 0 && isResetting) {
+    // If you implement reverse infinite scroll, handle here as needed
+  }
+};
+
+
+// On drag end:
+const handleDragEnd = (_, info) => {
+  const offset = info.offset.x;
+  const velocity = info.velocity.x;
+
+  if (offset < -DRAG_BUFFER || velocity < -VELOCITY_THRESHOLD) {
+    // Next slide logic
+    if (loop && currentIndex === itemCount) {
+      // We're on duplicate last slide, reset to 0 instantly
       setIsResetting(true);
       x.set(0);
       setCurrentIndex(0);
       setTimeout(() => setIsResetting(false), 50);
+    } else {
+      setCurrentIndex((prev) => Math.min(prev + 1, totalItems - 1));
     }
-  };
-
-  const handleDragEnd = (_, info) => {
-    const offset = info.offset.x;
-    const velocity = info.velocity.x;
-    if (offset < -DRAG_BUFFER || velocity < -VELOCITY_THRESHOLD) {
-      if (loop && currentIndex === items.length - 1) {
-        setCurrentIndex(currentIndex + 1);
-      } else {
-        setCurrentIndex((prev) => Math.min(prev + 1, carouselItems.length - 1));
-      }
-    } else if (offset > DRAG_BUFFER || velocity > VELOCITY_THRESHOLD) {
-      if (loop && currentIndex === 0) {
-        setCurrentIndex(items.length - 1);
-      } else {
-        setCurrentIndex((prev) => Math.max(prev - 1, 0));
-      }
+  } else if (offset > DRAG_BUFFER || velocity > VELOCITY_THRESHOLD) {
+    // Previous slide logic
+    if (loop && currentIndex === 0) {
+      // We're on first slide and dragging left - jump to duplicate slide instantly
+      setIsResetting(true);
+      x.set(-itemCount * trackItemOffset);
+      setCurrentIndex(itemCount);
+      setTimeout(() => setIsResetting(false), 50);
+    } else {
+      setCurrentIndex((prev) => Math.max(prev - 1, 0));
     }
-  };
+  }
+};
 
   const dragProps = loop
     ? {}
