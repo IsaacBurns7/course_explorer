@@ -95,7 +95,7 @@ mongoose.connect(process.env.MONGO_ATLAS_URI)
         })
 
         //const courseData = require('./services/output/coursedata_FINAL.json')
-        //const profData = require('./services/professors-with-ratings.json')
+        //const profData = require('./services/output/professors-with-ratings.json')
         //const deptData = require('./services/deptdata_FINAL.json')
         //pushClasses(courseData)
         //pushProfs(profData)
