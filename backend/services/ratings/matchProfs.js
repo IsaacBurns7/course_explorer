@@ -1,7 +1,7 @@
 // Funciton to merge the ratings data with overall professor data
-const profdata = require('./profdata-FINAL.json')
-const ratings = require('./professors-updated.json')
-const matchings = require('./professor_mapping.json')
+const profdata = require('../output/profdata-FINAL.json')
+const ratings = require('../output/professors-updated-2.json')
+const matchings = require('../output/third.json')
 const fs = require('fs')
 
 const valuesArray = Object.values(matchings);
@@ -57,10 +57,12 @@ function merge(ratings, prof) {
 for (const key of Object.keys(matchings)) {
     let rating = ratings.filter(x => x.fullName == key)[0]
     let prof = profKeys.filter(x => profdata[x].info.name == matchings[key])[0]
+    console.log(rating)
     if (!prof || !rating) continue
     prof = profdata[prof]
-    
+    console.log(prof.info)
     if (!prof.info.wouldTakeAgain) {
+        console.log("Found for " + prof.info.name)
         prof.info.averageRating = rating.rating
         prof.info.totalRatings = rating.numRatings
         prof.info.wouldTakeAgain = rating.wouldTakeAgainPercent
