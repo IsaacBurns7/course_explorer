@@ -58,7 +58,7 @@ const SPRING_OPTIONS = { type: "spring", stiffness: 300, damping: 30 };
 export default function Carousel({
   baseWidth = 300,
   autoplay = false,
-  autoplayDelay = 3000,
+  autoplayDelay = 5000,
   pauseOnHover = false,
   loop = false,
   round = false,
@@ -137,30 +137,40 @@ const handleDragEnd = (_, info) => {
   const offset = info.offset.x;
   const velocity = info.velocity.x;
 
+  // Swipe left → next slide
   if (offset < -DRAG_BUFFER || velocity < -VELOCITY_THRESHOLD) {
-    // Next slide logic
-    if (loop && currentIndex === itemCount) {
-      // We're on duplicate last slide, reset to 0 instantly
-      setIsResetting(true);
-      x.set(0);
-      setCurrentIndex(0);
-      setTimeout(() => setIsResetting(false), 50);
+    if (loop) {
+      if (currentIndex >= itemCount) {
+        // on duplicated last slide, reset to first
+        setIsResetting(true);
+        x.set(0);
+        setCurrentIndex(0);
+        setTimeout(() => setIsResetting(false), 50);
+      } else {
+        setCurrentIndex((prev) => prev + 1);
+      }
     } else {
-      setCurrentIndex((prev) => (prev + 1) % itemCount);
+      setCurrentIndex((prev) => Math.min(prev + 1, itemCount - 1));
     }
+
+  // Swipe right → previous slide
   } else if (offset > DRAG_BUFFER || velocity > VELOCITY_THRESHOLD) {
-    // Previous slide logic
-    if (loop && currentIndex === 0) {
-      // We're on first slide and dragging left - jump to duplicate slide instantly
-      setIsResetting(true);
-      x.set(-itemCount * trackItemOffset);
-      setCurrentIndex(itemCount);
-      setTimeout(() => setIsResetting(false), 50);
+    if (loop) {
+      if (currentIndex <= 0) {
+        // on first slide, jump to duplicate last
+        setIsResetting(true);
+        x.set(-trackItemOffset * (itemCount - 1));
+        setCurrentIndex(itemCount - 1);
+        setTimeout(() => setIsResetting(false), 50);
+      } else {
+        setCurrentIndex((prev) => prev - 1);
+      }
     } else {
-     setCurrentIndex((prev) => (prev + 1) % itemCount);
+      setCurrentIndex((prev) => Math.max(prev - 1, 0));
     }
   }
 };
+  
 
   const dragProps = loop
     ? {}
