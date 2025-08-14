@@ -47,7 +47,7 @@ const Landing = () => {
                   />
                 </span>
               </span>
-  <div className="relative"> {/* Removed -left-7 */}
+  <div className="relative right-1"> {/* Removed -left-7 */}
     <AutoCompleteSearch navbarMode={false}/>
   </div>
 
