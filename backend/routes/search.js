@@ -9,6 +9,7 @@ const {
     getProfessorDataForCourse,
     getCourseData,
     getGraphData,
+    getLineGraphData,
 } = require('../controllers/search');
 
 const router = express.Router();
@@ -16,5 +17,6 @@ const router = express.Router();
 router.get("/graphData", getGraphData);
 router.get("/courses", getCourseData);
 router.get("/professors", getProfessorDataForCourse);
+router.get("/lineGraphData", getLineGraphData);
 
 module.exports = router;

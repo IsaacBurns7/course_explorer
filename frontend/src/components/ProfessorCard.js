@@ -7,6 +7,7 @@ import BarGraph from "./BarGraph";
 import ProfessorRatingCard from "./ProfessorRatingCard";
 import Actions from "./Actions";
 import { SearchContext } from "../context/search";
+import LineGraph from "./LineGraph";
 
 export default function ProfessorCard({ professorId, courseId }){
     // console.log(professorId);
@@ -65,6 +66,7 @@ export default function ProfessorCard({ professorId, courseId }){
 
             <div id = {`${name}${department}${courseNumber}`} ref = {hiddenRef} hidden = {true}>
                 <BarGraph graphKey = {graphKey}/>
+                <LineGraph />
                 <ProfessorRatingCard props = {{rating, totalRatings, wouldTakeAgain, GPA}}/>
 
                 <div className = "flex flex-wrap gap-3 mb-6">

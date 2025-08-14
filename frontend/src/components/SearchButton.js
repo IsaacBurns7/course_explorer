@@ -66,8 +66,7 @@ function SearchButton({courses}) {
             e.preventDefault();
             if(activeIndex >= 0){
                 handleSubmit(matches[activeIndex]);
-            }
-            if(matches.includes(inputText)){
+            }else if(matches.includes(inputText)){
                 handleSubmit(inputText);
             }else{
                 setError(true);
@@ -89,6 +88,7 @@ function SearchButton({courses}) {
             }
         }
     }, [activeIndex]);
+    console.log(error);
 
     return (
   <form
