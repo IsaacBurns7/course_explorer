@@ -14,7 +14,7 @@ export function getAllCourses() {
         if (!response || !response.data) {
           throw new Error("Invalid response structure");
         }
-
+        console.log(response.data);
         const allCourses = response.data.map(course =>
           course.replace("_", " ")
         );

@@ -3,7 +3,7 @@ import axios from "axios";
 import { SearchContext } from "../context/search";
 
 export function useSearchData(searchQuery){
-    const { setGraphData, setCourses, setProfessors, setSemesters, setCards, courses} = useContext(SearchContext);
+    const { setGraphData, setCourses, setProfessors, setSemesters, setCards, courses, setLineGraphData} = useContext(SearchContext);
     useEffect(() => {
         const abortController = new AbortController();
         const signal = abortController.signal;
@@ -14,19 +14,23 @@ export function useSearchData(searchQuery){
                     `/server/api/search/graphData?${searchQuery}`,
                     `/server/api/search/courses?${searchQuery}`,
                     `/server/api/search/professors?${searchQuery}`,
+                    `/server/api/search/lineGraphData?${searchQuery}`
                     //could also do query=${searchQuery}, where searchQuery looks like 
                     //{ department: "CSCE", courseNumber: 120 }
                 ];
-                const [graphData, courses, professors] = await Promise.all(
+                const [graphData, courses, professors, lineGraphData] = await Promise.all(
                     urls.map(url => axios.get(url, {signal}))
                 ); 
-
+                setLineGraphData(lineGraphData.data.lineGraphData);
                 setGraphData(graphData.data);
                 setCourses(courses.data);
                 setProfessors(professors.data);
+                setSemesters(lineGraphData.data.semesters); //this is for alignment
+                console.log(lineGraphData.data);
                
             } catch(error){
                 // setError(error);
+                console.error(error);
             }   
         }
 

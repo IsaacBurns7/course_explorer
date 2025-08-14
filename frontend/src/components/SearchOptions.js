@@ -84,7 +84,7 @@ function SearchOptions (){
                 </select>
             </div>
 
-            <div className = "flex-col flex">
+            {/* <div className = "flex-col flex">
                 <label className = "text-center">Semesters</label>
                 <select 
                     className = "bg-black text-white border" 
@@ -103,7 +103,7 @@ function SearchOptions (){
                     </>
                     }
                 </select>
-            </div>
+            </div> */}
             <div className = "flex flex-col items-center">
                 <label>Teaching Next Semester</label>
                 <input 

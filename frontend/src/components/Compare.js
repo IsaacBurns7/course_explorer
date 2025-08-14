@@ -17,7 +17,7 @@ const Compare = () => {
     const allSeries = filteredGraphArray.map(series => ({
         ...series,
         data: series.data.map(([x,y]) => y)
-    }))
+    }));
     // console.log("Original graph data keys: ", Object.keys(graphData));
     // console.log("Filtered graph entries: ", filteredGraphEntries);
     // console.log("Filtered graph Array: ", filteredGraphArray);
@@ -145,7 +145,7 @@ const Compare = () => {
                         </div>;
                     })}
             </div> */}
-            <table className = "text-base text-white w-full border-collapse">
+            <table className = "text-base text-white w-full border-collapse text-left">
                 <thead className = "p-3">
                     <tr>
                         <th>Compare</th>

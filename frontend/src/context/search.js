@@ -40,12 +40,25 @@ const defaultSearchOptions = {
     },
     cards: ["DEPT123_id1"] //may not be necessary since this is contained within courses
     // comparedCards: ["DEPT123_id1"] - this could be a separate context ? XD
-    graph: {
+    graphData: {
         "DEPT123_id1": {
             data: [array of data]
             meta: { professorId: '100615', department: 'CSCE', courseNumber: '120'}
             name: "CSCE 120 <professorName>"
         }
+    },
+    lineGraphData: {
+        "DEPT123_id1": {
+            "FALL_2024": {
+                type: "line",
+                data: [...],
+                meta: { professorId: "100615", department: "CSCE", courseNumber: "120", semester: "FALL_2024"}
+            }
+        }
+    }
+    //note on lineGraphData: 
+    // markers: {
+        size: [1,2,3,4]
     }
 }
 */
@@ -69,9 +82,12 @@ export const SearchContextProvider = ( {children} ) => {
     const [professors, setProfessors] = useState({});
     const [comparedCards, setComparedCards] = useState([]);
     const [graphData, setGraphData] = useState({});
+    const [lineGraphData, setLineGraphData] = useState({});
     const [categories, setCategories] = useState(["A", "B", "C", "D", "F", "I", "S", "U", "Q", "X"]);
+    const [semesters, setSemesters] = useState([]);
 
     const contextValue = {
+        lineGraphData,
         cards,
         professorFilters,
         courses,
@@ -79,7 +95,10 @@ export const SearchContextProvider = ( {children} ) => {
         comparedCards,
         graphData,
         categories,
-    
+        semesters,
+        
+        setSemesters,
+        setLineGraphData,
         setCategories,
         setCards,
         setProfessorFilters,
