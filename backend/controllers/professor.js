@@ -95,4 +95,9 @@ const getProfessorInfoById = async (req, res) => {
     }
 }
 
-module.exports = { getProfessorByName, getProfessorsByCourse, getProfessorRatingsByIdAndCourse, getCoursesTaughtByProfessorID, getProfessorInfoById };
+const getAllProfs = async (req, res) => {
+    const data = await Professor.distinct("info.name");
+    return res.status(200).json(data);
+}
+
+module.exports = { getProfessorByName, getProfessorsByCourse, getProfessorRatingsByIdAndCourse, getCoursesTaughtByProfessorID, getProfessorInfoById, getAllProfs };
