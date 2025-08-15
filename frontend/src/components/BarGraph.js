@@ -46,11 +46,18 @@ function BarGraph({graphKey}){
                     colors: "#ffffff",
                     fontSize: "12px",
                     fontFamily: "Arial, sans-serf"
-
                 }
             }
         },
         yaxis: {
+            title: {
+                text: "frequency",
+                style: {
+                    color: "#ffffff",
+                    fontSize: "14px",
+                    fontWeight: "bold"
+                }
+            },
             labels: {
                 formatter: function(val){
                     return val.toFixed(2);
@@ -76,7 +83,7 @@ function BarGraph({graphKey}){
                 const percentage = ((value / total) * 100).toFixed(2);
                 return `
                     <div class = "apexcharts-tooltip-custom">
-                        <h1><strong>${data[seriesIndex][0]}</strong></h1>
+                        <h1><strong>${categories[dataPointIndex]}</strong></h1>
                         <div>${name} ${value}(${percentage}%)</div>
                     </div>
                 `;
