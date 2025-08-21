@@ -31,7 +31,7 @@ const LineGraph = ({lineGraphKey}) => {
         name: "GPABySemester",
         data: processedData,
     }];
-    console.log(processedData);
+    // console.log(processedData);
     
 
     const options = {
@@ -77,6 +77,8 @@ const LineGraph = ({lineGraphKey}) => {
             }
         },
         yaxis: {
+            min: 0,
+            forceNiceScale: true,
             title: {
                 text: "GPA",
                 style: {
@@ -90,9 +92,9 @@ const LineGraph = ({lineGraphKey}) => {
                     return val.toFixed(2);
                 },
                 style: { 
-                    colors: "#000000"
+                    colors: "#ffffff"
                 }
-            }
+            },
         },
         colors: ['#3B82F6'],
         plotOptions: {

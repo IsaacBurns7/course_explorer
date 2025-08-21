@@ -58,8 +58,8 @@ export default function AutoCompleteSearch() {
         </ul>
       )}
       <button className="ml-4 px-6 py-2 border border-purple-500 text-white rounded-full hover:bg-purple-600 transition duration-300">
-    Search
-  </button>
+        Search
+      </button>
     </div>
   );
 }

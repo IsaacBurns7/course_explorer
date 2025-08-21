@@ -39,6 +39,11 @@ module.exports = {
         maroon: "#500000",
         blackX: "#141414",
         background: "#1B1111",
+        beige: {
+          light: "#F5F5DC",  // normal beige
+          dark: "#A49382",   // dark beige
+        },
+        blanched_almond: "#FFEBCD",
         ...colors
       },
       borderRadius: {

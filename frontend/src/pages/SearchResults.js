@@ -108,10 +108,10 @@ function linkifyCourseCodes(description) {
     // console.log(graphData);
 
     return (
-        <div className = "search-results pt-20">
+        <div className = "search-results pt-20 bg-gray-600">
             <div className="ml-4 mb-6">
                 <h2 className="text-2xl font-semibold">{department} {courseNumber}: {courseTitle}</h2>
-                <p className="text-gray-600 mt-1">{courseDescription ? linkifyCourseCodes(courseDescription) : "Loading..."}</p>
+                <p className="mt-1">{courseDescription ? linkifyCourseCodes(courseDescription) : "Loading..."}</p>
             </div>
             <SearchOptions />
             <div className = "body grid grid-cols-12">
