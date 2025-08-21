@@ -31,7 +31,7 @@ const Landing = () => {
         <div className="flex flex-col md:flex-row w-full max-w-full z-20 h-full"> {/* Added h-full */}
           {/* Left: Main Content */}
           <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6 relative"> {/* Removed pl-20, added relative */}
-  <div className="-mb-4 pl-16"> {/* Added wrapper div with margin-bottom */}
+  <div className="-mb-4 pl-20"> {/* Added wrapper div with margin-bottom */}
     <HomeIcon />
   </div>
 
@@ -47,7 +47,7 @@ const Landing = () => {
                   />
                 </span>
               </span>
-  <div className="relative right-1"> {/* Removed -left-7 */}
+  <div className="relative left-10"> {/* Removed -left-7 */}
     <AutoCompleteSearch navbarMode={false}/>
   </div>
 

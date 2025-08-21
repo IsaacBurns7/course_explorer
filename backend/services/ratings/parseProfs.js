@@ -1,7 +1,7 @@
 const fs = require('fs');
 const cheerio = require('cheerio');
 
-const html = fs.readFileSync('output.html', 'utf8');
+const html = fs.readFileSync('../output/output.html', 'utf8');
 const $ = cheerio.load(html);
 
 const professors = [];
