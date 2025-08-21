@@ -13,6 +13,8 @@ const professorSchema = new Schema({
         averageRating: Number,
         totalRatings: Number,
         wouldTakeAgain: Number,
+        difficulty: Number,
+        rmpLink: String,
         tags: [String]    
     },
     courses: [String], //this is courseId,

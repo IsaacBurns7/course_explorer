@@ -6,6 +6,7 @@ const getSiteByProfessor = (course, professorName) => {
   for (const [semester, sections] of course.sections) {
     for (const section of sections) {
       if (section.prof === professorName && section.site != "") {
+        console.log("Prof Found for " + section.site)
         return section.site;
       }
     }
@@ -143,11 +144,17 @@ const getClassInfo = async (req, res) => {
         }
         if (hours != "N/A") break
     }
-    const professors = await Professor.find({ "_id": { $in: course.professors } });
+   const professors = (await Professor.find({ "_id": { $in: course.professors } }))
+  .map(p => {
+    const obj = p.toObject(); 
+    obj.info.site = getSiteByProfessor(course, obj.info.name);
+    return obj;
+  });
 
     if (!professors || professors.length === 0) {
         return res.status(404).json({ error: `No professors found for ${courseData.department} ${courseData.number}` });
     }
+
 
     professors.sort((a, b) => (b.info.averageGPA + b.info.averageRating) - (a.info.averageGPA + a.info.averageRating));
 

@@ -95,7 +95,7 @@ mongoose.connect(process.env.MONGO_ATLAS_URI)
         })
 
         //const courseData = require('./services/output/coursedata_FINAL.json')
-        //const profData = require('./services/output/professors-with-ratings.json')
+        //const profData = require('./services/output/professors-with-ratings-2.json')
         //const deptData = require('./services/deptdata_FINAL.json')
         //pushClasses(courseData)
         //pushProfs(profData)
@@ -105,3 +105,5 @@ mongoose.connect(process.env.MONGO_ATLAS_URI)
         require('fs').writeFileSync('bulkWriteError.txt', JSON.stringify(error, null, 2));
         console.log("Something Went Wrong...")
     });
+
+   
