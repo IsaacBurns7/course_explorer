@@ -5,6 +5,7 @@ import ParticlesBackground from "./Background"
 import Carousel from './Carousel'
 import TextType from './TextType';
 import '../styles/wave.css'
+import HomeIcon from './ui/home.js';
 
 const Landing = () => {
   return (
@@ -29,30 +30,31 @@ const Landing = () => {
         {/* 📐 Two-column Layout */}
         <div className="flex flex-col md:flex-row w-full max-w-full z-20 h-full"> {/* Added h-full */}
           {/* Left: Main Content */}
-          <div className="flex-1 flex flex-col items-center justify-center text-center pl-20 space-y-6">
-            <h1 className="text-4xl md:text-6xl font-extrabold text-white drop-shadow-2xl">
-              Aggie Course Explorer
-            </h1>
+          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6 relative"> {/* Removed pl-20, added relative */}
+  <div className="-mb-4 pl-16"> {/* Added wrapper div with margin-bottom */}
+    <HomeIcon />
+  </div>
 
-            <span className="text-lg md:text-xl">
-              <span className="bg-gradient-to-r from-yellow-400 to-yellow-200 text-transparent bg-clip-text drop-shadow-lg">
-                ACE your <TextType
-                  text={["classes.", "semester.", "future."]}
-                  typingSpeed={75}
-                  pauseDuration={1500}
-                  showCursor={true}
-                  cursorCharacter="|"
-                />
+  <span className="text-xl md:text-2xl lg:text-3xl font-bold">
+                <span className="bg-gradient-to-r from-yellow-400 to-yellow-200 text-transparent bg-clip-text drop-shadow-lg">
+                  ACE your{" "}
+                  <TextType
+                    text={["classes.", "semester.", "future."]}
+                    typingSpeed={75}
+                    pauseDuration={1500}
+                    showCursor={true}
+                    cursorCharacter="|"
+                  />
+                </span>
               </span>
-            </span>
-            <div className="relative -left-7">
-              <AutoCompleteSearch />
-            </div>
+  <div className="relative right-1"> {/* Removed -left-7 */}
+    <AutoCompleteSearch navbarMode={false}/>
+  </div>
 
-            <p className="text-sm text-gray-300 drop-shadow-md">
-              Powered by Aggie Spirit &bull; Built for Students, by Students
-            </p>
-          </div>
+  <p className="text-sm text-gray-300 drop-shadow-md">
+   Made with ❤️ by Aggies for Aggies
+  </p>
+</div>
 
           {/* Right: Floating Text Effects */}
           <div className="flex-1 flex items-center justify-center p-4">

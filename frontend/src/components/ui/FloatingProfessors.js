@@ -1,8 +1,39 @@
-const FloatingProfessors = ({ professors, colors }) => {
+import '../../styles/squares.css'
+import { useEffect, useState, memo } from "react"
+import { getAllProfs } from '../../hooks/useAllProfs'
+
+function getRandomItems(arr, n) {
+  const arrayCopy = [...arr]; // copy so we don't mutate original
+  for (let i = arrayCopy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arrayCopy[i], arrayCopy[j]] = [arrayCopy[j], arrayCopy[i]];
+  }
+  return arrayCopy.slice(0, n);
+}
+
+const FloatingProfessors = ({ colors }) => {
+  const [randomProfs, setRandomProfs] = useState([]);
+
+  useEffect(() => {
+    getAllProfs()
+      .then(profSet => {
+        const profArray = Array.from(profSet).map(fullName => {
+          const parts = fullName.trim().split(" ");
+          const lastName = parts.pop(); // remove last word
+          const initials = parts.map(name => name[0].toUpperCase() + ".").join(""); // B.B.
+          return `${initials} ${lastName}`;
+        });
+
+        if (profArray.length > 0 && randomProfs.length === 0) {
+          setRandomProfs(getRandomItems(profArray, 9));
+        }
+      })
+      .catch(err => console.error("Failed to load professors", err));
+  }, []);
+
   return (
-    
     <div className="absolute inset-0 pointer-events-none">
-      {professors.slice(0, 9).map((professor, index) => (
+      {randomProfs.map((name, index) => (
         <div
           key={index}
           className="absolute text-white font-bold text-sm transition-all duration-1000 ease-in-out"
@@ -15,14 +46,13 @@ const FloatingProfessors = ({ professors, colors }) => {
             animation: `float-sync 3s ease-in-out infinite`,
             animationDelay: `${index * 0.1}s`,
             zIndex: 5,
-
           }}
         >
-          {professor}
+          {name}
         </div>
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default FloatingProfessors
+export default memo(FloatingProfessors);

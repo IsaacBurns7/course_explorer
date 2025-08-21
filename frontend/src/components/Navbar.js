@@ -2,34 +2,26 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import SearchButton from "./SearchButton";
+import AutoCompleteSearch from "./Search";
+import { getAllCourses } from "../hooks/useAllCourses";
+
 //ELIMINATE USECOURSESCONTEXT
 const Navbar = () => { 
     const [courses, setCourses] = useState(new Set());
 
     useEffect(() => {
-      const abortController = new AbortController();
-      const signal = abortController.signal;
-      const fetchAllCourses = async () => {    
-        try{
-          const response = await axios.get(`/server/api/courses/getAll`, {signal});
-          if(!response || !response.data){
-                throw new Error("Invalid response structure");
-          }
-          const data = response.data;
-          if (typeof data !== 'object' || data === null) {
-              throw new Error('Expected object data');
-          }
-          const defaultCourses = data.map((course) => course.replace("_", " "));
-          setCourses(defaultCourses);
-        }catch(error){
-
-        }
-      }
-      fetchAllCourses();
-      return () => {
-        abortController.abort();
-      }
-    }, []);
+        getAllCourses()
+          .then(courseSet => {
+            setCourses(prev => {
+              const newSet = prev;
+              courseSet.forEach((courseKey) => {
+                newSet.add(courseKey);
+              })
+              return newSet;
+            });
+          })
+          .catch(err => console.error("Failed to load courses", err));
+      }, []);
 
     return (
 <div className="right-0 width-[100vw] fixed top-0 left-0 w-full h-16 bg-maroon shadow-md z-40 flex items-center justify-between px-8">
@@ -42,7 +34,7 @@ const Navbar = () => {
         </h1>
       </Link>
 
-      <SearchButton courses = {courses}/>
+      <AutoCompleteSearch navbarMode={true} />
     </div>
 
     {/* Right section: Planner */}

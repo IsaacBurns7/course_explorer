@@ -4,7 +4,7 @@
 const fs = require('fs');
 
 // Load professors JSON
-const professors = JSON.parse(fs.readFileSync('./professors-enriched.json', 'utf-8'));
+const professors = JSON.parse(fs.readFileSync('../output/professors-enriched-5.json', 'utf-8'));
 // Load OLD-NEW course map from txt
 const mapping = fs.readFileSync('fixed.txt', 'utf-8')
   .split('\n')
@@ -34,8 +34,9 @@ function averageRating(r1, c1, r2, c2) {
 // Update professors
 for (const prof of professors) {
   const courses = prof.courses;
+  if (prof.lastName == "Shell") console.log(prof)
   if (!courses) continue;
-
+  prof.fullName = `${prof.firstName} ${prof.lastName}`;
   const newCourses = { ...courses };
 
   // Handle PSYC → PBSI
