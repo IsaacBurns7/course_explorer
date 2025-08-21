@@ -56,10 +56,9 @@ const GAP = 16;
 const SPRING_OPTIONS = { type: "spring", stiffness: 300, damping: 30 };
 
 export default function Carousel({
-  items = DEFAULT_ITEMS,
   baseWidth = 300,
   autoplay = false,
-  autoplayDelay = 3000,
+  autoplayDelay = 5000,
   pauseOnHover = false,
   loop = false,
   round = false,
@@ -68,7 +67,8 @@ export default function Carousel({
   const itemWidth = baseWidth - containerPadding * 2;
   const trackItemOffset = itemWidth + GAP;
 
-  const carouselItems = loop ? [...items, items[0]] : items;
+  const items = DEFAULT_ITEMS
+  const carouselItems = items
   const [currentIndex, setCurrentIndex] = useState(0);
   const x = useMotionValue(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -119,14 +119,15 @@ const totalItems = loop ? itemCount + 1 : itemCount; // +1 for duplicate slide
 const handleAnimationComplete = () => {
   if (!loop) return;
 
+  // Only update currentIndex internally, do not snap visually
   if (currentIndex === totalItems - 1) {
-    // If on duplicate slide, snap instantly back to slide 0
     setIsResetting(true);
-    x.set(0);
+
+    // Instead of x.set(0), just adjust internal index
     setCurrentIndex(0);
-    setTimeout(() => setIsResetting(false), 50);
-  } else if (currentIndex === 0 && isResetting) {
-    // If you implement reverse infinite scroll, handle here as needed
+
+    // Wait one tick to allow Motion to sync
+    requestAnimationFrame(() => setIsResetting(false));
   }
 };
 
@@ -136,30 +137,40 @@ const handleDragEnd = (_, info) => {
   const offset = info.offset.x;
   const velocity = info.velocity.x;
 
+  // Swipe left → next slide
   if (offset < -DRAG_BUFFER || velocity < -VELOCITY_THRESHOLD) {
-    // Next slide logic
-    if (loop && currentIndex === itemCount) {
-      // We're on duplicate last slide, reset to 0 instantly
-      setIsResetting(true);
-      x.set(0);
-      setCurrentIndex(0);
-      setTimeout(() => setIsResetting(false), 50);
+    if (loop) {
+      if (currentIndex >= itemCount) {
+        // on duplicated last slide, reset to first
+        setIsResetting(true);
+        x.set(0);
+        setCurrentIndex(0);
+        setTimeout(() => setIsResetting(false), 50);
+      } else {
+        setCurrentIndex((prev) => prev + 1);
+      }
     } else {
-      setCurrentIndex((prev) => Math.min(prev + 1, totalItems - 1));
+      setCurrentIndex((prev) => Math.min(prev + 1, itemCount - 1));
     }
+
+  // Swipe right → previous slide
   } else if (offset > DRAG_BUFFER || velocity > VELOCITY_THRESHOLD) {
-    // Previous slide logic
-    if (loop && currentIndex === 0) {
-      // We're on first slide and dragging left - jump to duplicate slide instantly
-      setIsResetting(true);
-      x.set(-itemCount * trackItemOffset);
-      setCurrentIndex(itemCount);
-      setTimeout(() => setIsResetting(false), 50);
+    if (loop) {
+      if (currentIndex <= 0) {
+        // on first slide, jump to duplicate last
+        setIsResetting(true);
+        x.set(-trackItemOffset * (itemCount - 1));
+        setCurrentIndex(itemCount - 1);
+        setTimeout(() => setIsResetting(false), 50);
+      } else {
+        setCurrentIndex((prev) => prev - 1);
+      }
     } else {
       setCurrentIndex((prev) => Math.max(prev - 1, 0));
     }
   }
 };
+  
 
   const dragProps = loop
     ? {}
@@ -191,8 +202,8 @@ const handleDragEnd = (_, info) => {
           x,
         }}
         onDragEnd={handleDragEnd}
-        animate={{ x: -(currentIndex * trackItemOffset) }}
-        transition={effectiveTransition}
+        animate={{ x: -((currentIndex % itemCount) * trackItemOffset) }}
+        transition={isResetting ? { duration: 0 } : SPRING_OPTIONS}
         onAnimationComplete={handleAnimationComplete}
       >
         {carouselItems.map((item, index) => {
@@ -203,7 +214,9 @@ const handleDragEnd = (_, info) => {
           ];
           const outputRange = [90, 0, -90];
           // eslint-disable-next-line react-hooks/rules-of-hooks
-          const rotateY = useTransform(x, range, outputRange, { clamp: false });
+          const rotateY = useTransform(x, range, outputRange, { clamp: true });
+          const opacity = useTransform(x, [-(index + 0.5) * trackItemOffset, -index * trackItemOffset, -(index - 0.5) * trackItemOffset], [0, 1, 0]);
+
           return (
             <motion.div
               key={index}
@@ -212,6 +225,7 @@ const handleDragEnd = (_, info) => {
                 width: itemWidth,
                 height: round ? itemWidth : "100%",
                 rotateY: rotateY,
+                opacity: opacity,
                 ...(round && { borderRadius: "50%" }),
               }}
               transition={effectiveTransition}

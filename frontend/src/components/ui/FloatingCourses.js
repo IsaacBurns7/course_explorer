@@ -1,30 +1,33 @@
 import '../../styles/squares.css'
-import { useEffect, useState } from "react"
+import { useEffect, useState, memo } from "react"
 import { getAllCourses } from '../../hooks/useAllCourses'
 
-const FloatingCourses = ({ colors }) => {
-  const [courseCodes, setCourses] = useState(new Set());
+function getRandomCourses(arr, n) {
+  const arrayCopy = [...arr]; // copy so we don't mutate original
+  for (let i = arrayCopy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arrayCopy[i], arrayCopy[j]] = [arrayCopy[j], arrayCopy[i]];
+  }
+  return arrayCopy.slice(0, n);
+}
+
+const FloatingCourses = ({ courseCodes, colors }) => {
+  const [randomCourses, setRandomCourses] = useState([]);
 
   useEffect(() => {
     getAllCourses()
       .then(courseSet => {
-        setCourses(prev => {
-          const newSet = new Set(prev);
-          courseSet.forEach((courseKey) => {
-            newSet.add(courseKey);
-          });
-          return newSet;
-        });
+        const courseArray = Array.from(courseSet);
+        if (courseArray.length > 0 && randomCourses.length == 0) {
+          setRandomCourses(getRandomCourses(courseArray, 9));
+        }
       })
       .catch(err => console.error("Failed to load courses", err));
   }, []);
 
-  // Convert Set to Array so you can slice and map
-  const courseArray = Array.from(courseCodes);
-
   return (
     <div className="absolute inset-0 pointer-events-none">
-      {courseArray.slice(0, 9).map((code, index) => (
+      {randomCourses.map((code, index) => (
         <div
           key={index}
           className="absolute text-white font-bold text-sm transition-all duration-1000 ease-in-out"
@@ -43,7 +46,7 @@ const FloatingCourses = ({ colors }) => {
         </div>
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default FloatingCourses
+export default memo(FloatingCourses);
