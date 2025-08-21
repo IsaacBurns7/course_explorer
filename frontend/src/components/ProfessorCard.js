@@ -45,6 +45,9 @@ export default function ProfessorCard({ professorId, courseId }){
         }
     }
 
+    const [barGraph, setBarGraph] = useState(true);
+    const [lineGraph, setLineGraph] = useState(false);
+
   
 
 
@@ -65,9 +68,41 @@ export default function ProfessorCard({ professorId, courseId }){
 
 
             <div id = {`${name}${department}${courseNumber}`} ref = {hiddenRef} hidden = {true}>
-                <BarGraph graphKey = {graphKey}/>
-                <LineGraph lineGraphKey = {graphKey}/>
-                <ProfessorRatingCard props = {{rating, totalRatings, wouldTakeAgain, GPA}}/>
+                <div className = "chart-wrapper flex items-center gap-1">
+                    <div className = "chart-container flex-1">
+                        {barGraph && <BarGraph graphKey = {graphKey}/>}
+                        {lineGraph && <LineGraph lineGraphKey = {graphKey}/>}
+                    </div>
+                    <div className = "chart-toggle flex flex-col gap-1">
+                        <button onClick = {() => {
+                            setBarGraph(true);
+                            setLineGraph(false);
+                        }}
+                            className = "px-4 py-2 bg-gray-900 hover:bg-gray-800 rounded border border-gray-200"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24" height="24">
+                                <rect x="4" y="10" width="3" height="10"/>
+                                <rect x="10" y="6" width="3" height="14"/>
+                                <rect x="16" y="13" width="3" height="7"/>
+                            </svg>
+                        </button>
+                        <button onClick = {() => {
+                            setBarGraph(false);
+                            setLineGraph(true);
+                        }}
+                            className = "px-4 py-2 bg-gray-900 hover:bg-gray-800 rounded border border-gray-200"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                                <polyline points="4 14 8 10 13 15 20 8"/>
+                                <circle cx="4" cy="14" r="1.5"/>
+                                <circle cx="8" cy="10" r="1.5"/>
+                                <circle cx="13" cy="15" r="1.5"/>
+                                <circle cx="20" cy="8" r="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+               <ProfessorRatingCard props = {{rating, totalRatings, wouldTakeAgain, GPA}}/>
 
                 <div className = "flex flex-wrap gap-3 mb-6">
                     {tags && Object.entries(tags).map(([key, value]) => (

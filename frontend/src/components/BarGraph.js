@@ -50,6 +50,8 @@ function BarGraph({graphKey}){
             }
         },
         yaxis: {
+            min: 0,
+            forceNiceScale: true,
             title: {
                 text: "frequency",
                 style: {
@@ -60,10 +62,10 @@ function BarGraph({graphKey}){
             },
             labels: {
                 formatter: function(val){
-                    return val.toFixed(2);
+                    // return val.toFixed(2);
                 },
                 style: { 
-                    colors: "#000000"
+                    colors: "#ffffff"
                 }
             }
         },
