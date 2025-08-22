@@ -7,14 +7,17 @@ import { SearchContext } from "../context/search";
 
 
 const Compare = () => {
-    const { graphData, professors, categories, comparedCards } = useContext(SearchContext); //do I need professors
+    const { graphData, professors, categories, comparedCards, lineGraphData, semesters } = useContext(SearchContext); //do I need professors
     
+    const [barGraph, setBarGraph] = useState(true);
+    const [lineGraph, setLineGraph] = useState(false);
+
     const comparedCardsSet = new Set(comparedCards);
     const filteredGraphEntries = Object.entries(graphData).filter(([graphKey]) => {
         return comparedCardsSet.has(graphKey);
     });
     const filteredGraphArray = filteredGraphEntries.map(([, graphObj]) => graphObj);
-    const allSeries = filteredGraphArray.map(series => ({
+    const barGraphSeries = filteredGraphArray.map(series => ({
         ...series,
         data: series.data.map(([x,y]) => y)
     }));
@@ -30,7 +33,7 @@ const Compare = () => {
 
     const numCards = comparedCards.length+1;
 
-    const options = {
+    const barGraphOptions = {
         chart: {
             id: 'basic-bar',
             toolbar: {
@@ -48,12 +51,22 @@ const Compare = () => {
             }
         },
         yaxis: {
+            min: 0,
+            forceNiceScale: true,
+            title: {
+                text: "Frequency",
+                style: {
+                    color: "#ffffff",
+                    fontSize: "14px",
+                    fontWeight: "bold"
+                }
+            },
             labels: {
                 formatter: function(val){
                     return val.toFixed(2);
                 },
                 style: { 
-                    colors: "#000000"
+                    colors: "#ffffff"
                 }
             }
         },
@@ -71,7 +84,7 @@ const Compare = () => {
             custom: function({series: seriesInput, seriesIndex, dataPointIndex, w}){
                 // const cardKey = w.config.series[seriesIndex].name;
                 // console.log(series, cardKey, series[cardKey]);
-                const seriesData = allSeries[seriesIndex];
+                const seriesData = barGraphSeries[seriesIndex];
                 if (!seriesData) {
                     return "Data not available";
                 }
@@ -88,7 +101,105 @@ const Compare = () => {
             }
         }
     };
-    console.log(professors);
+
+    const filteredLineGraphEntries = Object.entries(lineGraphData).filter(([graphKey]) => {
+        return comparedCardsSet.has(graphKey);
+    });
+    const filteredLineGraphSeries = filteredLineGraphEntries.map(([, graphObj]) => graphObj);
+    // con    
+    const lineGraphSeries = filteredLineGraphSeries.map((series) => {
+        const filteredData = series.data.map((GPA) => GPA === 0 ? null : GPA) 
+        return {
+            ...series,
+            data: filteredData,
+        };
+    });
+
+    const lineGraphOptions = {
+        chart: {
+            height: 350,
+            type: 'line',
+            zoom: {
+                enabled: false
+            },
+            tooltip: {
+                show: true
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        markers: {
+            size: 5,
+            hover: { size: 7 },
+            formatter: (val, { seriesIndex, dataPointIndex }) => {
+                return series[seriesIndex].data[dataPointIndex] == 0 ? null : val;
+            }
+        },
+        stroke: {
+            curve: 'straight',
+            width: 2,
+            dashArray: (seriesIndex, dataPointIndex) => {
+                return series[seriesIndex].data[dataPointIndex] == 0 ? [0,0] : undefined;
+            }
+        },
+        // title: {
+        //     text: 'Product Trends by Month',
+        //     align: 'left'
+        // },
+        xaxis: {
+            categories: semesters,
+            labels: {
+                style: {
+                    colors: "#ffffff",
+                    fontSize: "12px",
+                    fontFamily: "Arial, sans-serf"
+                }
+            }
+        },
+        yaxis: {
+            min: 0,
+            forceNiceScale: true,
+            title: {
+                text: "GPA",
+                style: {
+                    fontSize: "18px",
+                    fontWeight: "bold",
+                    color: "#ffffff"
+                }
+            },
+            labels: {
+                formatter: function(val){
+                    return val === null ? "" : val.toFixed(2);
+                },
+                style: { 
+                    colors: "#ffffff"
+                }
+            },
+        },
+        colors: ['#3B82F6'],
+        plotOptions: {
+            bar: {
+            borderRadius: 4,
+            columnWidth: '70%'
+            }
+        },
+        tooltip: {
+            style: {
+                
+            },
+            custom: function({series, seriesIndex, dataPointIndex, w}){
+                const value = series[seriesIndex][dataPointIndex]; 
+                if(!value || value === 0) return "";
+                return `
+                    <div class = "apexcharts-tooltip-custom">
+                        <h1><strong>${semesters[dataPointIndex]}</strong></h1>
+                        <div>${lineGraphSeries[seriesIndex].name}: ${value}</div>
+                    </div>
+                `;
+            }
+        }
+    };
 
     return (
         <>
@@ -106,15 +217,50 @@ const Compare = () => {
             <div className = "header">
                 header options
             </div>
-            <div className = "graph bg-black">
-                {/* {allSeries && allSeries.length > 0 && allSeries[0].data && allSeries[0].data.length > 0 &&  */}
-                <Chart 
-                    options = {options}
-                    series = {allSeries}
-                    type = "bar"
-                    height = {350}
-                    className = "text-white"
-                />
+            <div className = "chart-wrapper bg-black flex items-center">
+                <div className = "chart-container flex-1">
+                    {barGraph && 
+                    <Chart 
+                        type = "bar"
+                        options = {barGraphOptions}
+                        series = {barGraphSeries}
+                        height = {350}
+                    />}
+                    {lineGraph && <Chart 
+                        type = "line"
+                        options = {lineGraphOptions}
+                        series = {lineGraphSeries}
+                        height = {350}
+                    />}
+                </div>
+                <div className = "chart-toggle flex flex-col gap-1">
+                    <button onClick = {() => {
+                        setBarGraph(true);
+                        setLineGraph(false);
+                    }}
+                        className = "px-4 py-2 bg-gray-900 hover:bg-gray-800 rounded border border-gray-200"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24" height="24">
+                            <rect x="4" y="10" width="3" height="10"/>
+                            <rect x="10" y="6" width="3" height="14"/>
+                            <rect x="16" y="13" width="3" height="7"/>
+                        </svg>
+                    </button>
+                    <button onClick = {() => {
+                        setBarGraph(false);
+                        setLineGraph(true);
+                    }}
+                        className = "px-4 py-2 bg-gray-900 hover:bg-gray-800 rounded border border-gray-200"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                            <polyline points="4 14 8 10 13 15 20 8"/>
+                            <circle cx="4" cy="14" r="1.5"/>
+                            <circle cx="8" cy="10" r="1.5"/>
+                            <circle cx="13" cy="15" r="1.5"/>
+                            <circle cx="20" cy="8" r="1.5"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
             {/* <div className = "info grid grid-cols-12 grid-rows-[repeat(7,minmax(3em,auto))] gap-1">
                 <div className = {`grid grid-rows-7 gap-1 justify-start col-span-${12 / numCards}`}>
@@ -149,84 +295,35 @@ const Compare = () => {
                 <thead className = "p-3">
                     <tr>
                         <th>Compare</th>
-                        {comparedCards.map((card) => {
-                            const comparedProfessorId = card.split("_")[1];
-                            const comparedProfessor = professors[comparedProfessorId] || {}; 
-                            const name = comparedProfessor.info?.name || "placeholder";
-                            return (<th key = {comparedProfessorId} className = "">
-                                {name}
-                            </th>);
-                        })}
+                        <th>GPA</th>
+                        <th>Rating</th>
+                        <th>WouldTakeAgain</th>
+                        <th>Difficulty</th>
+                        <th>ratings / students</th>
+                        <th>Color</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr className = "p-3">
-                        <td>GPA</td>
-                        {comparedCards.map((card) => {
+                    {comparedCards.map((card) => {
                             const comparedProfessorId = card.split("_")[1];
                             const comparedProfessor = professors[comparedProfessorId] || {}; 
+                            const name = comparedProfessor.info?.name || "placeholder";
                             const GPA = comparedProfessor.info?.averageGPA || "placeholder";
-                            return (<td key = {comparedProfessorId} className = "">
-                                {GPA}
-                            </td>);
-                        })}
-                    </tr>
-                    <tr>
-                        <td>Rating</td>
-                        {comparedCards.map((card) => {
-                            const comparedProfessorId = card.split("_")[1];
-                            const comparedProfessor = professors[comparedProfessorId] || {}; 
-                            const rating = comparedProfessor.info?.averageRating || "placeholder";
-                            return (<td key = {comparedProfessorId} className = "">
-                                {rating}
-                            </td>);
-                        })}
-                    </tr>
-                    <tr>
-                        <td>WouldTakeAgain</td>
-                        {comparedCards.map((card) => {
-                            const comparedProfessorId = card.split("_")[1];
-                            const comparedProfessor = professors[comparedProfessorId] || {}; 
+                            const Rating = comparedProfessor.info?.averageRating || "placeholder";
                             const WouldTakeAgain = comparedProfessor.info?.wouldTakeAgain || "placeholder";
-                            return (<td key = {comparedProfessorId} className = "">
-                                {WouldTakeAgain}%
-                            </td>);
-                        })}
-                    </tr>
-                    <tr>
-                        <td>Difficulty</td>
-                        {comparedCards.map((card) => {
-                            const comparedProfessorId = card.split("_")[1];
-                            const comparedProfessor = professors[comparedProfessorId] || {}; 
                             const difficulty = comparedProfessor.info?.difficulty || "placeholder";
-                            return (<td key = {comparedProfessorId} className = "">
-                                {difficulty}
-                            </td>);
-                        })}
-                    </tr>
-                    <tr>
-                        <td># of grades / ratings</td>
-                        {comparedCards.map((card) => {
-                            const comparedProfessorId = card.split("_")[1];
-                            const comparedProfessor = professors[comparedProfessorId] || {}; 
                             const numStudents = comparedProfessor.info?.totalStudents || "placeholder";
                             const numRatings = comparedProfessor.info?.totalRatings || "placeholder";
-                            return (<td key = {comparedProfessorId} className = "">
-                                {numStudents} / {numRatings}
-                            </td>);
+                            
+                            return (<tr key = {comparedProfessorId} className = "">
+                                <td>{name}</td>
+                                <td>{GPA}</td>
+                                <td>{Rating}</td>
+                                <td>{WouldTakeAgain}</td>
+                                <td>{difficulty}</td>
+                                <td>{numRatings} / {numStudents}</td>
+                            </tr>);
                         })}
-                    </tr>
-                    <tr>
-                        <td>Color</td>
-                        {comparedCards.map((card) => {
-                            const comparedProfessorId = card.split("_")[1];
-                            // const color = professorIdToColor ? professorIdToColor[comparedProfessorId] : "placeholder";
-                            return (<td key = {comparedProfessorId} className = "">
-                                {/* {color}*/}
-                                placeholder
-                            </td>);
-                        })}
-                    </tr>
                 </tbody>
             </table>
         </>
