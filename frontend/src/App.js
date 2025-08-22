@@ -10,6 +10,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import Home from "./pages/Home";
 import SearchResults from "./pages/SearchResults";
 import Planner from "./pages/Planner"
+import ComparePage from "./pages/Compare";
 import { SearchContextProvider } from "./context/search";
 
 const App = () => {
@@ -78,6 +79,10 @@ const App = () => {
                             <Route 
                                 path = "/planner"
                                 element = {<Planner />}
+                            />
+                            <Route 
+                                path = "/compare"
+                                element = {<ComparePage />}
                             />
                         </Routes>
                     </SearchContextProvider>

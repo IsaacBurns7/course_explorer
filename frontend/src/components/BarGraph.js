@@ -53,7 +53,7 @@ function BarGraph({graphKey}){
             min: 0,
             forceNiceScale: true,
             title: {
-                text: "frequency",
+                text: "Frequency",
                 style: {
                     color: "#ffffff",
                     fontSize: "14px",

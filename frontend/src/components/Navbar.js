@@ -37,10 +37,16 @@ const Navbar = () => {
       <AutoCompleteSearch navbarMode={true} />
     </div>
 
-    {/* Right section: Planner */}
-    <Link to="/planner" className="text-white font-mono hover:text-yellow-300 transition">
-      {"<planner>"}
-    </Link>
+    {/* Right section: Compare + Planner */}
+    <div className = "flex items-center gap-4">
+      {/*this will not be published until compare isnt such a piece of shit*/}
+      {/* <Link to="/compare" className="text-white font-mono hover:text-yellow-300 transition">
+      {"<compare>"}
+      </Link> */}
+      <Link to="/planner" className="text-white font-mono hover:text-yellow-300 transition">
+        {"<planner>"}
+      </Link>
+    </div>
   </div>
 );
 }

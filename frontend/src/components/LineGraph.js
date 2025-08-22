@@ -89,7 +89,7 @@ const LineGraph = ({lineGraphKey}) => {
             },
             labels: {
                 formatter: function(val){
-                    return val.toFixed(2);
+                    return val === null ? "" : val.toFixed(2);
                 },
                 style: { 
                     colors: "#ffffff"
@@ -109,7 +109,7 @@ const LineGraph = ({lineGraphKey}) => {
             },
             custom: function({series, seriesIndex, dataPointIndex, w}){
                 const value = series[seriesIndex][dataPointIndex]; 
-                if(value === 0) return "";
+                if(!value || value === 0) return "";
                 return `
                     <div class = "apexcharts-tooltip-custom">
                         <h1><strong>${semesters[dataPointIndex]}</strong></h1>
