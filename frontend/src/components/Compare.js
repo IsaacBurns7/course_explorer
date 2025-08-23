@@ -73,8 +73,8 @@ const Compare = () => {
         colors: ['#3B82F6'],
         plotOptions: {
             bar: {
-            borderRadius: 4,
-            columnWidth: '70%'
+                borderRadius: 4,
+                columnWidth: '70%'
             }
         },
         tooltip: {

@@ -27,6 +27,18 @@ function BarGraph({graphKey}){
         courseNumber = "123"
     } = meta;
 
+    const colorGradient = [
+        '#2ecc71', // A - Green
+        '#3498db', // B - Blue
+        '#9b59b6', // C - Purple
+        '#f1c40f', // D - Yellow
+        '#e74c3c', // F - Red
+        '#95a5a6', // I - Gray
+        '#34495e', // S - Dark blue
+        '#7f8c8d', // U - Dark gray
+        '#d35400', // Q - Orange
+        '#1abc9c'  // X - Teal
+    ];
     const categories = data.map((item => item[0]));
     const seriesData = data.map((item => item[1]));
     const total = useMemo(() => {
@@ -34,9 +46,20 @@ function BarGraph({graphKey}){
     }, [seriesData]);
     const options = {
         chart: {
-            id: 'basic-bar',
+            type: 'bar',
             toolbar: {
                 show: true
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val;
+            },
+            offsetY: -20,
+            style: {
+                fontSize: '12px',
+                colors: ["#628baaff"]
             }
         },
         xaxis: {
@@ -47,6 +70,12 @@ function BarGraph({graphKey}){
                     fontSize: "12px",
                     fontFamily: "Arial, sans-serf"
                 }
+            },
+            axisBorder: {
+                show: true
+            },
+            axisTicks: {
+                show: true
             }
         },
         yaxis: {
@@ -62,18 +91,22 @@ function BarGraph({graphKey}){
             },
             labels: {
                 formatter: function(val){
-                    // return val.toFixed(2);
+                    return val;
                 },
                 style: { 
                     colors: "#ffffff"
                 }
             }
         },
-        colors: ['#3B82F6'],
+        colors: colorGradient,
         plotOptions: {
             bar: {
-            borderRadius: 4,
-            columnWidth: '70%'
+                distributed: true,
+                borderRadius: 4,
+                columnWidth: '70%',
+                dataLabels: {
+                    position: "top"
+                }
             }
         },
         tooltip: {
@@ -90,7 +123,13 @@ function BarGraph({graphKey}){
                     </div>
                 `;
             }
-        }
+        },
+        grid: {
+            row: {
+                colors: ['#030303', 'transparent'],
+                opacity: 0.5
+            }
+        },
     };
 
 
