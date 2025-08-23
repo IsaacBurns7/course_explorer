@@ -2,10 +2,10 @@ const StarRating = ({rating, maxStars = 5, starSize = 6, activeColor = "text-yel
     const ratingArray = new Array(maxStars).fill(0);
     const starWidth = starSize;
     const starHeight = starSize; //*0.95
-    const viewBox = `0 0 ${starWidth*4} ${starHeight*4}`
+    const viewBox = `0 0 24 24`;
     
     return ( 
-        <div className = "flex items-center">
+        <div className = "flex items-center col-span-2">
             {ratingArray.map((_, index) => {
                 const ratingSlice = Math.min(rating, 1);
                 rating -= ratingSlice;
@@ -26,7 +26,7 @@ const StarRating = ({rating, maxStars = 5, starSize = 6, activeColor = "text-yel
                             />
                         </svg>    
                         <div 
-                            className = {`absolute overflow-hidden top-0 left-0 h-full`}
+                            className = {`absolute overflow-hidden top-0 left-0 h-full w-full`}
                             style = {{width: `${fillPercentage}%`}}
                         >
                             <svg

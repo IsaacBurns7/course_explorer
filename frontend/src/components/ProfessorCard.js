@@ -16,6 +16,7 @@ export default function ProfessorCard({ professorId, courseId }){
     const arrowIconRef = useRef(null);
 
     const professor = professors[professorId] || {};
+    console.log(professor);
     // console.log(professors, professors[professorId]);
     const graphKey = courseId.replace(" ", "") + "_" + professorId;
     // console.log(courseId + professorId, graphData, graphData[graphKey]);
@@ -29,6 +30,7 @@ export default function ProfessorCard({ professorId, courseId }){
         averageGPA: GPA = 0.0,
         totalRatings = 0,
         wouldTakeAgain = 0,
+        rmpLink = "https://ratemyprofessors.com"
     } = info;
     const tags = professor.tags || {};
     const courses = professor.courses || [];
@@ -47,7 +49,6 @@ export default function ProfessorCard({ professorId, courseId }){
 
     const [barGraph, setBarGraph] = useState(true);
     const [lineGraph, setLineGraph] = useState(false);
-
   
 
 
@@ -62,8 +63,13 @@ export default function ProfessorCard({ professorId, courseId }){
                     className = "col-span-2"
                 />
                 <div className="professor-name col-span-6 font-bold text-gray-200 text-left">{courseId} {name} </div>
-                <div className="col-span-2 text-center text-white font-semibold text-xl px-6 py-2 rounded-full bg-green-400">{GPA}</div>
-                {<StarRating className = "col-span-2" rating = {rating}/>}
+                <div className="col-span-2 bg-green-400 rounded-full">
+                    <p
+                        className = "text-base text-black py-2 w-16 block mx-auto"
+                        aria-label="Median GPA: 4.00 | Mean GPA: 3.70"
+                    >{GPA}</p>
+                </div>
+                <StarRating className = "col-span-2" rating = {rating}/>
             </button>
 
 
@@ -116,7 +122,7 @@ export default function ProfessorCard({ professorId, courseId }){
                 </div>
 
                 <a
-                    href = "https://www.ratemyprofessors.com"
+                    href = {rmpLink}
                     target = "_blank"
                     rel = "noopener noreferrer"
                     className = "text-blue-400 underline"
