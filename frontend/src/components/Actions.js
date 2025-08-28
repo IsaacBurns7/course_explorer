@@ -28,7 +28,7 @@ function Actions({arrowIconRef, department, courseNumber, professorId}){
     return (
         <div className = "col-span-2 items-center justify-left gap-4 flex bg-zinc-900">
             <div><i className = "fas fa-chevron-right text-white rounded" ref = {arrowIconRef}></i></div>
-            <div className="relative inline-block p-3">
+            <div className="relative inline-block p-3 group">
                 <input 
                     type="checkbox" 
                     id="myCheckbox" 
@@ -48,6 +48,11 @@ function Actions({arrowIconRef, department, courseNumber, professorId}){
                     <path d="M5 3H19C20.1 3 21 3.9 21 5V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V5C3 3.9 3.9 3 5 3Z"/>
                     <path className = {isCompareChecked ? "" : "hidden"} d="M9 12L11 14L15 10" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
+               <span class="absolute rounded-lg bg-black transform text-white text-xs text-center 
+                left-1/2 -translate-x-1/2 mb-5 bottom-2 w-32 py-1
+                opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    Add to Compare!
+                </span>
             </div>
             <div className="relative inline-block p-3">
                 <input 

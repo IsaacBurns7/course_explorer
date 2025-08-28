@@ -16,7 +16,7 @@ export default function ProfessorCard({ professorId, courseId }){
     const arrowIconRef = useRef(null);
 
     const professor = professors[professorId] || {};
-    console.log(professor);
+    // console.log(professor);
     // console.log(professors, professors[professorId]);
     const graphKey = courseId.replace(" ", "") + "_" + professorId;
     // console.log(courseId + professorId, graphData, graphData[graphKey]);
