@@ -4,6 +4,8 @@ import Chart from "react-apexcharts";
 
 import BarGraph from "./BarGraph";
 import { SearchContext } from "../context/search";
+import { random } from "gsap";
+import { color } from "framer-motion";
 
 
 const Compare = () => {
@@ -11,17 +13,108 @@ const Compare = () => {
     
     const [barGraph, setBarGraph] = useState(true);
     const [lineGraph, setLineGraph] = useState(false);
+    const [colorMap, setColorMap] = useState(new Map());
+    const [colors, setColors] = useState([]);
 
     const comparedCardsSet = new Set(comparedCards);
     const filteredGraphEntries = Object.entries(graphData).filter(([graphKey]) => {
         return comparedCardsSet.has(graphKey);
     });
     const filteredGraphArray = filteredGraphEntries.map(([, graphObj]) => graphObj);
-    const barGraphSeries = filteredGraphArray.map(series => ({
-        ...series,
-        data: series.data.map(([x,y]) => y)
-    }));
-    // console.log("Original graph data keys: ", Object.keys(graphData));
+    const totals = (filteredGraphArray ?? []).map(series => {
+        return (series?.data).reduce((sum, [category,frequency]) => sum + frequency, 0);
+    });
+
+    let barGraphSeries = (filteredGraphArray ?? []).map((series, seriesIndex) => {
+        // console.log("looping on series: ", series);
+        return {
+            ...series,
+            meta: series?.meta ?? {},
+            name: series?.name ?? "Unnamed",
+            data: (series.data ?? []).map(([category,frequency]) => 100 * (frequency / totals[seriesIndex])) //if series.data is null, apexcharts will try to read length and error the program
+        }
+    });
+
+    if(barGraphSeries.length === 0){
+        barGraphSeries = [
+            {
+                name: "",
+                data: [],
+                meta: {}
+            }
+        ]
+    }
+
+    function randomHexColor() {
+        return "#" + Math.floor(Math.random()*16777215).toString(16).padStart(6, "0");
+    }
+
+     /*
+        maintain color map for comparedCard -> color.
+        when add, add to color map and add directly to series.
+        when delete, delete from color map and delete directly from related series
+    */
+
+    if(comparedCards.length > colorMap.keys().length){
+        console.log(comparedCards, barGraphSeries);
+
+        const newRandomColor = randomHexColor();
+        const recentlyAddedComparedCard = comparedCards[comparedCards.length-1];
+        const graphIndex = barGraphSeries.findIndex(series => {
+            const meta = series.meta;
+            const seriesKey = meta.department + meta.courseNumber + "_" + meta.professorId;
+            return seriesKey === recentlyAddedComparedCard;
+        });
+        barGraphSeries[graphIndex].color = newRandomColor;
+        setColorMap(prevMap => {
+            const newMap = new Map(prevMap);
+            newMap.set(recentlyAddedComparedCard, newRandomColor);
+            return newMap;
+        })  
+    }else if(comparedCards.length < colorMap.keys().length){
+
+    }
+
+    // if(comparedCards.length > colors.length){
+    //     //find new color
+    //     const newRandomColor = randomHexColor();
+    //     const recentlyAddedComparedCard = comparedCards[comparedCards.length-1];
+    //     // console.log(comparedCards, recentlyAddedComparedCard, colorMap);
+    //     setColors(colors => [...colors, newRandomColor]);
+    //     setColorMap(prevMap => {
+    //         const newMap = new Map(prevMap);
+    //         newMap.set(recentlyAddedComparedCard, newRandomColor);
+    //         return newMap;
+    //     })   
+    // }else if(comparedCards.length < colors.length){
+    //    //find missing color
+    //     const recentlyRemovedComparedCard = [...colorMap.keys()]
+    //         .filter((key) => {
+    //             return !comparedCards.includes(key);
+    //         }
+    //     ).join();
+    //     console.log(colorMap, comparedCards, recentlyRemovedComparedCard);
+    //     setColors(colors => {
+    //         const recentlyRemovedColor = colorMap.get(recentlyRemovedComparedCard);
+    //         // console.log(colorMap, recentlyRemovedComparedCard, colors, recentlyRemovedColor);
+    //         const removedColorIndex = colors.indexOf(recentlyRemovedColor);
+    //         // console.log(removedColorIndex);
+    //         const newColors = [
+    //             ...colors.slice(0,removedColorIndex-1),
+    //             ...colors.slice(removedColorIndex)
+    //         ];
+    //         return newColors;
+    //     });
+    //     setColorMap(prevMap => {
+    //         const newMap = new Map(prevMap);
+    //         newMap.delete(recentlyRemovedComparedCard);
+    //         return newMap;
+    //     })
+    // }
+    // console.log(colors);
+    
+    
+    // console.log("Original graph data keys: ", Object.keys(filteredGraphEntries));
     // console.log("Filtered graph entries: ", filteredGraphEntries);
     // console.log("Filtered graph Array: ", filteredGraphArray);
     // console.log(allSeries);
@@ -31,8 +124,6 @@ const Compare = () => {
         return stream.data.reduce((acc, grades) => acc + grades[totalGradesIndex], 0); 
     });
 
-    const numCards = comparedCards.length+1;
-
     const barGraphOptions = {
         chart: {
             id: 'basic-bar',
@@ -40,9 +131,28 @@ const Compare = () => {
                 show: true
             }
         },
+        plotOptions: {
+            bar: {
+                dataLabels: {
+                    position: "top"
+                }
+            }
+        },
+        dataLabels: {
+            formatter: function(val){
+                // return val.toFixed(2) + "%";
+                return "";
+            },
+            enabled: true,
+            style: {
+                fontSize: "12px",
+                colors: ["#fff"]
+            },
+            offsetY: -20,
+        },
         xaxis: {
             categories: categories,
-            labels: {
+            labels: { 
                 style: {
                     colors: "#ffffff",
                     fontSize: "12px",
@@ -52,7 +162,6 @@ const Compare = () => {
         },
         yaxis: {
             min: 0,
-            forceNiceScale: true,
             title: {
                 text: "Frequency",
                 style: {
@@ -63,14 +172,14 @@ const Compare = () => {
             },
             labels: {
                 formatter: function(val){
-                    return val.toFixed(2);
+                    return val.toFixed(2) + "%";
                 },
                 style: { 
                     colors: "#ffffff"
                 }
             }
         },
-        colors: ['#3B82F6'],
+        colors: colors,
         plotOptions: {
             bar: {
                 borderRadius: 4,
@@ -90,12 +199,12 @@ const Compare = () => {
                 }
                 const {data} = seriesData; 
                 const name = seriesData.name;
-                const value = data[dataPointIndex];
-                const percentage = ((value / total[seriesIndex]) * 100).toFixed(2);
+                const percentage = data[dataPointIndex];
+                // const percentage = ((value / total[seriesIndex]) * 100).toFixed(2);
                 return `
                     <div class = "apexcharts-tooltip-custom">
                         <h1><strong>${categories[dataPointIndex]}</strong></h1>
-                        <div>${name !== "info" ? name : ""} ${value}(${percentage}%)</div>
+                        <div>${name !== "info" ? name : ""} ${percentage.toFixed(2)}%</div>
                     </div>
                 `;
             }
@@ -200,6 +309,8 @@ const Compare = () => {
             }
         }
     };
+
+    // console.log(lineGraphSeries, barGraphSeries);
 
     return (
         <>
