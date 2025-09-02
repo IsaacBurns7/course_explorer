@@ -40,18 +40,14 @@
 --     }
 -- });
 
-DROP TABLE CourseExplorer.courses CASCADE;
-DROP TABLE CourseExplorer.courses_info CASCADE;
-DROP TABLE CourseExplorer.courses_professors CASCADE;
-DROP TABLE CourseExplorer.courses_sections CASCADE;
-DROP TABLE CourseExplorer.courses_section_times CASCADE;
+DROP TABLE course_explorer.courses CASCADE;
+-- DROP TABLE course_explorer.courses_info CASCADE;
+DROP TABLE course_explorer.courses_professors CASCADE;
+DROP TABLE course_explorer.courses_sections CASCADE;
+DROP TABLE course_explorer.courses_section_times CASCADE;
 
-CREATE TABLE CourseExplorer.courses( 
-    id  TEXT PRIMARY KEY
-);
-
-CREATE TABLE CourseExplorer.courses_info(
-    id  SERIAL PRIMARY KEY,
+CREATE TABLE course_explorer.courses(
+    id TEXT PRIMARY KEY,
     department TEXT, --should this reference department id ? 
     number numeric,
     title TEXT,
@@ -63,14 +59,14 @@ CREATE TABLE CourseExplorer.courses_info(
     totalRatings numeric
 );
 
-CREATE TABLE CourseExplorer.courses_professors(
-    course_id TEXT REFERENCES CourseExplorer.courses(id),
+CREATE TABLE course_explorer.courses_professors(
+    course_id TEXT REFERENCES course_explorer.courses(id),
     professor_id TEXT, -- this will probably be referenced by something later
     PRIMARY KEY (course_id, professor_id)
 );
 
-CREATE TABLE CourseExplorer.courses_sections(
-    course_id TEXT REFERENCES CourseExplorer.courses(id), -- e.g "AGCJ_404"
+CREATE TABLE course_explorer.courses_sections(
+    course_id TEXT REFERENCES course_explorer.courses(id), -- e.g "AGCJ_404"
     semester_id TEXT, --e.g FALL 2025
     section_id INTEGER, 
     A INTEGER,
@@ -88,22 +84,31 @@ CREATE TABLE CourseExplorer.courses_sections(
     semester TEXT,
     gpa NUMERIC,
     crn INTEGER,
-    hours INTEGER,
+    hours TEXT,
     site TEXT,
-    professor_id TEXT, --should reference professor_id, maybe make an integer.
+    professor_id TEXT, -- REFERENCES course_explorer.courses_professors(professor_id),
     -- check professor_id in the course_id in courses_professors
     -- times_id TEXT,
     -- does this need an ID? 
     PRIMARY KEY(course_id, semester_id, section_id)
 );
 
-CREATE TABLE CourseExplorer.courses_section_times(
+-- can find all times given course and semester using the section_id. 
+CREATE TABLE course_explorer.courses_section_times(
     course_id TEXT,
     semester_id TEXT, 
     section_id INTEGER, 
-    times_id TEXT, -- M - monday, T - tuesday, W - wednesday, R - thursday, F - friday 
-    time TEXT,
+    day TEXT, -- M - monday, T - tuesday, W - wednesday, R - thursday, F - friday 
+    start_time TEXT, -- "12:30 PM",
+    end_time TEXT,
+    
     FOREIGN KEY (course_id, semester_id, section_id)
-        REFERENCES CourseExplorer.courses_sections(course_id, semester_id, section_id),
-    PRIMARY KEY(course_id, semester_id, section_id, times_id, time)
+        REFERENCES course_explorer.courses_sections(course_id, semester_id, section_id),
+    PRIMARY KEY(course_id, semester_id, section_id, day)
 );
+
+ALTER TABLE course_explorer.courses OWNER TO isaac;
+ALTER TABLE course_explorer.courses_professors OWNER TO isaac;
+ALTER TABLE course_explorer.courses_sections OWNER TO isaac;
+ALTER TABLE course_explorer.courses_section_times OWNER TO isaac;
+-- ALTER TABLE course_explorer.courses_info OWNER ISAAC;

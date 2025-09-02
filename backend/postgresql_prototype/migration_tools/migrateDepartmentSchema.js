@@ -6,17 +6,17 @@ const Department = require("../../models/department.js");
 const fs = require('fs');
 const path = require('path');
 
-async function clearTables(pool, filePath){
+async function resetTables(client, filePath){
     try{
         const sql = fs.readFileSync(filePath, "utf-8");
-        await pool.query(sql);
+        await client.query(sql);
         console.log(`Successfully executed ${filePath}`);
     }catch(error){
         console.error(`Error executing ${filePath}: `, error);
     }
 }
 
-async function migrateUserSchema(){
+async function migrateDepartmentSchema(){
     await mongoose.connect(process.env.MONGO_ATLAS_URI);
     const pgPool = new Pool({
         user: process.env.DB_USERNAME,
@@ -26,12 +26,14 @@ async function migrateUserSchema(){
         port: 5432
     });
 
+    const client = await pgPool.connect();
+
     const filePath = path.join(__dirname, "../models/department.sql")
-    await clearTables(pgPool, filePath);
+    await resetTables(client, filePath);
 
     const departments = await Department.find({});
 
-    pgPool.query('SELECT NOW()', (err, res) => {
+    await client.query('SELECT NOW()', (err, res) => {
         if(err){
             console.error("Connection error", err.stack);
         } else {
@@ -43,32 +45,32 @@ async function migrateUserSchema(){
         const courses = department.courses;
         const id = department._id;
         const name = department.info.name;
-        await pgPool.query(`INSERT INTO CourseExplorer.departments (id, name) VALUES ($1, $2) ON CONFLICT DO NOTHING`, 
+        await client.query(`INSERT INTO course_explorer.departments (id, name) VALUES ($1, $2) ON CONFLICT DO NOTHING`, 
             [id, name],
-            // (err, res) => {
+            (err, res) => {
                 // if(err){
                 //     console.error("error", err.stack);
                 // }
                 // else{
                 //     console.log("Response: ", res);
                 // }
-            // }
+            }
         );
 
         for(const course of courses){
-            await pgPool.query(`INSERT INTO CourseExplorer.department_courses (department_id, course_number, title, description)
+            await client.query(`INSERT INTO course_explorer.department_courses (department_id, course_number, title, description)
                 VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
                 [
                     id, course.courseNumber, course.courseTitle, course.courseDescription
                 ],
-                // (err, res) => {
-                //     if(err){
-                //         console.error("error", err.stack);
-                //     }
-                //     else{
-                //         console.log("Response: ", res);
-                //     }
-                // }
+                (err, res) => {
+                    // if(err){
+                    //     console.error("error", err.stack);
+                    // }
+                    // else{
+                    //     console.log("Response: ", res);
+                    // }
+                }
             );
         }
     }
@@ -77,4 +79,5 @@ async function migrateUserSchema(){
     await pgPool.end();
 }
 
-migrateUserSchema().catch(console.error);
+
+migrateDepartmentSchema().catch(console.error);
