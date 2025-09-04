@@ -1,0 +1,2 @@
+DROP TABLE weather CASCADE;
+DROP TABLE cities CASCADE;
