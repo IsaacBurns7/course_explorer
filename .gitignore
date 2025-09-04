@@ -5,3 +5,4 @@ node_modules/
 *.xlsx
 **/package-lock.json
 **/access.log.1
+**/secret.txt

@@ -6,6 +6,7 @@ const fetch = require('node-fetch')
 const professorRoutes = require('./routes/professor');
 const courseRoutes = require("./routes/course");
 const plannerRoutes = require('./routes/planner')
+const professorTESTRoutes = require('./routes/professorTEST.js');
 // const { populateProfessors, 
 //     populateCourses, 
 //     populateDepartments, 
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
 app.use("/api/professors", professorRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/planner", plannerRoutes);
+app.use("/api/professorTEST", professorTESTRoutes);
 
 function chunkArray(array, chunkSize) {
   const chunks = [];
@@ -103,3 +105,5 @@ mongoose.connect(process.env.MONGO_ATLAS_URI)
         require('fs').writeFileSync('bulkWriteError.txt', JSON.stringify(error, null, 2));
         console.log("Something Went Wrong...")
     });
+
+module.exports = app;

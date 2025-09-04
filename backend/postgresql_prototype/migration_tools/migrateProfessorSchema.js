@@ -77,9 +77,16 @@ async function migrateProfessorSchema(){
     });
 
     const professorRatingEntries = professors.flatMap((professor) => {
-        const ratings = professor.ratings ?? {};
-        return Object.entries(ratings).flatMap(([course_id, ratingObj]) => {
-            
+        const ratings = professor.ratings ?? [];
+        return [...ratings].flatMap(([course_id, ratingObj]) => {
+            return Object.entries(ratingObj.ratings ?? {}).flatMap(([value, freq]) => {
+                return {
+                    professor_id: professor._id,
+                    course_id,
+                    value,
+                    frequency: freq
+                };
+            });
         })
     });
     
@@ -90,6 +97,7 @@ async function migrateProfessorSchema(){
         bulkInsert(client, "course_explorer.professors", professorEntries, 1000);
         bulkInsert(client, "course_explorer.professor_tags", professorTagEntries, 1000);
         bulkInsert(client, "course_explorer.professor_courses", professorCourseEntries, 1000);
+        bulkInsert(client, "course_explorer.professor_ratings", professorRatingEntries, 1000);
         await client.query("COMMIT");
         console.log("TRANSACTION Committed...");
     } catch (error) {
