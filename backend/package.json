@@ -20,11 +20,15 @@
     "node-fetch": "^2.7.0",
     "nodemon": "^3.1.10",
     "pdf2json": "^3.1.6",
+    "pg": "^8.16.3",
     "puppeteer": "^24.11.2",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-adblocker": "^2.13.6"
+    "puppeteer-extra-plugin-adblocker": "^2.13.6",
+    "supertest": "^7.1.4"
   },
   "devDependencies": {
+    "chai": "^6.0.1",
+    "mocha": "^11.7.2",
     "puppeteer-core": "^24.11.2"
   }
 }

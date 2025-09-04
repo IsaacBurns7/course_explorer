@@ -3,5 +3,6 @@ node_modules/
 **/.env
 **/notes
 *.xlsx
-access.log.1
 **/package-lock.json
+**/access.log.1
+**/secret.txt
