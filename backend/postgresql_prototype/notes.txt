@@ -2,3 +2,82 @@ psql -d postgres
 psql -d mydb
 
 docker run --name pg-test -e POSTGRES_USER=testuser -e POSTGRES_PASSWORD=testpass -e POSTGRES_DB=testdb -p 5432:5432 -d postgres:17
+
+
+SELECT 
+        p.id,
+        p.name,
+        pc.course_id,
+        SUM(pr.frequency) AS totalRatings,
+        SUM(pr.value * pr.frequency) * 1.0 / NULLIF(SUM(pr.frequency), 0) AS averageRating
+    FROM course_explorer.professor_courses AS pc
+    JOIN course_explorer.professors AS p ON pc.professor_id = p.id 
+    JOIN course_explorer.professor_ratings AS pr ON pr.professor_id = p.id AND pr.course_id = pc.course_id
+    JOIN course_explorer.professor_tags AS pt ON pt.professor_id = p.id AND pt.course_id = pc.course_id
+    WHERE pc.course_id = 'CSCE_120'
+    GROUP BY pc.course_id, p.id; 
+
+SELECT 
+                json_build_object(
+                    'info', json_build_object(
+                        'department', c.department,
+                        'number', c.number,
+                        'title', c.title,
+                        'description', c.description,
+                        'averageGPA', c.averageGPA,
+                        'averageRating', c.averageRating,
+                        'totalStudents', c.totalStudents,
+                        'totalRatings', c.totalRatings,
+                        'totalSections', c.totalSections
+                    ),
+                    'professors', (
+                        SELECT JSON_AGG(cp.professor_id)
+                        FROM course_explorer.courses_professors cp
+                        WHERE cp.course_id = c.id
+                    ),
+                    'sections', (SELECT JSON_OBJECT_AGG(
+                            cs.semester_id, 
+                            JSON_AGG(
+                                    json_build_object(
+                                        'section', cs.section_id,
+                                        'A', cs.A,
+                                        'B', cs.B,
+                                        'C', cs.C,
+                                        'D', cs.D,
+                                        'F', cs.F,
+                                        'I', cs.I,
+                                        'S', cs.S,
+                                        'U', cs.U,
+                                        'Q', cs.Q,
+                                        'X', cs.X,
+                                        'prof', cs.prof,
+                                        'year', cs.year,
+                                        'semester', cs.semester,
+                                        'gpa', cs.gpa,
+                                        'crn', cs.crn,
+                                        'hours', cs.hours,
+                                        'site', cs.site,
+                                        'prof_id', cs.professor_id,
+                                        'times', (
+                                            SELECT JSON_AGG (
+                                                json_build_object(
+                                                    'day', cst.day,
+                                                    'start', cst.start_time,
+                                                    'end', cst.end_time
+                                                )
+                                            )
+                                            FROM course_explorer.courses_section_times cst
+                                            WHERE cst.course_id = cs.course_id
+                                                AND cst.semester_id = cs.semester_id
+                                                AND cst.section_id = cs.section_id
+                                        )
+                                    )
+                                )
+                            )
+                            FROM course_explorer.courses_sections cs
+                            WHERE cs.course_id = c.id
+                    )
+                ) AS course_data
+            FROM course_explorer.courses AS c
+            WHERE c.id = 'CSCE_120'
+            GROUP BY c.id;

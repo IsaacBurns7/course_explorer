@@ -19,6 +19,9 @@ const getSemestersForCourse = async(req, res) => {
 const getProfessorDataForCourse = async(req, res) => {
     try{
         const { department, courseNumber } = req.query;
+        if(!department || !courseNumber){
+            return res.status(400).json({error: "Missing Query Parameters"});
+        }
         const courseId = `${department}_${courseNumber}`;
         const selectedCourse = await Course.findOne({_id: courseId});
         if(!selectedCourse) return res.status(404).json({error: "course not found"});
@@ -82,6 +85,9 @@ courses: {
 const getCourseData = async (req, res) => {
     try { 
         const { department, courseNumber } = req.query;
+        if(!department || !courseNumber){
+            return res.status(400).json({error: "Missing Query Parameters"});
+        }
         const courseId = `${department}_${courseNumber}`;
         const selectedCourse = await Course.findOne({_id: courseId});
         return res.json({[courseId]: selectedCourse});
@@ -101,6 +107,9 @@ graph: {
 */
 const getGraphData = async(req, res) => {
     const { department, courseNumber } = req.query;
+    if(!department || !courseNumber){
+        return res.status(400).json({error: "Missing Query Parameters"});
+    }
     const courseId = `${department}_${courseNumber}`;
     const selectedCourse = await Course.findOne({_id: courseId});
     if(!selectedCourse){
@@ -158,6 +167,9 @@ const getGraphData = async(req, res) => {
 
 const getLineGraphData = async(req, res) => {
     const { department, courseNumber } = req.query;
+    if(!department || !courseNumber){
+        return res.status(400).json({error: "Missing Query Parameters"});
+    }
     const courseId = `${department}_${courseNumber}`;
     const selectedCourse = await Course.findOne({_id: courseId});
     if(!selectedCourse){

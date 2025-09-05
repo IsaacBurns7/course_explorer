@@ -8,6 +8,7 @@ const courseRoutes = require("./routes/course");
 const plannerRoutes = require('./routes/planner');
 const searchRoutes = require("./routes/search");
 const professorTESTRoutes = require('./routes/professorTEST.js');
+const searchRoutes2 = require("./routes/search2");
 // const { populateProfessors, 
 //     populateCourses, 
 //     populateDepartments, 
@@ -32,6 +33,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/planner", plannerRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/professorTEST", professorTESTRoutes);
+app.use("/api/search2", searchRoutes2);
 
 function chunkArray(array, chunkSize) {
   const chunks = [];
