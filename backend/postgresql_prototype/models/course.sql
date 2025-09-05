@@ -61,7 +61,7 @@ CREATE TABLE course_explorer.courses(
 
 CREATE TABLE course_explorer.courses_professors(
     course_id TEXT REFERENCES course_explorer.courses(id),
-    professor_id TEXT, -- this will probably be referenced by something later
+    professor_id INTEGER, -- this will probably be referenced by something later
     PRIMARY KEY (course_id, professor_id)
 );
 
@@ -86,7 +86,7 @@ CREATE TABLE course_explorer.courses_sections(
     crn INTEGER,
     hours TEXT,
     site TEXT,
-    professor_id TEXT, -- REFERENCES course_explorer.courses_professors(professor_id),
+    professor_id INTEGER, -- REFERENCES course_explorer.courses_professors(professor_id),
     -- check professor_id in the course_id in courses_professors
     -- times_id TEXT,
     -- does this need an ID? 

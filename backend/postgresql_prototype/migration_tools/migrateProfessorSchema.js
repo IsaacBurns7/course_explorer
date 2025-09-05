@@ -33,6 +33,7 @@ async function migrateProfessorSchema(){
             averageRating,
             totalRatings,
             wouldTakeAgain,
+            difficulty,
             rmpLink
          } = info;
         return { 
@@ -44,6 +45,7 @@ async function migrateProfessorSchema(){
             averageRating,
             totalRatings,
             wouldTakeAgain,
+            difficulty,
             rmpLink
         };
     });

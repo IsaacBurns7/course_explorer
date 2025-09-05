@@ -31,7 +31,7 @@ DROP TABLE course_explorer.professor_courses CASCADE;
 DROP TABLE course_explorer.professor_ratings CASCADE;
 
 CREATE TABLE course_explorer.professors(
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT,
     averageGPA NUMERIC,
     totalSections INTEGER,
@@ -39,6 +39,7 @@ CREATE TABLE course_explorer.professors(
     averageRating NUMERIC,
     totalRatings INTEGER,
     wouldTakeAgain NUMERIC,
+    difficulty NUMERIC,
     rmpLink TEXT
 );
 
@@ -66,7 +67,7 @@ CREATE TABLE course_explorer.professor_courses(
 CREATE TABLE course_explorer.professor_ratings(
     professor_id INTEGER REFERENCES course_explorer.professors(id),
     course_id TEXT REFERENCES course_explorer.courses(id),
-    value TEXT,
+    value NUMERIC,
     frequency NUMERIC,
     PRIMARY KEY(professor_id, course_id, value)
 );

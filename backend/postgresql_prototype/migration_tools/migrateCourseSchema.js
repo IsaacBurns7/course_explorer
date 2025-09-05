@@ -264,10 +264,13 @@ async function migrateCourseSchema(){
     // console.log(sectionTimesEntries);
 
     bulkInsert(client, "course_explorer.courses_section_times", sectionTimesEntries, 1000);
+    console.log("Course Migration Complete");
 
     await mongoose.disconnect();
     await pgPool.end();
 }
 
 
-migrateCourseSchema().catch(console.error);
+migrateCourseSchema().catch(console.error).finally(() => {
+    process.exit(0);
+});
