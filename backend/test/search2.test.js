@@ -65,4 +65,30 @@ describe("Search API", () => {
             throw error;
         }
     });
+    it('GET /search2/graphdata?courseNumber=&department= should return graph data', async () => {
+        const res = await request(app).get(`/api/search2/graphData?courseNumber=120&department=CSCE`);
+        try{
+            // console.log(res.body);
+            // console.log(Object.keys(res.body).length);
+            expect(res.status).to.equal(200);
+            expect(res.body).to.be.an("object");
+            expect(Object.keys(res.body).length).to.be.greaterThan(0);
+        }catch(error){
+            console.log("Test failed. Response was: ", res.status, res.body);
+            throw error;
+        }
+    });
+    it('GET /search2/lineGraphData?courseNumber=&department= should return line graph data', async () => {
+        const res = await request(app).get(`/api/search2/lineGraphData?courseNumber=120&department=CSCE`);
+        try{
+            console.log(res.body);
+            // console.log(Object.keys(res.body).length);
+            expect(res.status).to.equal(200);
+            expect(res.body).to.be.an("object");
+            expect(Object.keys(res.body).length).to.be.greaterThan(0);
+        }catch(error){
+            console.log("Test failed. Response was: ", res.status, res.body);
+            throw error;
+        }
+    });
 });        

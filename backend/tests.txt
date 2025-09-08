@@ -5,3 +5,20 @@ curl "http://localhost:4000/api/courses/graph/?department=CSCE&courseNumber=120&
 curl "http://localhost:4000/api/professors/ratings/?professorID=193825&department=CSCE&courseNumber=120"
 
 curl "http://localhost:4000/api/professors/ratings/?professorID=3246008&department=CSCE&courseNumber=120"
+
+curl "https://tamu.collegescheduler.com/api/term-data/Fall%202025%20-%20College%20Station" \
+  -H "Accept: */*" \
+  -H "User-Agent: Mozilla/5.0 ..." \
+  -H "Referer: https://tamu.collegescheduler.com/terms/Fall%202025%20-%20College%20Station/options"
+
+curl "https://howdyportal.tamu.edu/api/course-sections"
+
+curl -X POST "https://howdyportal.tamu.edu/api/course-sections/" \
+  -H "Content-Type: application/json" \
+  -H "Accept: */*" \
+  -d '{
+    "startRow": 0,
+    "endRow": 0,
+    "publicSearch": "Y",
+    "termCode": "202531"
+  }'
