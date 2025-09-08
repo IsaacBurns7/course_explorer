@@ -32,7 +32,7 @@ app.use("/api/professors", professorRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/planner", plannerRoutes);
 app.use("/api/search", searchRoutes);
-app.use("/api/professorTEST", professorTESTRoutes);
+// app.use("/api/professorTEST", professorTESTRoutes);
 app.use("/api/search2", searchRoutes2);
 
 function chunkArray(array, chunkSize) {

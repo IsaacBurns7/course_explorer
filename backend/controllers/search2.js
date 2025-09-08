@@ -101,7 +101,7 @@ const getCourseData = async (req, res) => {
 
     client.on('notice', msg => {
         console.log('NOTICE: ', msg.message);
-    })
+    });
 
     try { 
 
@@ -318,6 +318,7 @@ sections AS (
             FROM course_explorer.courses AS c
             LEFT JOIN sections_by_semester sb ON sb.course_id = c.id
         `;
+        //dont forget to modify permissions for the materialied view
 
         // const sql = `
         //     SELECT 
@@ -441,8 +442,8 @@ WITH valid_sections AS (
 const getGraphData = async(req, res) => {
     const { department, courseNumber } = req.query;
     const courseId = `${department}_${courseNumber}`;
+    const client = await pgPool.connect();
     try{
-        const client = await pgPool.connect();
         const sql = `
             WITH valid_sections AS (
                 SELECT * 
@@ -535,6 +536,7 @@ const getLineGraphData = async(req, res) => {
     const { department, courseNumber } = req.query;
     const courseId = `${department}_${courseNumber}`;
     const client = await pgPool.connect();
+
     try {
         const sql = `
             WITH course_professor AS (
@@ -608,7 +610,8 @@ const getLineGraphData = async(req, res) => {
                 WHERE gcp.course_id = $1
                 GROUP BY gcp.course_id, gcp.professor_id
             )
-            SELECT JSON_OBJECT_AGG(key, value) AS transformed
+            SELECT 
+                JSON_OBJECT_AGG(key, value) AS transformed
             FROM (
                 SELECT key, value
                 FROM line_graphs, json_each(line_graph_data)
@@ -654,16 +657,29 @@ const getLineGraphData = async(req, res) => {
             )
             SELECT * FROM gpa_by_semester;
         `;
+        const sql3 = `
+            SELECT DISTINCT semester_id 
+            FROM course_explorer.courses_sections
+            WHERE course_id = $1;
+        `;
         
         const result = await client.query(sql, [courseId, courseNumber, department]);
         const lineGraphData = result.rows[0].transformed;
 
+        // const result2 = await client.query(sql3, [courseId]);
+        // const semesters = result2.rows;
+        const semesters = [];
+        // console.log(result2.rows);
+
         // const result2 = await client.query(sql2, [courseId]);
 
         // return res.json(result2.rows);
-        return res.json(lineGraphData);
+        return res.status(200).json({
+            lineGraphData: lineGraphData,
+            semesters: semesters
+        });
     } catch (error){
-        console.error("error in getGraphData: ", error);
+        console.error("error in getLineGraphData: ", error);
         return res.status(500).json({error: "Internal server error", message: error});
     } finally {
         client.release();
