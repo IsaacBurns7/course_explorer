@@ -11,10 +11,10 @@ export function useSearchData(searchQuery){
         const fetchAllData = async () => {
             try{
                 const urls = [
-                    `/server/api/search/graphData?${searchQuery}`,
-                    `/server/api/search/courses?${searchQuery}`,
-                    `/server/api/search/professors?${searchQuery}`,
-                    `/server/api/search/lineGraphData?${searchQuery}`
+                    `/server/api/search2/graphData?${searchQuery}`,
+                    `/server/api/search2/courses?${searchQuery}`,
+                    `/server/api/search2/professors?${searchQuery}`,
+                    `/server/api/search2/lineGraphData?${searchQuery}`
                     //could also do query=${searchQuery}, where searchQuery looks like 
                     //{ department: "CSCE", courseNumber: 120 }
                 ];
