@@ -45,6 +45,7 @@ DROP TABLE course_explorer.courses CASCADE;
 DROP TABLE course_explorer.courses_professors CASCADE;
 DROP TABLE course_explorer.courses_sections CASCADE;
 DROP TABLE course_explorer.courses_section_times CASCADE;
+DROP TABLE course_explorer.courses_section_info CASCADE;
 
 CREATE TABLE course_explorer.courses(
     id TEXT PRIMARY KEY,
@@ -107,8 +108,41 @@ CREATE TABLE course_explorer.courses_section_times(
     PRIMARY KEY(course_id, semester_id, section_id, day)
 );
 
+CREATE TABLE course_explorer.courses_section_info(
+    SWV_CLASS_SEARCH_TERM TEXT,
+    SWV_CLASS_SEARCH_CRN TEXT PRIMARY KEY,
+    SWV_CLASS_SEARCH_TITLE TEXT,
+    SWV_CLASS_SEARCH_SUBJECT TEXT,
+    SWV_CLASS_SEARCH_SUBJECT_DESC TEXT,
+    SWV_CLASS_SEARCH_COURSE TEXT,
+    SWV_CLASS_SEARCH_SECTION TEXT,
+    SWV_CLASS_SEARCH_SSBSECT_HOURS NUMERIC,
+    SWV_CLASS_SEARCH_HOURS_LOW NUMERIC,
+    SWV_CLASS_SEARCH_HOURS_IND TEXT,
+    SWV_CLASS_SEARCH_HOURS_HIGH NUMERIC,
+    SWV_CLASS_SEARCH_SITE TEXT,
+    SWV_CLASS_SEARCH_PTRM TEXT,
+    SWV_CLASS_SEARCH_HAS_SYL_IND CHAR(1),
+    STUSEAT_OPEN CHAR(1),
+    SWV_CLASS_SEARCH_MAX_ENRL TEXT,
+    SWV_CLASS_SEARCH_ENRL TEXT,
+    SWV_CLASS_SEARCH_SEATS_AVAIL TEXT,
+    SWV_WAIT_CAPACITY TEXT,
+    SWV_WAIT_COUNT TEXT,
+    SWV_WAIT_AVAIL TEXT,
+    SWV_CLASS_SEARCH_SCHD TEXT,
+    SWV_CLASS_SEARCH_INST_TYPE TEXT,
+    SWV_CLASS_SEARCH_INSTRCTR_JSON JSONB,
+    SWV_CLASS_SEARCH_JSON_CLOB JSONB,
+    SWV_CLASS_SEARCH_ATTRIBUTES TEXT,
+    SWV_CLASS_SEARCH_SESSION TEXT,
+    HRS_COLUMN_FIELD NUMERIC
+);
+
+
 ALTER TABLE course_explorer.courses OWNER TO isaac;
 ALTER TABLE course_explorer.courses_professors OWNER TO isaac;
 ALTER TABLE course_explorer.courses_sections OWNER TO isaac;
 ALTER TABLE course_explorer.courses_section_times OWNER TO isaac;
+ALTER TABLE course_explorer.courses_section_info OWNER TO isaac;
 -- ALTER TABLE course_explorer.courses_info OWNER ISAAC;

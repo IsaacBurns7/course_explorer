@@ -402,6 +402,8 @@ sections AS (
     } catch (error) {
         console.error("Error in search controller: getCourseData");
         return res.status(500).json({error: "Internal server error", message: error});
+    } finally {
+        client.release();
     }
 }
 /*
@@ -413,159 +415,259 @@ graph: {
         }
     }
 */
+
+/*
+
+WITH valid_sections AS (
+                SELECT * 
+                FROM course_explorer.courses_sections cs
+                WHERE cs.course_id = 'CSCE_120'
+            )
+            SELECT cp.professor_id,
+                json_build_object(
+                    'data', 1,
+                    'meta', json_build_object(
+                        'courseNumber', '120',
+                        'department', 'CSCE',
+                        'professorId', cp.professor_id
+                    )
+                ) AS graph_data
+            FROM course_explorer.courses_professors cp
+            JOIN valid_sections vs
+                ON vs.professor_id = cp.professor_id
+            WHERE cp.course_id = 'CSCE_120';
+
+*/
 const getGraphData = async(req, res) => {
     const { department, courseNumber } = req.query;
-    if(!department || !courseNumber){
-        return res.status(400).json({error: "Missing Query Parameters"});
-    }
     const courseId = `${department}_${courseNumber}`;
-    const selectedCourse = await Course.findOne({_id: courseId});
-    if(!selectedCourse){
-        return res.status(400).json({error: "No course found with specified department and courseNumber"});
+    try{
+        const client = await pgPool.connect();
+        const sql = `
+            WITH valid_sections AS (
+                SELECT * 
+                FROM course_explorer.courses_sections cs
+                WHERE cs.course_id = $1
+            )
+            SELECT cp.professor_id,
+                json_build_object(
+                    'data', (ARRAY[
+                        json_build_array('A', SUM(vs.A)),
+                        json_build_array('B', SUM(vs.B)),
+                        json_build_array('C', SUM(vs.C)),
+                        json_build_array('D', SUM(vs.D)),
+                        json_build_array('F', SUM(vs.F)),
+                        json_build_array('I', SUM(vs.I)),
+                        json_build_array('S', SUM(vs.S)),
+                        json_build_array('U', SUM(vs.U)),
+                        json_build_array('Q', SUM(vs.Q)),
+                        json_build_array('X', SUM(vs.X))
+                    ]),
+                    'meta', json_build_object(
+                        'courseNumber', $2::text,
+                        'department', $3::text,
+                        'professorId', cp.professor_id
+                    ),
+                    'name', vs.prof
+                ) AS graph_data
+            FROM course_explorer.courses_professors cp
+            JOIN valid_sections vs
+                ON vs.professor_id = cp.professor_id
+            WHERE cp.course_id = $1
+            GROUP BY cp.course_id, cp.professor_id, vs.prof;
+        `;
+        const result = await client.query(sql, [courseId, courseNumber, department]);
+        const graphData = result.rows.reduce((acc, row) => {
+            acc[`${department}${courseNumber}_${row.professor_id}`] = row.graph_data;
+            
+            return acc;
+        });
+        return res.json(graphData);
+    } catch (error){
+        console.error("error in getGraphData: ", error);
+        return res.status(500).json({error: "Internal server error", message: error});
+    } finally {
+        client.release();
     }
-
-    const professorIds = selectedCourse.professors || [];
-    if(professorIds.length == 0) return res.json({});
-
-    const professors = await Professor.find({_id: { $in: professorIds}});
-    const results = {};
-    const categories = ["A", "B", "C", "D", "F", "I", "S", "U", "Q", "X"];
-    const data = categories.map((category) => {
-        return [
-            category,
-            0
-        ]
-    });
-    for(const professor of professors){
-        const graphId = `${department}${courseNumber}_${professor._id}`;
-        results[graphId] = {
-            data: JSON.parse(JSON.stringify(data)), //needs to create a deep clone
-            meta: {
-                professorId: professor._id,
-                department: department,
-                courseNumber: courseNumber,
-            },
-            name: `${department} ${courseNumber} ${professor.info.name}`
-        };
-    }
-    const validProfessorIds = new Set(professorIds);
-    for(const [semester, sections] of selectedCourse.sections){
-        // console.log(sections);
-        for(const section of sections){
-            if(!section.prof_id || !validProfessorIds.has(section.prof_id)) continue;
-            const graphId = `${department}${courseNumber}_${section.prof_id}`;
-            // console.log(graphId);
-            // console.log(results[graphId]);
-            for(const category of categories){
-                const value = section[category];
-                if(!results[graphId] || !results[graphId].data){
-                    console.log("search controller, getGraphData: result set malformed - cannot access data of graphId ", graphId);
-                }
-                // below vs const graphData = results[graphId].data
-                const index = results[graphId].data.findIndex(item => item[0] === category);
-                // console.log(index, results[graphId].data[index][1], Number(value));
-                results[graphId].data[index][1] += Number(value);
-            }
-            // console.log(results[graphId]);
-        }
-    }
-
-    return res.status(200).json(results);
 }
+/*
 
+`
+            WITH gpa_by_semester AS (
+                SELECT
+                    cs.course_id,
+                    cs.professor_id,
+                    cs.semester_id,
+                    SUM(
+                        (cs.A * 4) + 
+                        (cs.B * 3) + 
+                        (cs.C * 2) +
+                        (cs.D * 1)
+                    )::numeric 
+                    / NULLIF( SUM(cs.A + cs.B + cs.C + cs.D + cs.F), 0) AS gpa
+                FROM course_explorer.courses_sections cs
+                WHERE cs.course_id = 'CSCE_120'
+                GROUP BY cs.course_id, cs.professor_id, cs.semester_id
+            )
+            SELECT 
+                cs.professor_id, 
+                cs.semester_id,
+                JSON_OBJECT_AGG(
+                    'CSCE' || '120' || '_' || cs.professor_id, 
+                    json_build_object(
+                        'data', gbs.gpa
+                    )
+                ) AS lineGraphData
+            FROM course_explorer.courses_professors cp
+            JOIN course_explorer.courses_sections cs
+                ON cs.professor_id = cp.professor_id
+                AND cp.course_id = cs.course_id
+            JOIN gpa_by_semester gbs 
+                ON gbs.course_id = cs.course_id
+                AND gbs.professor_id = cs.professor_id 
+                AND gbs.semester_id = cs.semester_id 
+            WHERE cp.course_id = 'CSCE_120'
+            GROUP BY cs.course_id, cs.professor_id, cs.semester_id; 
+        `
+
+*/
 const getLineGraphData = async(req, res) => {
     const { department, courseNumber } = req.query;
-    if(!department || !courseNumber){
-        return res.status(400).json({error: "Missing Query Parameters"});
-    }
     const courseId = `${department}_${courseNumber}`;
-    const selectedCourse = await Course.findOne({_id: courseId});
-    if(!selectedCourse){
-        return res.status(400).json({error: "No course found with specified department and courseNumber"});
+    const client = await pgPool.connect();
+    try {
+        const sql = `
+            WITH course_professor AS (
+                SELECT DISTINCt course_id, professor_id
+                FROM course_explorer.courses_professors
+                WHERE course_id = $1
+            ),
+            semesters AS (
+                SELECT DISTINCT semester_id
+                FROM course_explorer.courses_sections
+                WHERE course_id = $1
+            ),
+            all_combinations AS (
+                SELECT course_id, professor_id, semester_id, 
+                    CAST(SPLIT_PART(semester_id, ' ', 2) AS INTEGER) AS year,
+                    CAST(SPLIT_PART(semester_id, ' ', 1) AS TEXT) AS season
+                FROM course_professor
+                CROSS JOIN semesters s
+            ),
+            gpa_by_semester AS (
+                SELECT
+                    ac.course_id,
+                    ac.professor_id,
+                    ac.semester_id,
+                    MAX(cs.prof) AS professor_name,
+                    SUM(
+                        (cs.A * 4) + 
+                        (cs.B * 3) + 
+                        (cs.C * 2) +
+                        (cs.D * 1)
+                    )::numeric 
+                    / NULLIF( SUM(cs.A + cs.B + cs.C + cs.D + cs.F), 0) AS gpa
+                FROM all_combinations ac
+                LEFT JOIN course_explorer.courses_sections cs
+                    ON cs.course_id = ac.course_id
+                    AND cs.professor_id = ac.professor_id
+                    AND cs.semester_id = ac.semester_id
+                GROUP BY ac.course_id, ac.professor_id, ac.semester_id, ac.year, ac.season
+                ORDER BY ac.course_id, ac.professor_id, ac.year, 
+                    CASE ac.season
+                        WHEN 'Spring' THEN 1
+                        WHEN 'Summer' THEN 2
+                        WHEN 'Fall' THEN 3
+                        ELSE 4
+                    END
+            ),
+            gpa_by_course_and_professor AS (
+                SELECT 
+                    course_id,
+                    professor_id,
+                    MAX(professor_name) AS professor_name,
+                    JSON_AGG(gpa) AS gpas
+                FROM gpa_by_semester gbs
+                GROUP BY course_id, professor_id
+            ),
+            line_graphs AS (
+                SELECT 
+                    JSON_OBJECT_AGG(
+                        COALESCE($3::text, '') || COALESCE($2::text, '') || '_' || COALESCE(gcp.professor_id::text, 'unknown'),
+                        json_build_object(
+                            'data', gcp.gpas,
+                            'meta', json_build_object(
+                                'courseNumber', $2,
+                                'department', $3,
+                                'professorId', gcp.professor_id
+                            ),
+                            'name', ($3 || ' ' || $2 || ' ' || gcp.professor_name)::text
+                        )
+                    ) AS line_graph_data
+                FROM gpa_by_course_and_professor gcp 
+                WHERE gcp.course_id = $1
+                GROUP BY gcp.course_id, gcp.professor_id
+            )
+            SELECT JSON_OBJECT_AGG(key, value) AS transformed
+            FROM (
+                SELECT key, value
+                FROM line_graphs, json_each(line_graph_data)
+            ) AS final;
+        `;
+
+        const sql2 = `
+            WITH course_professor AS (
+                SELECT DISTINCT course_id, professor_id
+                FROM course_explorer.courses_professors
+                WHERE course_id = $1
+            ),
+            semesters AS (
+                SELECT DISTINCT semester_id
+                FROM course_explorer.courses_sections
+                WHERE course_id = $1
+            ),
+            all_combinations AS (
+                SELECT course_id, professor_id, s.semester_id
+                FROM course_professor
+                CROSS JOIN semesters s
+            ),
+            gpa_by_semester AS (
+                SELECT
+                    ac.course_id,
+                    ac.professor_id,
+                    ac.semester_id,
+                    MAX(cs.prof) AS professor_name,
+                    SUM(
+                        (cs.A * 4) + 
+                        (cs.B * 3) + 
+                        (cs.C * 2) +
+                        (cs.D * 1)
+                    )::numeric 
+                    / NULLIF( SUM(cs.A + cs.B + cs.C + cs.D + cs.F), 0) AS gpa
+                FROM all_combinations ac
+                LEFT OUTER JOIN course_explorer.courses_sections cs
+                    ON cs.course_id = ac.course_id
+                    AND cs.professor_id = ac.professor_id
+                    AND cs.semester_id = ac.semester_id
+                GROUP BY ac.course_id, ac.professor_id, ac.semester_id
+                ORDER BY ac.course_id, ac.professor_id, ac.semester_id
+            )
+            SELECT * FROM gpa_by_semester;
+        `;
+        
+        const result = await client.query(sql, [courseId, courseNumber, department]);
+        const lineGraphData = result.rows[0].transformed;
+
+        // const result2 = await client.query(sql2, [courseId]);
+
+        // return res.json(result2.rows);
+        return res.json(lineGraphData);
+    } catch (error){
+        console.error("error in getGraphData: ", error);
+        return res.status(500).json({error: "Internal server error", message: error});
+    } finally {
+        client.release();
     }
-
-    const professorIds = selectedCourse.professors || [];
-    if(professorIds.length == 0) return res.json({});
-
-    const professors = await Professor.find({_id: { $in: professorIds}});
-    // const categories = Object.keys(selectedCourse.sections.$getAllSubDocs());
-    const semesters = Object.keys(selectedCourse.sections.toJSON());
-    const results = {};
-    //maps letterGrade to addition to GPA, and addition to studentCount
-    const gradesToGPA = { 
-        "A": {cumGPA: 4, headCount: 1}, //
-        "B": {cumGPA: 3, headCount: 1}, 
-        "C": {cumGPA: 2, headCount: 1}, 
-        "D": {cumGPA: 1, headCount: 1}, 
-        "F": {cumGPA: 0, headCount: 1}, 
-        "I": {cumGPA: 0, headCount: 0},
-        "S": {cumGPA: 0, headCount: 0}, 
-        "U": {cumGPA: 0, headCount: 0}, 
-        "Q": {cumGPA: 0, headCount: 0}, 
-        "X": {cumGPA: 0, headCount: 0}
-    };
-    const data = semesters.map((semester) => {
-        return {
-            semester: semester,
-            cumGPA: 0.00, //cumulative GPA
-            headCount: 0, //student count
-        }
-    });
-
-    for(const professor of professors){
-        const graphId = `${department}${courseNumber}_${professor._id}`;
-        results[graphId] = {
-            data: JSON.parse(JSON.stringify(data)), //needs to create a deep clone
-            meta: {
-                professorId: professor._id,
-                department: department,
-                courseNumber: courseNumber,
-            },
-            name: `${department} ${courseNumber} ${professor.info.name}`,
-        };
-    }   
-
-    const validProfessorIds = new Set(professorIds);
-    for(const [semester, sections] of selectedCourse.sections){
-        // console.log(sections);
-        for(const section of sections){
-            if(!section.prof_id || !validProfessorIds.has(section.prof_id)) continue;
-            const graphId = `${department}${courseNumber}_${section.prof_id}`;
-            const semesterIndex = results[graphId].data.findIndex(item => item.semester === semester);
-            // console.log(graphId);
-            // console.log(results[graphId]);
-            for(const letterGrade of Object.keys(gradesToGPA)){
-                const frequency = section[letterGrade];
-                if(!results[graphId] || !results[graphId].data){
-                    console.log("search controller, getGraphData: result set malformed - cannot access data of graphId ", graphId);
-                }
-                // below vs const graphData = results[graphId].data
-                // console.log(index, results[graphId].data[index][1], Number(value));
-                results[graphId].data[semesterIndex].cumGPA += Number(frequency) * gradesToGPA[letterGrade].cumGPA;
-                results[graphId].data[semesterIndex].headCount += Number(frequency) * gradesToGPA[letterGrade].headCount;
-            }
-            // console.log(results[graphId]);
-        }
-    }
-
-    /*
-    idea: semesters is like [sem1,sem2,sem3]
-    and then professor data is [gpa1,gpa2,gpa3], and if their headCount is 0, then gpa is set to 0.00, which then will tell 
-    the frontend to NOT display it
-    */
-    for(const professor of professors){
-        const graphId = `${department}${courseNumber}_${professor._id}`;
-        for(const semester of semesters){
-            const semesterIndex = results[graphId].data.findIndex(item => item.semester === semester);
-            const dataPoint = results[graphId].data[semesterIndex];
-            const newDataPoint = dataPoint.cumGPA / dataPoint.headCount;
-            results[graphId].data[semesterIndex] = dataPoint.headCount === 0 ? 0.00 : newDataPoint;
-        }
-    }
-    return res.status(200).json({
-        lineGraphData: results,
-        semesters: semesters,
-    });
 }
 
 module.exports = {
