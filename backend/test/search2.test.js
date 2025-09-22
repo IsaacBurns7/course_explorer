@@ -55,7 +55,7 @@ describe("Search API", () => {
     it('GET /search2/courses?courseNumber=&department= should return course info', async () => {
         const res = await request(app).get(`/api/search2/courses?courseNumber=120&department=CSCE`);
         try{
-            console.log(res.body);
+            // console.log(res.body);
             // console.log(Object.keys(res.body).length);
             expect(res.status).to.equal(200);
             expect(res.body).to.be.an("object");
