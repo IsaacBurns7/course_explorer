@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 const { bulkInsert } = require("./utils");
-const course = require('../../models/course');
+const course = require('../../backend/models/course');
 
 async function populateCoursesSectionInfo(){
     const pgPool = new Pool({

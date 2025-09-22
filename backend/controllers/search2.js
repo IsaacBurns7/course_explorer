@@ -658,7 +658,7 @@ const getLineGraphData = async(req, res) => {
             SELECT * FROM gpa_by_semester;
         `;
         const sql3 = `
-            SELECT DISTINCT semester_id 
+            SELECT JSON_AGG(DISTINCT semester_id) AS semesters
             FROM course_explorer.courses_sections
             WHERE course_id = $1;
         `;
@@ -666,9 +666,9 @@ const getLineGraphData = async(req, res) => {
         const result = await client.query(sql, [courseId, courseNumber, department]);
         const lineGraphData = result.rows[0].transformed;
 
-        // const result2 = await client.query(sql3, [courseId]);
-        // const semesters = result2.rows;
-        const semesters = [];
+        const result2 = await client.query(sql3, [courseId]);
+        const semesters = result2.rows[0].semesters;
+        // const semesters = [];
         // console.log(result2.rows);
 
         // const result2 = await client.query(sql2, [courseId]);
