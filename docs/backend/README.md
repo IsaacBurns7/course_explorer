@@ -26,7 +26,45 @@ You would not want to send over Alice's medical history to Bob when Bob requests
 as often the majority of latency is network bandwidth, especially for users with slower connections. 
 
 Given this, every large application does the vast majority of its processing on the backend. 
-As a standard to communicate between the backend and the frontend 
+As a standard to communicate between the backend and the frontend, REST was developed.
+It stands for Representational State Transfer. The following are its rough standards.
+1. It is stateless, and the same call(parameters, body, bearer token) should always return the same result.
+2. Cacheability - Responses from the server can be explicitly or implicitly labeled as cacheable or non-cacheable. 
+We do not use this part of REST much, since React already caches pages by default. 
+3. Uniform Interface - APIs are organized as resources rather than actions. This means instead of calling
+localhost:4000/planner/getClasses, you would call localhost:4000/planner/classes with method "GET". 
+4. Layered System - the backend can be composed of multiple layers of proxies, load balancers, gateways, etc
+without affecting client-server interaction.
 
-This is the backend's job. 
-It is the ox plowing the land. The engines that do this data processing are found in the controllers folder.
+Further reading on REST is suggested, but not required. The below section is for all 3 buckets.
+
+# Backend Architecture
+## server.js(entry point)
+This serves as the entry point of the project, and connects to the routes and controllers.
+It handles high-level routing as well. 
+Example: localhost:4000/api/planner/pdf. It will read /api/planner, and hand off this request to routes/planner.js
+
+## routes
+This is where the routing logic is handled. Effectively, it is a wire that connects a request to its accompanying controller. 
+Example: localhost:4000/api/planner/pdf will be handed to the planner router, located at routes/planner.js. 
+Then, the planner router will pass this off to the correct function in controllers/planner.js. 
+It is also capable of ensuring requests have the proper parameters to allow for a logically correct query. 
+Example
+localhost:4000/api/search/graphData?department=CSCE&courseNumber=120 will pass through the router.
+localhost:4000/api/search/graphData?courseNumber=120 will not through the router, as it is missing a department.
+
+## controllers
+This is where the complex data processing happens. 
+It is mostly written in SQL, and in production has a pgPool connection to the docker container on the instance.
+Alternatively, a connection can be made with a neondb connection string, which will be the case in development.
+
+## test 
+This is currently for unit tests to ensure application is working as expected. 
+
+## services
+This is mostly for getting data from public APIs, or scraping data from websites. 
+This data is then placed into the database. 
+
+## models
+This folder was for connection to MongoDB Atlas, and enforced a schema on collections. Given the ongoing migration
+to postgresql, this will become effectively useless, and will be carefully fazed out once the migration is complete.

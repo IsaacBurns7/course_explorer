@@ -55,3 +55,26 @@ This 2-instance deployment scheme may be copied for an active-passive or active-
 The secondary will be an old desktop with two VMs running on it. 
 I want to attribute thanks to Andrew Huang(github username: mezwer), for providing it to me, 
 and Oscar Lay(github username: sudocanttype), for helping me set this up. 
+
+# Running this project
+You will need node to run this project. 
+Download node: https://nodejs.org/en/download
+You will need to run "npm install" in the frontend and backend folders.
+
+Below section is only if u wish to run the project locally.
+PLEASE NOTE that you do not have to run the database locally, as a connection to NeonDB will work just fine.
+Contact Isaac or Rafay for a connection string. 
+
+You will need postgresql and docker to run the database locally, 
+or a connection to the neon database instance. 
+Postgresql: https://www.postgresql.org/download/
+docker: https://docs.docker.com/engine/install/
+If you do not have brew, postgresql and docker have instructions on their respective websites. 
+
+To run postgresql container locally, pull the postgresql docker container
+docker pull postgres
+and run it
+docker run -d --name mypostgres -p 5432:5432 -e POSTGRES_PASSWORD=yourpassword postgres
+
+Note that running a docker container before creating a local database through psql will not work.
+Instructions for that can be found on the web. I suggest the official postgres documentation, it is very helpful!
