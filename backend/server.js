@@ -35,8 +35,8 @@ app.use("/api/health", healthRoutes);
 
 //this is for running the database locally, or for running neon in mocha(testing framework)
 
-app.listen(process.env.PORT || 4000, () => {
-    console.log("Global setup: Server listening on port", process.env.PORT || 4000);
+app.listen(process.env.PORT, () => {
+    console.log("Global setup: Server listening on port", process.env.PORT);
 });
 
 

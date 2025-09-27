@@ -5,6 +5,12 @@ import { AnimatePresence, motion } from "framer-motion"
 import axios from "axios"
 import Alert from "../ui/alert"
 
+/*
+NOTES 9/26/2025
+  Many of these functions use are asynchronous side-effect causing functions such as network calls.
+  All network calls should be wrapped within a useEffect, and then given an abortcontroller to avoid race conditions.
+  
+*/
 export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded }) {
   const [uploadMethod, setUploadMethod] = useState("text")
   const [textInput, setTextInput] = useState("")

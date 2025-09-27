@@ -9,7 +9,7 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
   const [courses, setCourses] = useState(new Set());
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [selectedSemester, setSelectedSemester] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState("");
   const [mode, setMode] = useState("class") // 'class' or 'semester'
   const [newSemesterTerm, setNewSemesterTerm] = useState("Spring")
   const [newSemesterYear, setNewSemesterYear] = useState(new Date().getFullYear())

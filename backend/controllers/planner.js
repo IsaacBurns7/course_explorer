@@ -2,6 +2,14 @@ const {parseDegreePlanPDF, parseDegreePlanText} = require('../services/parseData
 const Course = require('../models/course');
 const Professor = require('../models/professor');
 
+/*
+NOTES 9/26/2025
+  a lot of these functions are NOT related to controllers. 
+  They are data handling functions. not inherently wrong, but ensure they are tightly coupled, and if overlap arises between 
+  other controllers, add to services.
+
+*/
+
 const getSiteByProfessor = (course, professorName) => {
   for (const [semester, sections] of course.sections) {
     for (const section of sections) {
@@ -116,10 +124,10 @@ const getBestClasses = async (parsed, req, res) => {
 };
 
 const getClassInfo = async (req, res) => {
-    try {
+  try {
     const parsed = req.body.class;
     const courseData = parsed.split(" ")
-     const course = await Course.findOne({
+    const course = await Course.findOne({
         "info.department": courseData[0],
         "info.number": courseData[1]
     });
@@ -152,10 +160,10 @@ const getClassInfo = async (req, res) => {
     professors.sort((a, b) => (b.info.averageGPA + b.info.averageRating) - (a.info.averageGPA + a.info.averageRating));
 
     return res.status(200).json({department: courseData[0], number: courseData[1], title: course.info.title, hours: hours, info: course, professors: professors})
-    } catch (err) {
-        console.error("Planner error:", err);
-        return res.status(500).json({ error: "Internal server error" });
-    }
+  } catch (err) {
+      console.error("Planner error:", err);
+      return res.status(500).json({ error: "Internal server error" });
+  }
 }
 
 module.exports = {getBestClassesPDF, getBestClassesText, getClassInfo}

@@ -1,4 +1,5 @@
-require('dotenv').config()
+const dotenv = require('dotenv');
+dotenv.config({ path: "../.env"});
 const request = require('supertest');
 const { expect } = require('chai');
 const assert = require('chai').assert;
@@ -39,6 +40,8 @@ describe("Search API", () => {
         console.log("Server OK, DB OK");
         client.release();
     }
+
+    checkHealth();
     
     it("GET /search2/professors?courseNumber=&department= should return info of professors of a course", async () => {
         console.log("real test starts now.");
