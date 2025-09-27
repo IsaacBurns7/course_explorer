@@ -61,13 +61,14 @@ You will need node to run this project.
 Download node: https://nodejs.org/en/download
 You will need to run "npm install" in the frontend and backend folders.
 
+You will need pg to run the database locally or via neon. 
+Download postgres: https://www.postgresql.org/download/ or use brew install postgresql
 Below section is only if u wish to run the project locally.
 PLEASE NOTE that you do not have to run the database locally, as a connection to NeonDB will work just fine.
 Contact Isaac or Rafay for a connection string. 
 
 You will need postgresql and docker to run the database locally, 
 or a connection to the neon database instance. 
-Postgresql: https://www.postgresql.org/download/
 docker: https://docs.docker.com/engine/install/
 If you do not have brew, postgresql and docker have instructions on their respective websites. 
 

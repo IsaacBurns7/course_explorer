@@ -2,6 +2,7 @@ psql -d postgres
 psql -d mydb
 
 docker run --name pg-test -e POSTGRES_USER=testuser -e POSTGRES_PASSWORD=testpass -e POSTGRES_DB=testdb -p 5432:5432 -d postgres:17
+pg_dump --no-owner --no-privileges -U your_local_user -h localhost -d your_local_db > local_dump.sql
 
 
 SELECT 

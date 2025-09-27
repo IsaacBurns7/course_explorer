@@ -1,12 +1,5 @@
-const { Pool } = require("pg");
-const course = require("../models/course");
-const pgPool = new Pool({
-        user: process.env.DB_USERNAME,
-        host: "localhost",
-        database: "mydb",
-        password: process.env.DB_PASSWORD,
-        port: 5432
-    });
+const { Client } = require("pg");
+const pool = require("../db.js");
 
 const getSemestersForCourse = async(req, res) => {
     //fuckin do later
@@ -25,10 +18,9 @@ const getSemestersForCourse = async(req, res) => {
 //     },
 const getProfessorDataForCourse = async(req, res) => {
     const { department, courseNumber } = req.query;
-    const client = await pgPool.connect();
     const courseId = `${department}_${courseNumber}`;
     // console.log(courseId);
-
+    const client = await pool.connect();
 
     try{
         const sql3 = `
@@ -74,6 +66,8 @@ const getProfessorDataForCourse = async(req, res) => {
     }catch(error) {
         console.error("Error in search controller: getProfessorDataForCourse");
         return res.status(500).json({error: "Internal server error", message: error});
+    } finally {
+        client.release();
     }
 }
 /*
@@ -96,303 +90,19 @@ courses: {
 */
 const getCourseData = async (req, res) => {
     const { department, courseNumber } = req.query;
-    const client = await pgPool.connect();
     const courseId = `${department}_${courseNumber}`;
+    const client = await pool.connect();
+    // client.on('notice', msg => {
+    //     console.log('NOTICE: ', msg.message);
+    // });
 
-    client.on('notice', msg => {
-        console.log('NOTICE: ', msg.message);
-    });
-
-    try { 
-
-        // const sql2 = `
-        //     WITH section_times AS (
-        //         SELECT cst.course_id, cst.semester_id, cst.section_id,
-        //             JSON_AGG(
-        //                 json_build_object(
-        //                     'day', cst.day,
-        //                     'start', cst.start_time,
-        //                     'end', cst.end_time
-        //                 )
-        //             ) AS times
-        //         FROM course_explorer.courses_section_times cst
-        //         GROUP BY cst.course_id, cst.semester_id, cst.section_id
-        //     ),
-        //     sections AS (
-        //         SELECT cs.course_id, cs.semester_id, cst.section_id,
-        //             JSON_AGG(
-        //                 json_build_object(
-        //                     'section', cs.section_id,
-        //                     'A', cs.A,
-        //                     'B', cs.B,
-        //                     'C', cs.C,
-        //                     'D', cs.D,
-        //                     'F', cs.F,
-        //                     'I', cs.I,
-        //                     'S', cs.S,
-        //                     'U', cs.U,
-        //                     'Q', cs.Q,
-        //                     'X', cs.X,
-        //                     'prof', cs.prof,
-        //                     'year', cs.year,
-        //                     'semester', cs.semester,
-        //                     'gpa', cs.gpa,
-        //                     'crn', cs.crn,
-        //                     'hours', cs.hours,
-        //                     'site', cs.site,
-        //                     'prof_id', cs.professor_id,
-        //                     'times', st.times
-        //                 )
-        //             ) AS sections_json
-        //         FROM course_explorer.courses_sections cs
-        //         LEFT JOIN section_times st
-        //             ON st.course_id = cs.course_id
-        //             AND st.semester_id = cs.semester_id
-        //             AND st.section_id = cs.section_id
-        //         GROUP BY cs.course_id, cs.semester_id
-        //     ),
-        //     sections_by_semester AS (
-        //         SELECT course_id, 
-        //             JSON_OBJECT_AGG(semester_id, sections_json) AS sections
-        //             FROM sections
-        //             GROUP BY course_id
-        //     )
-        //     SELECT 
-        //         json_build_object(
-        //             'info', json_build_object(
-        //                 'department', c.department,
-        //                 'number', c.number,
-        //                 'title', c.title,
-        //                 'description', c.description,
-        //                 'averageGPA', c.averageGPA,
-        //                 'averageRating', c.averageRating,
-        //                 'totalStudents', c.totalStudents,
-        //                 'totalRatings', c.totalRatings,
-        //                 'totalSections', c.totalSections
-        //             ),
-        //             'professors', (
-        //                 SELECT JSON_AGG(cp.professor_id)
-        //                 FROM course_explorer.courses_professors cp
-        //                 WHERE cp.course_id = c.id
-        //             ),
-        //             'sections', sb.sections
-        //         )
-        //     FROM course_explorer.courses AS c
-        //     LEFT JOIN sections_by_semester sb ON sb.course_id = c.id
-        //     WHERE c.id = $1
-        //     GROUP BY c.id, sb.sections;
-        // `;
-/*
-WITH section_times AS (
-                SELECT cst.course_id, cst.semester_id, cst.course_id
-                FROM course_explorer.courses_section_times cst 
-                GROUP BY cst.course_id, cst.semester_id, cst.course_id
-            )
-            SELECT 
-                c.id, cst.semster_id, cst.course_id
-            FROM course_explorer.courses AS c
-            LEFT JOIN section_times st ON st.course_id = c.id
-            WHERE c.id = $1 
-            GROUP BY c.id, st.sections;
-// */
-//         const sql3 = `
-//             DO $$
-//                 DECLARE 
-//                     _c text;
-//                 BEGIN
-//                     BEGIN
-//                         PERFORM (
-//                             WITH section_times AS (
-//                                 SELECT course_id, semester_id, section_id
-//                                 FROM course_explorer.courses_section_times cst 
-//                                 GROUP BY cst.course_id, cst.semester_id, cst.section_id
-//                             )
-//                             SELECT 
-//                                 c.id, st.semester_id, st.section_id
-//                             FROM course_explorer.courses AS c
-//                             LEFT JOIN section_times st ON st.course_id = c.id
-//                             WHERE c.id = $1;
-//                         );
-//                     EXCEPTION WHEN OTHERS THEN
-//                         GET STACKED DIAGNOSTICS _c = PG_EXCEPTION_CONTEXT;
-//                         RAISE NOTICE 'context: >>%<<', _c;
-//                     END;
-//                 END;
-//             $$;
-//         `;
-
-/*
-sections AS (
-                SELECT cs.course_id, cs.semester_id, cs.section_id, 
-                    JSON_AGG(
-                        json_build_object(
-                            'A', cs.A,
-                            'times', st.times
-                        )
-                    ) AS sections_json
-                FROM course_explorer.courses_sections cs
-                LEFT JOIN section_times st 
-                    ON st.course_id = cs.course_id
-                    AND st.semester_id = st.semester_id
-                    AND st.section_id = st.section_id
-            )
-*/
-
-            //CREATE MATERIALIZED VIEW courses_mv AS 
-
-        const sql4 = `
-            CREATE MATERIALIZED VIEW courses_mv AS 
-            WITH section_times AS (
-                SELECT cst.course_id, cst.semester_id, cst.section_id,
-                    JSONB_AGG(
-                        jsonb_build_object(
-                            'day', cst.day,
-                            'start_time', cst.start_time,
-                            'end_time', cst.end_time
-                        )
-                    ) AS times
-                FROM course_explorer.courses_section_times cst 
-                GROUP BY cst.course_id, cst.semester_id, cst.section_id
-            ),
-            sections AS (
-                SELECT cs.course_id, cs.semester_id, cs.section_id, 
-                    JSONB_AGG(
-                        jsonb_build_object(
-                            'section', cs.section_id,
-                            'A', cs.A,
-                            'B', cs.B,
-                            'C', cs.C,
-                            'D', cs.D,
-                            'F', cs.F,
-                            'I', cs.I,
-                            'S', cs.S,
-                            'U', cs.U,
-                            'Q', cs.Q,
-                            'X', cs.X,
-                            'prof', cs.prof,
-                            'year', cs.year,
-                            'semester', cs.semester,
-                            'gpa', cs.gpa,
-                            'crn', cs.crn,
-                            'hours', cs.hours,
-                            'site', cs.site,
-                            'prof_id', cs.professor_id,
-                            'times', st.times
-                        )
-                    ) AS sections_json
-                FROM course_explorer.courses_sections cs
-                LEFT JOIN section_times st 
-                    ON st.course_id = cs.course_id
-                    AND cs.semester_id = st.semester_id
-                    AND cs.section_id = st.section_id
-                GROUP BY cs.course_id, cs.semester_id, cs.section_id
-            ),
-            sections_by_semester AS (
-                SELECT 
-                    course_id,
-                    JSONB_OBJECT_AGG(semester_id, sections_json) AS sections
-                FROM sections
-                GROUP BY course_id
-            )
-            SELECT 
-                c.id AS course_id,
-                jsonb_build_object(
-                    'info', jsonb_build_object(
-                        'department', c.department,
-                        'number', c.number,
-                        'title', c.title,
-                        'description', c.description,
-                        'averageGPA', c.averageGPA,
-                        'totalSections', c.totalSections,
-                        'totalStudents', c.totalStudents,
-                        'averageRating', c.averageRating,
-                        'totalRatings', c.totalRatings
-                    ),
-                    'professors', (
-                        SELECT JSONB_AGG(professor_id)
-                        FROM course_explorer.courses_professors cs
-                        WHERE cs.course_id = c.id
-                    ),
-                    'sections', sb.sections
-                ) AS course_data
-            FROM course_explorer.courses AS c
-            LEFT JOIN sections_by_semester sb ON sb.course_id = c.id
-        `;
-        //dont forget to modify permissions for the materialied view
-
-        // const sql = `
-        //     SELECT 
-        //         json_build_object(
-        //             'info', json_build_object(
-        //                 'department', c.department,
-        //                 'number', c.number,
-        //                 'title', c.title,
-        //                 'description', c.description,
-        //                 'averageGPA', c.averageGPA,
-        //                 'averageRating', c.averageRating,
-        //                 'totalStudents', c.totalStudents,
-        //                 'totalRatings', c.totalRatings,
-        //                 'totalSections', c.totalSections
-        //             ),
-        //             'professors', (
-        //                 SELECT JSON_AGG(cp.professor_id)
-        //                 FROM course_explorer.courses_professors cp
-        //                 WHERE cp.course_id = c.id
-        //             ),
-        //             'sections', (SELECT JSON_OBJECT_AGG(
-        //                     cs.semester_id, 
-        //                     JSON_AGG(
-        //                             json_build_object(
-        //                                 'section', cs.section_id,
-        //                                 'A', cs.A,
-        //                                 'B', cs.B,
-        //                                 'C', cs.C,
-        //                                 'D', cs.D,
-        //                                 'F', cs.F,
-        //                                 'I', cs.I,
-        //                                 'S', cs.S,
-        //                                 'U', cs.U,
-        //                                 'Q', cs.Q,
-        //                                 'X', cs.X,
-        //                                 'prof', cs.prof,
-        //                                 'year', cs.year,
-        //                                 'semester', cs.semester,
-        //                                 'gpa', cs.gpa,
-        //                                 'crn', cs.crn,
-        //                                 'hours', cs.hours,
-        //                                 'site', cs.site,
-        //                                 'prof_id', cs.professor_id,
-        //                                 'times', (
-        //                                     SELECT JSON_AGG (
-        //                                         json_build_object(
-        //                                             'day', cst.day,
-        //                                             'start', cst.start_time,
-        //                                             'end', cst.end_time
-        //                                         )
-        //                                     )
-        //                                     FROM course_explorer.courses_section_times cst
-        //                                     WHERE cst.course_id = cs.course_id
-        //                                         AND cst.semester_id = cs.semester_id
-        //                                         AND cst.section_id = cs.section_id
-        //                                 )
-        //                             )
-        //                         )
-        //                     )
-        //                     FROM course_explorer.courses_sections cs
-        //                     WHERE cs.course_id = c.id
-        //             )
-        //         ) AS course_data
-        //     FROM course_explorer.courses AS c
-        //     WHERE c.id = $1
-        //     GROUP BY c.id;
-        // `;
+    try {
 
         const sql5 = `
             SELECT course_data
             FROM courses_mv 
             WHERE course_id = $1
-        `
-
+        `; //this is in notes of database
         const result = await client.query(sql5, [courseId]);
         const courses = result.rows.reduce((acc, row) => {
             acc[courseId] = row.course_data;
@@ -442,7 +152,7 @@ WITH valid_sections AS (
 const getGraphData = async(req, res) => {
     const { department, courseNumber } = req.query;
     const courseId = `${department}_${courseNumber}`;
-    const client = await pgPool.connect();
+    const client = await pool.connect();
     try{
         const sql = `
             WITH valid_sections AS (
@@ -535,7 +245,7 @@ const getGraphData = async(req, res) => {
 const getLineGraphData = async(req, res) => {
     const { department, courseNumber } = req.query;
     const courseId = `${department}_${courseNumber}`;
-    const client = await pgPool.connect();
+    const client = await pool.connect();
 
     try {
         const sql = `
@@ -671,7 +381,7 @@ const getLineGraphData = async(req, res) => {
         // const semesters = [];
         // console.log(result2.rows);
 
-        // const result2 = await client.query(sql2, [courseId]);
+        // const result2 = await pool.query(sql2, [courseId]);
 
         // return res.json(result2.rows);
         return res.status(200).json({
