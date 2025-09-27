@@ -11,3 +11,5 @@ zcat -f access.log* | grep "aggieclasses.com" | awk '{print $1}' | sort -u | wc 
 346
 
 ssh -i ~/.ssh/"public.pem" ubuntu@ec2-13-59-245-176.us-east-2.compute.amazonaws.com
+
+psql 'postgresql://user:password@ep-flat-wind-adwtnsu1-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'

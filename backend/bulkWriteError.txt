@@ -1,6 +1,274 @@
 {
-  "code": "MODULE_NOT_FOUND",
-  "requireStack": [
-    "C:\\Users\\rafay\\Desktop\\course_explorer\\backend\\server.js"
-  ]
+  "message": "getaddrinfo ENOTFOUND ac-gndefiz-shard-00-01.6kzrvsu.mongodb.net",
+  "errorLabelSet": {},
+  "reason": {
+    "type": "ReplicaSetNoPrimary",
+    "servers": {
+      "ac-gndefiz-shard-00-00.6kzrvsu.mongodb.net:27017": {
+        "address": "ac-gndefiz-shard-00-00.6kzrvsu.mongodb.net:27017",
+        "type": "RSSecondary",
+        "hosts": [
+          "ac-gndefiz-shard-00-00.6kzrvsu.mongodb.net:27017",
+          "ac-gndefiz-shard-00-01.6kzrvsu.mongodb.net:27017",
+          "ac-gndefiz-shard-00-02.6kzrvsu.mongodb.net:27017"
+        ],
+        "passives": [],
+        "arbiters": [],
+        "tags": {
+          "availabilityZone": "use1-az4",
+          "nodeType": "ELECTABLE",
+          "provider": "AWS",
+          "diskState": "READY",
+          "workloadType": "OPERATIONAL",
+          "region": "US_EAST_1"
+        },
+        "minWireVersion": 0,
+        "maxWireVersion": 25,
+        "roundTripTime": 174,
+        "minRoundTripTime": 53,
+        "lastUpdateTime": 2192272427,
+        "lastWriteDate": {
+          "$date": "2025-09-23T18:54:50Z"
+        },
+        "error": null,
+        "topologyVersion": {
+          "processId": {
+            "$oid": "68d1ac640786c0243bb4630a"
+          },
+          "counter": 4
+        },
+        "setName": "atlas-tv8otd-shard-0",
+        "setVersion": 121,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": 30,
+        "maxMessageSizeBytes": 48000000,
+        "maxWriteBatchSize": 100000,
+        "maxBsonObjectSize": 16777216,
+        "primary": "ac-gndefiz-shard-00-02.6kzrvsu.mongodb.net:27017",
+        "me": "ac-gndefiz-shard-00-00.6kzrvsu.mongodb.net:27017",
+        "$clusterTime": {
+          "clusterTime": {
+            "$timestamp": {
+              "t": 1758653690,
+              "i": 49
+            }
+          },
+          "signature": {
+            "hash": {
+              "$binary": {
+                "base64": "vJtWHug5IgfrVVvK+Zn8avJVWkU=",
+                "subType": "00"
+              }
+            },
+            "keyId": 7494342040277221000
+          }
+        },
+        "iscryptd": false
+      },
+      "ac-gndefiz-shard-00-01.6kzrvsu.mongodb.net:27017": {
+        "address": "ac-gndefiz-shard-00-01.6kzrvsu.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 2192275561,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      },
+      "ac-gndefiz-shard-00-02.6kzrvsu.mongodb.net:27017": {
+        "address": "ac-gndefiz-shard-00-02.6kzrvsu.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 2192275678,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      }
+    },
+    "stale": false,
+    "compatible": true,
+    "heartbeatFrequencyMS": 10000,
+    "localThresholdMS": 15,
+    "setName": "atlas-tv8otd-shard-0",
+    "maxElectionId": null,
+    "maxSetVersion": null,
+    "commonWireVersion": 0,
+    "logicalSessionTimeoutMinutes": 30
+  },
+  "cause": {
+    "type": "ReplicaSetNoPrimary",
+    "servers": {
+      "ac-gndefiz-shard-00-00.6kzrvsu.mongodb.net:27017": {
+        "address": "ac-gndefiz-shard-00-00.6kzrvsu.mongodb.net:27017",
+        "type": "RSSecondary",
+        "hosts": [
+          "ac-gndefiz-shard-00-00.6kzrvsu.mongodb.net:27017",
+          "ac-gndefiz-shard-00-01.6kzrvsu.mongodb.net:27017",
+          "ac-gndefiz-shard-00-02.6kzrvsu.mongodb.net:27017"
+        ],
+        "passives": [],
+        "arbiters": [],
+        "tags": {
+          "availabilityZone": "use1-az4",
+          "nodeType": "ELECTABLE",
+          "provider": "AWS",
+          "diskState": "READY",
+          "workloadType": "OPERATIONAL",
+          "region": "US_EAST_1"
+        },
+        "minWireVersion": 0,
+        "maxWireVersion": 25,
+        "roundTripTime": 174,
+        "minRoundTripTime": 53,
+        "lastUpdateTime": 2192272427,
+        "lastWriteDate": {
+          "$date": "2025-09-23T18:54:50Z"
+        },
+        "error": null,
+        "topologyVersion": {
+          "processId": {
+            "$oid": "68d1ac640786c0243bb4630a"
+          },
+          "counter": 4
+        },
+        "setName": "atlas-tv8otd-shard-0",
+        "setVersion": 121,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": 30,
+        "maxMessageSizeBytes": 48000000,
+        "maxWriteBatchSize": 100000,
+        "maxBsonObjectSize": 16777216,
+        "primary": "ac-gndefiz-shard-00-02.6kzrvsu.mongodb.net:27017",
+        "me": "ac-gndefiz-shard-00-00.6kzrvsu.mongodb.net:27017",
+        "$clusterTime": {
+          "clusterTime": {
+            "$timestamp": {
+              "t": 1758653690,
+              "i": 49
+            }
+          },
+          "signature": {
+            "hash": {
+              "$binary": {
+                "base64": "vJtWHug5IgfrVVvK+Zn8avJVWkU=",
+                "subType": "00"
+              }
+            },
+            "keyId": 7494342040277221000
+          }
+        },
+        "iscryptd": false
+      },
+      "ac-gndefiz-shard-00-01.6kzrvsu.mongodb.net:27017": {
+        "address": "ac-gndefiz-shard-00-01.6kzrvsu.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 2192275561,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      },
+      "ac-gndefiz-shard-00-02.6kzrvsu.mongodb.net:27017": {
+        "address": "ac-gndefiz-shard-00-02.6kzrvsu.mongodb.net:27017",
+        "type": "Unknown",
+        "hosts": [],
+        "passives": [],
+        "arbiters": [],
+        "tags": {},
+        "minWireVersion": 0,
+        "maxWireVersion": 0,
+        "roundTripTime": -1,
+        "minRoundTripTime": 0,
+        "lastUpdateTime": 2192275678,
+        "lastWriteDate": 0,
+        "error": {
+          "errorLabelSet": {},
+          "beforeHandshake": false
+        },
+        "topologyVersion": null,
+        "setName": null,
+        "setVersion": null,
+        "electionId": null,
+        "logicalSessionTimeoutMinutes": null,
+        "maxMessageSizeBytes": null,
+        "maxWriteBatchSize": null,
+        "maxBsonObjectSize": null,
+        "primary": null,
+        "me": null,
+        "$clusterTime": null,
+        "iscryptd": false
+      }
+    },
+    "stale": false,
+    "compatible": true,
+    "heartbeatFrequencyMS": 10000,
+    "localThresholdMS": 15,
+    "setName": "atlas-tv8otd-shard-0",
+    "maxElectionId": null,
+    "maxSetVersion": null,
+    "commonWireVersion": 0,
+    "logicalSessionTimeoutMinutes": 30
+  }
 }

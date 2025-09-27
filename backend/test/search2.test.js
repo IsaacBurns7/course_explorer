@@ -1,9 +1,16 @@
+require('dotenv').config()
 const request = require('supertest');
 const { expect } = require('chai');
 const assert = require('chai').assert;
 const app = require('../server'); 
+const pool = require('../db');
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 describe("Search API", () => {
+    console.log("Starting test suite execution...");
     // it("Search professors should return 400 if missing query parameter", async () => {
     //     const res = await request(app).get("/api/search2/professors");
     //     expect(res.status).to.equal(400);
@@ -24,8 +31,17 @@ describe("Search API", () => {
     //     expect(res.status).to.equal(400);
     //     expect(res.body).to.have.property("error");
     // });
-
+    async function checkHealth(){
+        const client = await pool.connect();
+        const healthServer = await request(app).get(`/api/health/level1`);
+        const healthDB = await client.query("SELECT 1");
+        console.log("Before test: ", healthServer.body, healthDB.rows);
+        console.log("Server OK, DB OK");
+        client.release();
+    }
+    
     it("GET /search2/professors?courseNumber=&department= should return info of professors of a course", async () => {
+        console.log("real test starts now.");
         const res = await request(app).get(`/api/search2/professors?courseNumber=120&department=CSCE`);
         try{
             // console.log(Object.keys(res.body).length);
