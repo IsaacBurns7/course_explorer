@@ -100,7 +100,7 @@ const getCourseData = async (req, res) => {
 
         const sql5 = `
             SELECT course_data
-            FROM courses_mv 
+            FROM course_explorer.courses_mv 
             WHERE course_id = $1
         `; //this is in notes of database
         const result = await client.query(sql5, [courseId]);
