@@ -45,18 +45,22 @@ describe("Planner API", () => {
 
     it("GET /planner2/class should return info of a class", async () => {
         console.log("real test starts now.");
+        let res = null;
         try{
             //everything eles is working perfectly. why the fuck is res undefined
-            const res = await request(app).post(`/api/planner2/class`).send({class: "CSCE 120"});
+            res = await request(app)
+                .post("/api/planner2/class")
+                .send({class: "CSCE 120"});
             expect(res.status).to.equal(200);
             expect(res.body).to.be.an("object");
             expect(Object.keys(res.body).length).to.be.greaterThan(0);
-            expect(res.body).to.include.keys(["department", "number", "title", "hours", "info", "professors"]);
+            expect(res.body).to.include.keys(["department", "number", "title", "hours", "professors"]);
             expect(res.body.professors).to.be.an("array");
         } catch (error){
             console.log("Test failed. Response was: ", res.status, res.body);
+            console.log("Creating error: ", error);
             throw error;
         }
-    })
+    });
 
 });

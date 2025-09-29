@@ -48,9 +48,10 @@ const getClassInfo = async (req, res) => {
         if (queryResult.rows.length === 0) {
             return res.status(404).json({ error: "Class not found" });
         }       
-        console.log("Returning class info:", queryResult.rows[0].row_to_json);
+        console.log("Returning class info:", queryResult.rows[0].row_to_json, Object.keys(queryResult.rows[0].row_to_json));
 
         return res.status(200).json(queryResult.rows[0].row_to_json);
+        // return res.status(200).json({result:" exists "});
     
         // professors.sort((a, b) => (b.info.averageGPA + b.info.averageRating) - (a.info.averageGPA + a.info.averageRating));
     
