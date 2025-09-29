@@ -1,4 +1,6 @@
 const pool = require("../db.js");
+const fs = require('fs');
+const path = require('path');
 
 const getBestClassesPDF = async(req, res) => {
   
@@ -26,23 +28,29 @@ return
 }
 */
 const getClassInfo = async (req, res) => {
+    const client = await pool.connect();
     try {
         const parsed = req.body.class;
+        console.log("Parsed class:", parsed);
+        if (!parsed || typeof parsed !== 'string' || !parsed.includes(" ")) {
+            return res.status(400).json({ error: "Invalid class format. Expected format: 'DEPT NUMBER'" });
+        }
         const courseData = parsed.split(" ");
         const department = courseData[0];
         const courseNumber = courseData[1];
         const courseId = `${department}_${courseNumber}`;
-        const client = await pool.connect();
 
-        const sql = `
-            WITH professor_ids AS (
-                SELECT professor_id
-                FROM course_explorer.courses_professors
-            )
-            
-        `;
+        const sqlFilePath = path.join(__dirname, './sql/getClassInfo.sql');
+        const sql = fs.readFileSync(sqlFilePath, 'utf-8');
+        console.log("Executing SQL:" + sql.replace(/\s+/g, ' ').trim() + ` with courseId=${courseId}`);
+        const queryResult = await client.query(sql, [courseId]); 
+        console.log("Query result:", queryResult.rows);
+        if (queryResult.rows.length === 0) {
+            return res.status(404).json({ error: "Class not found" });
+        }       
+        console.log("Returning class info:", queryResult.rows[0].row_to_json);
 
-        const res = client.query(sql, [courseId]);        
+        return res.status(200).json(queryResult.rows[0].row_to_json);
     
         // professors.sort((a, b) => (b.info.averageGPA + b.info.averageRating) - (a.info.averageGPA + a.info.averageRating));
     
@@ -50,6 +58,8 @@ const getClassInfo = async (req, res) => {
     } catch (err) {
         console.error("Planner error:", err);
         return res.status(500).json({ error: "Internal server error" });
+    } finally {
+        client.release();
     }
 }
 
