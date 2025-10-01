@@ -22,3 +22,10 @@ curl -X POST "https://howdyportal.tamu.edu/api/course-sections/" \
     "publicSearch": "Y",
     "termCode": "202531"
   }'
+
+curl -X POST "http://localhost:4000/api/planner2/optimalSchedule" \
+  -H "Content-Type: application/json" \
+  -d '{
+    list: ["CSCE_312", "CSCE_221", "CSCE_314"],
+    semester: "FALL 2024"
+  }'
