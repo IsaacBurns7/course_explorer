@@ -64,4 +64,22 @@ const getClassInfo = async (req, res) => {
     }
 }
 
-module.exports = { getBestClassesPDF, getBestClassesText, getClassInfo };
+const getOptimalSchedule = async (req, res) => {
+    const client = await pool.connect();
+    try { 
+        const list = req.body.courses; //enforce type "CSCE_120" since thats what DB handles
+        const semester = req.body.semester;
+        const sqlFilePath = path.join(__dirname, "./sql/getOptimalSchedule.sql");
+        const sql = fs.readFileSync(sqlFilePath, 'utf-8');
+        const queryResult = await client.query(sql, [list, semester]);
+        console.log(queryResult.rows[0]);
+        return res.status(200).json({message: "hehe"});
+    } catch (err) {
+        console.error("Planner error:", err);
+        return res.status(500).json({error: "Internal server error"});
+    } finally {
+        client.release();
+    }
+}
+
+module.exports = { getBestClassesPDF, getBestClassesText, getClassInfo, getOptimalSchedule };
