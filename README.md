@@ -79,3 +79,7 @@ docker run -d --name mypostgres -p 5432:5432 -e POSTGRES_PASSWORD=yourpassword p
 
 Note that running a docker container before creating a local database through psql will not work.
 Instructions for that can be found on the web. I suggest the official postgres documentation, it is very helpful!
+
+CONTRIBUTERS
+
+Isaac Burns
