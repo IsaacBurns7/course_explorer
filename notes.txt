@@ -16,3 +16,5 @@ psql 'postgresql://user:password@ep-flat-wind-adwtnsu1-pooler.c-2.us-east-1.aws.
 
 note 1
 note 2
+
+imagine im like adding some confusing code or something
