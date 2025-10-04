@@ -1,0 +1,79 @@
+Movies(title, year, length, genre, studioName, producerC#)
+
+7.2.1
+(a) The year cannot be before 1965
+    CHECK year < 1965
+(b) The length cannot be less than 60 nor more than 250 
+    CHECK length >= 60 AND length <= 250
+
+7.2.2 - see textbook for defn
+(a) The speed of a laptop must be at least 2.0
+    CHECK speed >= 2.0; -- within Laptop table
+(d) Model of a product must be model of a PC, laptop, or a printer
+    (1) model REFERENCES Product(model) -- would have to insert into Products before inserting into PC, Laptop, or Printer
+    (2) CREATE TRIGGER check_product_model 
+        BEFORE INSERT OR UPDATE ON product
+        FOR EACH ROW
+        BEGIN  
+            IF 
+                NOT EXISTS (SELECT 1 FROM PC WHERE model = NEW.model)
+                AND NOT EXISTS ~
+                ~
+                SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Model must exist within PC, Laptop, or Printer';
+            END IF;
+        END;
+    option 1 is probably much better as you can see.
+
+7.2.3 - see textbook for defn
+(a) A star may not be in a movie made before they were born
+    CREATE TRIGGER movie_after_birth
+    BEFORE INSERT OR UPDATE ON StarsIn
+    FOR EACH ROW
+    BEGIN 
+        IF 
+            EXISTS (
+                SELECT 1 
+                FROM MovieStar 
+                WHERE name = NEW.starName AND birthdate > movieYear )
+        SIGNAL SQLSTATE '45000'
+        ~
+        ~
+    ~
+    --note you would have to do something similiar in moviestar relation as well
+(b) No two studios may have the same address
+    -- In studios
+    CHECK address NOT IN 
+        (
+            SELECT 1 FROM studio s2 
+            WHERE s2.studioName != studioName AND address = s2.address
+        )
+    -- or you can just do
+    ADD CONSTRAINT <constraint_name> UNIQUE(address);
+(c) A name that appears in MovieStar must not also appear in MovieExec
+    BEFORE INSERT OR UPDATE ON MovieStar
+    FOR EACH ROW
+    BEGIN 
+        IF EXISTS (SELECT 1 FROM MovieExec WHERE NEW.name = name)
+    BEFORE INSERT OR UPDATE ON MovieExec
+    FOR EACH ROW
+    BEGIN   
+        IF EXISTS (SELECT 1 FROM MovieStar WHERE name = new.name)
+(e) If producer is also a president, then they must be president of the studio that made the movie
+    CREATE TRIGGER producer_president_paradigm
+    BEFORE INSERT OR UPDATE ON Movies
+    FOR EACH ROW
+    BEGIN 
+        IF
+            EXISTS (
+                SELECT 1 
+                FROM (SELECT cert# FROM MovieExec WHERE NEW.producerC# = cert#) me 
+                JOIN (SELECT name, presC# FROM Studio WHERE NEW.producerC# = presC#) s
+                ON me.cert# = s.presC#
+                WHERE NEW.studioName != s.name
+            ) 
+
+7.2.6
+If the gender is NULL, then for example 8, the name cannot be like 'Ms.%'
+For example 6, they're cooked.
+ 
