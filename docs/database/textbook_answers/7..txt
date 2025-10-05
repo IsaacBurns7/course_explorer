@@ -76,4 +76,50 @@ Movies(title, year, length, genre, studioName, producerC#)
 7.2.6
 If the gender is NULL, then for example 8, the name cannot be like 'Ms.%'
 For example 6, they're cooked.
- 
+
+7.3.1
+(a) CONSTRAINT title_year_key 
+    PRIMARY KEY (title, year)
+(e) CONSTRAINT not_same_address
+    CHECK (address NOT IN (SELECT s2.address FROM Studio s2))
+7.3.2
+(e) ALTER TABLE Battles CONSTRAINT launch_first 
+    FOREIGN KEY name REFRENCES Ships(name)
+
+//tuple-based / attribute-based checks are not checked during deletions, and do not hold for subqueries
+    - e.g You can insert duplicate address despite a check like CHECK(address NOT IN (...))
+    because SQL does not require DBMS to evaluate subqueries as table-wide invariants.
+    Transaction order, isolation, deffered evaluation can all allow duplicates to slip in
+//trigger-based checks are checked when specified by programmer
+//assertion-based checks are checked during updates, deletions, or insertions
+
+7.4.2
+(a) ASSERTION more_than_2_ships
+    CHECK (2 >= (SELECT count(name) FROM Ships GROUP BY class))
+(b) ASSERTION both_battletypes
+    CHECK (NOT EXISTS (SELECT country 
+                        FROM Classes c1 JOIN Classes c2
+                        WHERE c1.country = c2.country AND c1.class = "Battleship" AND c2.class = "Battlecruiser"))
+(c) ASSERTION more_than_9_sinks_less_than_9
+    CHECK (
+        NOT EXISTS(
+            SELECT s1.name, s2.name
+            FROM (
+                SELECT s.name AS name, o.battle AS battle
+                FROM Classes c 
+                JOIN Ships s ON c.class = s.class
+                JOIN Outcomes o ON o.ship = s.name
+                WHERE c.numGuns > 9 
+            ) s1
+            JOIN (
+                SELECT s.name AS name, o.battle AS battle
+                FROM Classes c
+                JOIN Ships s ON c.class = s.class
+                JOIN Outcomes o ON o.ship = s.name AND result = 'sunk'
+                WHERE c.numGuns < 9
+            ) s2 
+            ON s1.battle = s2.battle
+        )
+    )
+NOTE: most DBMS, like PostgreSQL, do not enforce assertions. Use an equivalent trigger
+
