@@ -26,6 +26,7 @@
     "puppeteer": "^24.11.2",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-adblocker": "^2.13.6",
+    "readline-sync": "^1.4.10",
     "supertest": "^7.1.4"
   },
   "devDependencies": {
