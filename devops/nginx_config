@@ -151,8 +151,4 @@ server {
 
 	server_name 13.59.245.176 aggieclasses.com www.aggieclasses.com;
     return 404; # managed by Certbot
-
-
-
-
 }
