@@ -6,8 +6,6 @@ const mongoose = require("mongoose");
 
 const professorRoutes = require('./routes/professor');
 const courseRoutes = require("./routes/course");
-const plannerRoutes = require('./routes/planner');
-const searchRoutes = require("./routes/search");
 const searchRoutes2 = require("./routes/search2");
 const healthRoutes = require('./routes/health');
 const plannerRoutes2 = require('./routes/planner2');
@@ -29,9 +27,6 @@ app.use((req, res, next) => {
 
 app.use("/api/professors", professorRoutes);
 app.use("/api/courses", courseRoutes);
-app.use("/api/planner", plannerRoutes);
-app.use("/api/search", searchRoutes);
-// app.use("/api/professorTEST", professorTESTRoutes);
 app.use("/api/search2", searchRoutes2);
 app.use("/api/health", healthRoutes);
 app.use("/api/planner2", plannerRoutes2);
@@ -41,9 +36,5 @@ app.use("/api/planner2", plannerRoutes2);
 app.listen(process.env.PORT, () => {
     console.log("Global setup: Server listening on port", process.env.PORT);
 });
-async function connectDB(){
-    await mongoose.connect(process.env.MONGO_ATLAS_URI);
-}
-connectDB();
 
 module.exports = app;
