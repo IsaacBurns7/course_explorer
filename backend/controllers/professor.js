@@ -1,4 +1,4 @@
-
+const pool = require("../db.js");
 
 const getAllProfs = async (req, res) => {
     const client = await pool.connect();

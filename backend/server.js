@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const express = require('express');
 const fetch = require('node-fetch');
+const mongoose = require("mongoose");
 
 const professorRoutes = require('./routes/professor');
 const courseRoutes = require("./routes/course");
@@ -40,6 +41,9 @@ app.use("/api/planner2", plannerRoutes2);
 app.listen(process.env.PORT, () => {
     console.log("Global setup: Server listening on port", process.env.PORT);
 });
-
+async function connectDB(){
+    await mongoose.connect(process.env.MONGO_ATLAS_URI);
+}
+connectDB();
 
 module.exports = app;

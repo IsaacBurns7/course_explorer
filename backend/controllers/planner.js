@@ -75,7 +75,9 @@ const getBestClassesText = async(req, res) => {
   return getBestClasses(parsed, req, res)
 }
 
-
+/*
+  given courseData -> parsed[sem]
+*/
 const getBestClasses = async (parsed, req, res) => {
     console.time("Total");
     const courseCodes = Object.values(parsed).flat().map(course => `${course.department}_${course.number}`);
