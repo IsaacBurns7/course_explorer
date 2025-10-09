@@ -37,9 +37,9 @@ async function addTitleAndDesc(data) {
                 const sect = data[key].sections[sem][sectKey];
                 if (sect.crn != null) {
                     crn = sect.crn
-                    search = semesterSortKey(`${sect.semester} ${sect.year}`)
-                    if (search.site == "College Station") search += "1"
-                    else search += "2"
+                    //console.log(sect)
+                    //console.log(sect.semester)
+                    search = sem
                     break
                 }
             }
@@ -47,7 +47,7 @@ async function addTitleAndDesc(data) {
             if (crn != "") break;
         }
         if (crn == "") continue;
-
+        //console.log(`CRN: ${crn}, Search: ${search}`)
         const response = await fetch(`https://howdy.tamu.edu/api/course-section-details?term=${search}&subject=&course=&crn=` + crn, {
             "headers": {
             },
@@ -92,6 +92,7 @@ async function findMissingProfessors(data, site) {
             semesters[sem] = json;
         }
 
+        const keys = Object.keys(data)
         for (const key of keys) {
             //if (ignore.filter(x => key.startsWith(x)).length > 0) continue;
             const sections = data[key].sections
@@ -190,6 +191,8 @@ async function findMissingProfessors(data, site) {
                 }
             }
         }
+
+        return data;
     } catch (err) {
         console.log(err)
     }
@@ -251,6 +254,7 @@ function addStudents(data) {
         for (const sem of Object.keys(data[key].sections)) {
             for (const sectKey of Object.keys(data[key].sections[sem])) {
                 const sect =  data[key].sections[sem][sectKey]
+                if (!sect.A) continue; // no grades posted, don't know how many students
                 data[key].sections[sem][sectKey].students = sect.A + sect.B + sect.C + sect.D + sect.F + sect.I + sect.S + sect.Q + sect.U + sect.X
             }
         }
@@ -258,3 +262,6 @@ function addStudents(data) {
 
     return data
 }
+
+
+module.exports = {addTitleAndDesc, findMissingProfessors, adjustGPA, addStudents}

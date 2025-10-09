@@ -435,14 +435,14 @@ async function populateDepartments(data) {
     $('ul.nav.leveltwo li a').each((_, element) => {
         const str = $(element).text().trim();       // e.g., "CSCE -​ Computer Sci & Engr (CSCE)"
         const match = str.match(/^([A-Z]{2,5})\s*-\s*(.+)$/);
-        console.log(str)
+        //console.log(str)
         departments[match[1]] = { info: {name: match[2].replace(/^[\s\u200B\u00A0]+|[\s\u200B\u00A0]+$/g, '')}, courses: [] };
     });
 
     for (const key of Object.keys(data)) {
         const dept = key.split("_")[0]
         if (!departments[dept]) {
-            console.log(dept)
+            //console.log(dept)
             continue
         }
         departments[dept].courses.push({courseNumber: data[key].info.number, courseTitle: data[key].info.title, courseDescription: data[key].info.description, courseId: key})
