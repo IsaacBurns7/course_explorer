@@ -83,3 +83,4 @@ Instructions for that can be found on the web. I suggest the official postgres d
 CONTRIBUTERS
 
 Isaac Burns
+Rafay Bhatti 

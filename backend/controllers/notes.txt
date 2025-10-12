@@ -1,0 +1,33 @@
+getOptimalSchedule
+
+given maps course -> [professors], [course][professor] -> [sections (info / times)], 
+find the schedule that grants the highest total score across all professors, based upon GPA or rating or some other metric tied to the professor
+
+Constraints
+1. Only pick one section for each course
+2. Have to pick all courses
+
+decision tree looks like
+i denotes course index/key, j denotes professor index/key, k indicates section index/key (crn or section #)
+
+1. pick section, and then move onto the next class. 
+- i += 1 (or the next course key)
+- j = 0 (or the first professor key), k = 0 (or the first section key)
+- score += <score of prof> 
+- time mask = (time mask) | times for class. (bitwise OR)
+2. dont pick section (last section for current professor)
+- i = i 
+- j += 1 (or the next professor key), k = 0 (or the first section key)
+- score = score
+- time mask = time mask
+3. dont pick section (current professor has more sections)
+- i = i 
+- j = j, k += 1 (or the next section key)
+- score = score 
+- time mask = time mask 
+
+given the decision tree, we can try to make this into a 2d dp problem
+
+dp state = [courseId][timemask]
+State space = O(C * 2^T), where C is the number of courses, and T is the number of discrete time slots 
+Time complexity: O(C * 2^T * S), S is the number of sections
