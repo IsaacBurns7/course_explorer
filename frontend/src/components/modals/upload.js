@@ -56,8 +56,9 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
     }
     setLoading(true)
     try {
-      const response = await axios.post("/server/api/planner/text", { type: "text", content: textInput })
+      const response = await axios.post("/server/api/planner2/text", { type: "text", content: textInput });
       if (response.data) {
+        console.log(response.data, typeof response.data);
         setLoading(false)
         handleClose(true)
         onPlannerUploaded(response.data)
@@ -80,7 +81,7 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
     try {
       const arrayBuffer = await selectedFile.arrayBuffer()
       const buffer = new Uint8Array(arrayBuffer)
-      const response = await axios.post("/server/api/planner/pdf", buffer, { headers: { "Content-Type": "application/pdf" } })
+      const response = await axios.post("/server/api/planner2/pdf", buffer, { headers: { "Content-Type": "application/pdf" } })
       if (response.data && Object.keys(response.data).length > 0) {
         setLoading(false)
         handleClose(true)
