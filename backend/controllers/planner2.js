@@ -1,17 +1,42 @@
 const pool = require("../db.js");
 const fs = require('fs');
 const path = require('path');
+const {parseDegreePlanPDF, parseDegreePlanText} = require('../services/parseData');
 
 const getBestClassesPDF = async(req, res) => {
-  
+  const parsed = await parseDegreePlanPDF(req.body);
+  if (parsed.error) return res.status(500).json(parsed);
+  return getBestClasses(parsed, req, res)
 }
 
 const getBestClassesText = async(req, res) => {
-
+  const parsed = await parseDegreePlanText(req.body.content);
+  if (parsed.error) return res.status(500).json(parsed);
+  return getBestClasses(parsed, req, res)
 }
 
 const getBestClasses = async (parsed, req, res) => {
-
+    const client = await pool.connect();
+    try {
+        const semesterIds = [];
+        const courseIds = [];
+        
+        for (const [semester, courses] of Object.entries(parsed)) {
+            for (const course of courses) {
+                semesterIds.push(semester);
+                courseIds.push(`${course.department}_${course.number}`);
+            }
+        }
+        
+        const sqlFilePath = path.join(__dirname, '/sql/getBestClasses.sql');;
+        const sql = fs.readFileSync(sqlFilePath, 'utf-8');
+        const queryResult = await client.query(sql, [courseIds, semesterIds]);
+        return res.status(200).json(queryResult.rows[0]?.result || {});
+    } catch (error ) {
+        return res.status(500).json({error: error});
+    } finally {
+        client.release();
+    }
 }
 
 /*

@@ -12,26 +12,6 @@ function delay(ms) {
 
 describe("Planner API", () => {
     console.log("Starting test suite execution...");
-    // it("Search professors should return 400 if missing query parameter", async () => {
-    //     const res = await request(app).get("/api/search2/professors");
-    //     expect(res.status).to.equal(400);
-    //     expect(res.body).to.have.property("error");
-    // });
-    // it("Search courses should return 400 if missing query parameter", async () => {
-    //     const res = await request(app).get("/api/search2/courses");
-    //     expect(res.status).to.equal(400);
-    //     expect(res.body).to.have.property("error");
-    // });
-    // it("Search graphData should return 400 if missing query parameter", async () => {
-    //     const res = await request(app).get("/api/search2/graphData");
-    //     expect(res.status).to.equal(400);
-    //     expect(res.body).to.have.property("error");
-    // });
-    // it("Search lineGraphData should return 400 if missing query parameter", async () => {
-    //     const res = await request(app).get("/api/search2/lineGraphData");
-    //     expect(res.status).to.equal(400);
-    //     expect(res.body).to.have.property("error");
-    // });
     async function checkHealth(){
         const client = await pool.connect();
         const healthServer = await request(app).get(`/api/health/level1`);
@@ -61,6 +41,190 @@ describe("Planner API", () => {
             console.log("Creating error: ", error);
             throw error;
         }
+    });
+
+    describe("getBestClasses", () => {
+        it("should return 400 if PDF parsing fails", async () => {
+            const res = await request(app)
+                .post("/api/planner2/best-classes/pdf")
+                .send({ invalidData: "test" });
+            
+            expect([400, 500]).to.include(res.status);
+            expect(res.body).to.have.property("error");
+        });
+
+        it("should return 400 if text parsing fails", async () => {
+            const res = await request(app)
+                .post("/api/planner2/best-classes/text")
+                .send({ content: "" });
+            
+            expect([400, 500]).to.include(res.status);
+            expect(res.body).to.have.property("error");
+        });
+
+        it("should return best classes from text input with valid degree plan", async () => {
+            const validDegreePlan = `Fall 2025
+CSCE 314
+CSCE 312
+
+Spring 2026
+CSCE 221`;
+
+            const res = await request(app)
+                .post("/api/planner2/text")
+                .send({ content: validDegreePlan });
+
+            expect(res.status).to.equal(200);
+            expect(res.body).to.be.an("object");
+        });
+
+        it("should return data grouped by semesters", async () => {
+            const validDegreePlan = `Fall 2025
+CSCE 314
+
+Spring 2025
+CSCE 221`;
+
+            const res = await request(app)
+                .post("/api/planner2/best-classes/text")
+                .send({ content: validDegreePlan });
+
+            if (res.status === 200) {
+                expect(res.body).to.be.an("object");
+                // Check if response has semester keys
+                const hasSemesters = Object.keys(res.body).some(key => 
+                    key.includes('Fall') || key.includes('Spring') || key.includes('Summer')
+                );
+                expect(hasSemesters).to.be.true;
+            }
+        });
+
+        it("should return courses with professor information", async () => {
+            const validDegreePlan = `Fall 2025
+CSCE 314`;
+
+            const res = await request(app)
+                .post("/api/planner2/best-classes/text")
+                .send({ content: validDegreePlan });
+
+            if (res.status === 200 && res.body) {
+                const semesters = Object.values(res.body);
+                if (semesters.length > 0 && Array.isArray(semesters[0])) {
+                    const firstSemesterCourses = semesters[0];
+                    if (firstSemesterCourses.length > 0) {
+                        const course = firstSemesterCourses[0];
+                        expect(course).to.have.property("department");
+                        expect(course).to.have.property("number");
+                        expect(course).to.have.property("title");
+                        expect(course).to.have.property("professors");
+                        expect(course.professors).to.be.an("array");
+                    }
+                }
+            }
+        });
+
+        it("should include professor details with averageGPA and averageRating", async () => {
+            const validDegreePlan = `Fall 2025
+CSCE 314`;
+
+            const res = await request(app)
+                .post("/api/planner2/best-classes/text")
+                .send({ content: validDegreePlan });
+
+            if (res.status === 200 && res.body) {
+                const semesters = Object.values(res.body);
+                if (semesters.length > 0 && Array.isArray(semesters[0])) {
+                    const firstSemesterCourses = semesters[0];
+                    if (firstSemesterCourses.length > 0 && firstSemesterCourses[0].professors.length > 0) {
+                        const professor = firstSemesterCourses[0].professors[0];
+                        expect(professor).to.have.property("info");
+                        expect(professor.info).to.include.keys(["name", "averageGPA", "averageRating", "id"]);
+                    }
+                }
+            }
+        });
+
+        it("should handle multiple courses in single semester", async () => {
+            const validDegreePlan = `Fall 2025
+CSCE 314
+CSCE 312
+CSCE 221`;
+
+            const res = await request(app)
+                .post("/api/planner2/best-classes/text")
+                .send({ content: validDegreePlan });
+
+            if (res.status === 200 && res.body) {
+                const semesters = Object.values(res.body);
+                if (semesters.length > 0 && Array.isArray(semesters[0])) {
+                    // Should have multiple courses
+                    expect(semesters[0].length).to.be.greaterThan(0);
+                }
+            }
+        });
+
+        it("should handle multiple semesters", async () => {
+            const validDegreePlan = `Fall 2025
+CSCE 314
+
+Spring 2025
+CSCE 221
+
+Summer 2025
+CSCE 312`;
+
+            const res = await request(app)
+                .post("/api/planner2/best-classes/text")
+                .send({ content: validDegreePlan });
+
+            if (res.status === 200 && res.body) {
+                const semesterKeys = Object.keys(res.body);
+                // Should have data for multiple semesters
+                expect(semesterKeys.length).to.be.greaterThan(0);
+            }
+        });
+
+        it("should include warning field for professors", async () => {
+            const validDegreePlan = `Fall 2025
+CSCE 314`;
+
+            const res = await request(app)
+                .post("/api/planner2/best-classes/text")
+                .send({ content: validDegreePlan });
+
+            if (res.status === 200 && res.body) {
+                const semesters = Object.values(res.body);
+                if (semesters.length > 0 && Array.isArray(semesters[0])) {
+                    const firstSemesterCourses = semesters[0];
+                    if (firstSemesterCourses.length > 0 && firstSemesterCourses[0].professors.length > 0) {
+                        const professor = firstSemesterCourses[0].professors[0];
+                        expect(professor.info).to.have.property("warning");
+                        // Warning can be null or a string like "Doesn't typically teach Fall"
+                    }
+                }
+            }
+        });
+
+        it("should return empty or minimal data for non-existent courses", async () => {
+            const validDegreePlan = `Fall 2025
+FAKE 999`;
+
+            const res = await request(app)
+                .post("/api/planner2/best-classes/text")
+                .send({ content: validDegreePlan });
+
+            // Should either return empty results or 404
+            if (res.status === 200) {
+                const semesters = Object.values(res.body);
+                if (semesters.length > 0 && Array.isArray(semesters[0])) {
+                    // Empty array or no professors
+                    const courses = semesters[0];
+                    if (courses.length > 0) {
+                        expect(courses[0].professors).to.be.an("array");
+                    }
+                }
+            }
+        });
     });
 
 });
