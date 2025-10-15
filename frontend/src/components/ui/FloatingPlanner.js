@@ -12,11 +12,11 @@ const FloatingPlanner = ({ colors }) => {
 ]
 
   return (
-    <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute inset-0 pointer-events-none text-xs">
       {plannerFeatures.slice(0, 9).map((code, index) => (
         <div
           key={index}
-          className="absolute text-white font-bold text-sm transition-all duration-1000 ease-in-out"
+          className="absolute text-white font-bold transition-all duration-1000 ease-in-out text-2xs md:text-xs"
           style={{
             left: `${20 + (index % 3) * 30}%`,
             top: `${20 + Math.floor(index / 3) * 20}%`,

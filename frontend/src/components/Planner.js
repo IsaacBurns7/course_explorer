@@ -7,6 +7,8 @@ import AddClassModal from "./modals/add"
 import ClearConfirmModal from './modals/clear'
 import Alert from "./ui/alert"
 
+import "../styles/tailwind.css"
+
 export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToLanding }) {
   const [openSemesters, setOpenSemesters] = useState({})
   const [openCourses, setOpenCourses] = useState({})
