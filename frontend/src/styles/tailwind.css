@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tailwindcss/preflight";
+@import url("https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800,900&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -32,8 +33,13 @@
   background-color: #8a3a3a; /* slightly lighter maroon for hover */
 }
 
+
 /* Firefox support */
 * {
   scrollbar-width: thin;
   scrollbar-color: #6E2E2E #241616;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }

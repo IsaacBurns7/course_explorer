@@ -1,7 +1,7 @@
 //libraries
 import React from "react";
 import { useState, useEffect } from "react";
-import Landing from "./components/Landing";
+import Landing from "./pages/Landing";
 import Navbar from "./components/Navbar";
 //hooks
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
