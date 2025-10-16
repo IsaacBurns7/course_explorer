@@ -17,3 +17,5 @@ nohup node server.js > output.log 2>&1 &
 
 CONNECT
 ssh -i ~/.ssh/"public.pem" ubuntu@ec2-13-59-245-176.us-east-2.compute.amazonaws.com
+ssh isaac@isaac.dylt.dev -p 22000
+ssh isaac@isaac-db.dylt.dev -p 22000

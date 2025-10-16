@@ -89,15 +89,98 @@ const getClassInfo = async (req, res) => {
     }
 }
 
+function getTimeIndex(){
+
+}
+
+function generateMask(){
+    
+}
+
+function checkOverlap(currentSchedule, ){
+
+}
+
+/*
+if we merge intervals, we can check overlap in O(n log n) for n intervals
+*/
 const getOptimalSchedule = async (req, res) => {
     const client = await pool.connect();
     try { 
-        const list = req.body.courses; //enforce type "CSCE_120" since thats what DB handles
+        const courses = req.body.courses; //enforce type "CSCE_120" since thats what DB handles
         const semester = req.body.semester;
         const sqlFilePath = path.join(__dirname, "./sql/getOptimalSchedule.sql");
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
-        const queryResult = await client.query(sql, [list, semester]);
-        console.log(queryResult.rows[0]);
+        const queryResult = await client.query(sql, [courses]);
+        
+        const courseProfessorSectionPairs = queryResult.rows.map((pair) => {
+            let raw = pair.schedule;
+            raw = raw.replace(/[()]/g, '[').replace(/[()]/g, ']'); // optional, depends on your DB output
+            raw = raw.replace(/^\{|\}$/g, ''); // remove outer braces
+            raw = '[' + raw + ']'; // wrap into array brackets
+
+            // Step 2: parse items manually
+            let items = raw
+            .split('","')
+            .map(s => s.replace(/["{}]/g, '').trim())
+            .map(s => s.replace(/[()]/g, ''))
+            .map(s => s.split(','))
+            .map(([day, start, end]) => ({
+                day: day.trim(),
+                start: start.replace(/"/g, '').trim(),
+                end: end.replace(/"/g, '').trim()
+            }));
+            pair.schedule = items;
+            return pair;
+        });
+
+        console.log(courseProfessorSectionPairs);
+
+//         dp = {0: 0}  # mask -> best score (start with empty schedule)
+// for course in courses:
+//     new_dp = {}
+    
+//     # try every existing partial schedule
+//     for mask, score in dp.items():
+        
+//         # try every section of this course
+//         for section in course.sections:
+//             section_mask = section.time_mask
+//             section_score = section.prof_score
+
+//             # only add if this section does not conflict
+//             if section_mask & mask == 0:
+//                 new_mask = mask | section_mask
+//                 new_score = score + section_score
+
+//                 # keep the best score if multiple ways reach same mask
+//                 if new_mask not in new_dp or new_score > new_dp[new_mask]:
+//                     new_dp[new_mask] = new_score
+
+//     # move to the next course
+//     dp = new_dp
+        let dp = new Map();
+        dp.insert(0, 0);
+        for(const course of courses){
+            let new_dp = new Map();
+            for(const [mask, score] of dp.entries()){
+                for(const section of course.sections){
+                    section_schedule = section.schedule
+                    section_score = section.prof_score
+                    section_mask = generateMask(section.schedule)
+
+                    if((section_mask & mask == 0) && !checkOverlap(schedule, mask_schedule)){
+                        new_mask = mask | section_mask 
+                        new_score = score + section_score
+
+                        if(!new_dp.get(new_mask) || new_score > new_dp.get(new_mask)){
+                           new_dp.set(new_mask, new_score);
+                        }
+                    }
+                }
+            } 
+        }
+
         return res.status(200).json({message: "hehe"});
     } catch (err) {
         console.error("Planner error:", err);
