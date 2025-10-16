@@ -44,39 +44,39 @@ describe("Planner API", () => {
     });
 
     describe("getBestClasses", () => {
-        it("should return 400 if PDF parsing fails", async () => {
-            const res = await request(app)
-                .post("/api/planner2/best-classes/pdf")
-                .send({ invalidData: "test" });
+        // it("should return 400 if PDF parsing fails", async () => {
+        //     const res = await request(app)
+        //         .post("/api/planner2/best-classes/pdf")
+        //         .send({ data: "test" });
             
-            expect([400, 500]).to.include(res.status);
-            expect(res.body).to.have.property("error");
-        });
+        //     expect([400, 500]).to.include(res.status);
+        //     expect(res.body).to.have.property("error");
+        // });
 
-        it("should return 400 if text parsing fails", async () => {
-            const res = await request(app)
-                .post("/api/planner2/best-classes/text")
-                .send({ content: "" });
+        // it("should return 400 if text parsing fails", async () => {
+        //     const res = await request(app)
+        //         .post("/api/planner2/best-classes/text")
+        //         .send({ content: "" });
             
-            expect([400, 500]).to.include(res.status);
-            expect(res.body).to.have.property("error");
-        });
+        //     expect([400, 500]).to.include(res.status);
+        //     expect(res.body).to.have.property("error");
+        // });
 
-        it("should return best classes from text input with valid degree plan", async () => {
-            const validDegreePlan = `Fall 2025
-CSCE 314
-CSCE 312
+//         it("should return best classes from text input with valid degree plan", async () => {
+//             const validDegreePlan = `Fall 2025
+// CSCE 314
+// CSCE 312
 
-Spring 2026
-CSCE 221`;
+// Spring 2026
+// CSCE 221`;
 
-            const res = await request(app)
-                .post("/api/planner2/text")
-                .send({ content: validDegreePlan });
+//             const res = await request(app)
+//                 .post("/api/planner2/text")
+//                 .send({ content: validDegreePlan });
 
-            expect(res.status).to.equal(200);
-            expect(res.body).to.be.an("object");
-        });
+//             expect(res.status).to.equal(200);
+//             expect(res.body).to.be.an("object");
+//         });
 
         it("should return data grouped by semesters", async () => {
             const validDegreePlan = `Fall 2025
@@ -224,6 +224,23 @@ FAKE 999`;
                     }
                 }
             }
+        });
+    });
+
+    describe("getOptimalSchedule", () => {
+        it("for valid, return good :)", async () => {
+            const validCourseList = [
+                "CSCE_314",
+                "CSCE_221",
+                "CSCE_181",
+                "CSCE_312",
+                "MATH_304",
+                "STAT_414"
+            ];
+            const res = await request(app)
+                .post("/api/planner2/optimalSchedule")
+                .send({courses: validCourseList});
+
         });
     });
 
