@@ -1,4 +1,4 @@
-const { bulkInsert } = require("../../postgresql_prototype/migration_tools/utils"); 
+const { bulkInsert } = require("./utils"); 
 const { Pool } = require('pg');
 
 //function bulkInsert (client, table, arrayOfObj, batchSize)
@@ -261,7 +261,7 @@ const populateSyntaxTree = async () => {
 // console.log(syntaxTree, "\n\n\n");
 // console.log(syntaxTree2);
 
-// populateSyntaxTree();
+populateSyntaxTree();
 
 // const str3 = "Junior or senior classification";
 // const syntaxTree3 = parsePrereq(str3);
