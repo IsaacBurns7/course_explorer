@@ -1,4 +1,4 @@
-const { bulkInsert } = require("../../postgresql_prototype/migration_tools/utils"); 
+// const { bulkInsert } = require("../../postgresql_prototype/migration_tools/utils"); 
 const { Pool } = require('pg');
 
 //function bulkInsert (client, table, arrayOfObj, batchSize)
