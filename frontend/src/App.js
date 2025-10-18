@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import SearchResults from "./pages/SearchResults";
 import Planner from "./pages/Planner"
 import ComparePage from "./pages/Compare";
+import CourseDetails from "./pages/CourseDetails";
 import { SearchContextProvider } from "./context/search";
 
 const App = () => {
@@ -83,6 +84,10 @@ const App = () => {
                             <Route 
                                 path = "/compare"
                                 element = {<ComparePage />}
+                            />
+                            <Route 
+                                path = "/course/:courseId"
+                                element = {<CourseDetails />}
                             />
                         </Routes>
                     </SearchContextProvider>

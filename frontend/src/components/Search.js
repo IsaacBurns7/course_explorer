@@ -19,11 +19,13 @@ export default function AutoCompleteSearch({navbarMode}) {
   useEffect(() => {
     getAllCourses()
       .then(courseSet => {
-        setCourses(prev => {
-          const newSet = new Set(prev);
-          courseSet.forEach((courseKey) => newSet.add(courseKey));
-          return newSet;
-        });
+        if (courseSet && courseSet.forEach) {
+          setCourses(prev => {
+            const newSet = new Set(prev);
+            courseSet.forEach((courseKey) => newSet.add(courseKey));
+            return newSet;
+          });
+        }
       })
       .catch(err => console.error("Failed to load courses", err));
   }, []);
