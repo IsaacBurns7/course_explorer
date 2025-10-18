@@ -16,11 +16,12 @@ const pool = new Pool({
 console.log("Global setup: Attempting to connect to DB at ", process.env.NEON_DB_URL);
 
 const pool = new Pool({
-     connectionString: process.env.NEON_DB_URL,
-     ssl: {
-         require: true
-     }
- });
+    connectionString: process.env.NEON_DB_URL,
+    ssl: process.env.NEON_DB_URL && process.env.NEON_DB_URL.includes('neon.tech') ? {
+        require: true,
+        rejectUnauthorized: false
+    } : false
+});
 
 pool.connect()
  .then(() => {
