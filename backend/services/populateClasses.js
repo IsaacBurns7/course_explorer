@@ -221,6 +221,7 @@ function enrichSectionsWithAPI(courseData, apiResponse) {
         if (courseData[courseKey].professors.length > 0 && typeof courseData[courseKey].professors[0] === "string") {
             courseData[courseKey].professors = [];
         }
+        
 
         const sectionsByTerm = courseData[courseKey].sections;
         let targetSection = null;
@@ -295,11 +296,16 @@ function enrichSectionsWithAPI(courseData, apiResponse) {
         else hours = "N/A";
 
         // --- Set extra fields
+        let attributes = []
+                if (entry.SWV_CLASS_SEARCH_ATTRIBUTES) attributes = entry.SWV_CLASS_SEARCH_ATTRIBUTES
+                .split("| ")
+        targetSection.attributes = attributes;
         targetSection.crn = entry.SWV_CLASS_SEARCH_CRN;
         targetSection.hours = hours;
         targetSection.site = entry.SWV_CLASS_SEARCH_SITE || "";
         targetSection.times = times;
 
+        
         // --- Optionally override prof if needed
         if (prof && !courseData[courseKey].professors.includes(prof?.MORE)) {
             courseData[courseKey].professors.push(prof?.MORE || "");
@@ -310,6 +316,30 @@ function enrichSectionsWithAPI(courseData, apiResponse) {
         }
 
         if (profName) targetSection.prof = profName;
+    }
+
+    // loop through sections to see common attributes, and put it in class info
+    for (const [courseKey, courseVal] of Object.entries(courseData)) {
+        const attrCount = {};
+        for (const sectionArray of Object.values(courseVal.sections)) {
+            sectionArray.forEach(section => {
+                if (section.attributes) {
+                    section.attributes.forEach(attr => {
+                        if (!attrCount[attr]) attrCount[attr] = 0;
+                        attrCount[attr]++;
+                    });
+                }
+                });
+        }
+        // Now see which attributes are common to all sections
+        const commonAttrs = [];
+        const totalSections = Object.values(courseVal.sections).reduce((sum, arr) => sum + arr.length, 0);
+        for (const [attr, count] of Object.entries(attrCount)) {
+            if (count === totalSections) {
+                commonAttrs.push(attr);
+            }
+        }
+        courseVal.info.attributes = commonAttrs;
     }
 
     //console.log(courseData);
@@ -353,11 +383,17 @@ async function gatherData(courses = {}, semester, site = "College Station", year
             if (entry.SWV_CLASS_SEARCH_SUBJECT !== dept) continue;
 
             const courseKey = `${entry.SWV_CLASS_SEARCH_SUBJECT}_${entry.SWV_CLASS_SEARCH_COURSE}`;
+            console.log(entry)
             if (!courseObjects[courseKey]) {
+                let attributes = []
+                if (entry.SWV_CLASS_SEARCH_ATTRIBUTES) attributes = entry.SWV_CLASS_SEARCH_ATTRIBUTES
+                .split("| ")
+                .filter(attr => attr.includes("Core") || attr.includes("Univ"));
                 courseObjects[courseKey] = {
         info: {
             department: entry.SWV_CLASS_SEARCH_SUBJECT,
             number: parseInt(entry.SWV_CLASS_SEARCH_COURSE),
+            attributes: attributes,
             title: '',
             description: '',
             averageGPA: 0,
