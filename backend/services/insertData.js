@@ -62,15 +62,17 @@ function generateCourseSQL(courseId, courseObj) {
   // ---------------------------
   for (const [semesterKey, sections] of Object.entries(courseObj.sections)) {
     for (const sec of sections) {
-      const semId = `${sec.semester} ${sec.year}`;
+      const semId = `${semesterKey}`;
       if (sec.section == null) continue;
 
+      let year = semesterKey.split(" ")[1];
+      let term = semesterKey.split(" ")[0];
       // Sections table
       sqlStatements.push({
         table: "course_explorer.courses_sections",
         text: `INSERT INTO course_explorer.courses_sections
-          (course_id, semester_id, section_id, a, b, c, d, f, i, s, u, q, x, prof, hours, site, professor_id)
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+          (course_id, semester_id, section_id, a, b, c, d, f, i, s, u, q, x, prof, year, semester, gpa, crn, hours, site, professor_id)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17, $18, $19, $20, $21)
           ON CONFLICT (course_id, semester_id, section_id) DO UPDATE SET
             a = EXCLUDED.a,
             b = EXCLUDED.b,
@@ -83,6 +85,10 @@ function generateCourseSQL(courseId, courseObj) {
             q = EXCLUDED.q,
             x = EXCLUDED.x,
             prof = EXCLUDED.prof,
+            year = EXCLUDED.year,
+            semester = EXCLUDED.semester,
+            gpa = EXCLUDED.gpa,
+            crn = EXCLUDED.crn,
             hours = EXCLUDED.hours,
             site = EXCLUDED.site,
             professor_id = EXCLUDED.professor_id;`,
@@ -91,7 +97,7 @@ function generateCourseSQL(courseId, courseObj) {
           sec.A || null, sec.B || null, sec.C || null,
           sec.D || null, sec.F || null, sec.I || null,
           sec.S || null, sec.U || null, sec.Q || null, sec.X || null,
-          sec.prof || null, sec.hours || null, sec.site || null,
+          sec.prof || null,  year || null, term || null, null, sec.crn || null, sec.hours || null, sec.site || null,
           sec.prof_id || null
         ]
       });
@@ -145,13 +151,11 @@ console.log(`Generated ${allSQLStatements.length} SQL statements.`);
        }
   });
   
-  pool.connect()
-    .then(() => {
-      console.log("Global setup: DB Connection established successfully.");
-    })
-    .catch((err) => console.error('Connection error', err));
 
   try {
+    await pool.connect();
+    console.log("DB Connection established successfully.");
+
     let count = 1;
     for (const stmt of allSQLStatements) {
       console.log(`(${count}/${allSQLStatements.length}) Inserting into ${stmt.table}...`);
