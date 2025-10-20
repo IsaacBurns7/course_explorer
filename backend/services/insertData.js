@@ -63,10 +63,14 @@ function generateCourseSQL(courseId, courseObj) {
   for (const [semesterKey, sections] of Object.entries(courseObj.sections)) {
     for (const sec of sections) {
       const semId = `${semesterKey}`;
+      if (semId == `undefined undefined`) {
+        console.log("UNDEFINED UNDEFINED FOUND!")
+        process.exit(0)
+      }
       if (sec.section == null) continue;
 
-      let year = semesterKey.split(" ")[1];
-      let term = semesterKey.split(" ")[0];
+      let year = semesterKey.split("_")[1];
+      let term = semesterKey.split("_")[0];
       // Sections table
       sqlStatements.push({
         table: "course_explorer.courses_sections",
