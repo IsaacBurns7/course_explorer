@@ -12,6 +12,7 @@ import SearchResults from "./pages/SearchResults";
 import Planner from "./pages/Planner"
 import ComparePage from "./pages/Compare";
 import CourseDetails from "./pages/CourseDetails";
+import DashboardRedirect from "./pages/DashboardRedirect";
 import { SearchContextProvider } from "./context/search";
 
 const App = () => {
@@ -69,9 +70,10 @@ const App = () => {
                 <div className = "pages min-h-screen">
                     <SearchContextProvider>
                         <Routes>
+                            {/* Legacy /dashboard route - redirects to new course details page */}
                             <Route 
                                 path = "/dashboard"
-                                element = {<SearchResults />}
+                                element = {<DashboardRedirect />}
                             />
                             <Route 
                                 path = "/"

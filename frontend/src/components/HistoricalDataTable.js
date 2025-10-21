@@ -31,21 +31,21 @@ const HistoricalDataTable = ({ teachers, timePeriods }) => {
                         {teachers.map(teacher => (
                             <tr key={teacher.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm font-medium text-gray-900">{teacher.name}</div>
-                                    {!teacher.teachingNext && (
-                                        <div className="text-sm text-red-600">Not teaching next semester</div>
+                                    <div className="text-sm font-medium text-gray-900">{teacher.name || '?'}</div>
+                                    {teacher.teachingNext && (
+                                        <div className="text-sm text-green-600 font-medium">Teaching next semester</div>
                                     )}
                                 </td>
-                                {teacher.gpaHistory.map((gpa, index) => (
+                                {teacher.gpaHistory && teacher.gpaHistory.map((gpa, index) => (
                                     <td key={index} className="px-4 py-4 whitespace-nowrap text-center">
                                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getGpaColor(gpa)}`}>
-                                            {gpa.toFixed(1)}
+                                            {gpa != null ? gpa.toFixed(1) : '?'}
                                         </span>
                                     </td>
                                 ))}
                                 <td className="px-4 py-4 whitespace-nowrap text-center">
                                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getGpaColor(teacher.avgGpa)}`}>
-                                        {teacher.avgGpa.toFixed(1)}
+                                        {teacher.avgGpa != null ? teacher.avgGpa.toFixed(1) : '?'}
                                     </span>
                                 </td>
                             </tr>

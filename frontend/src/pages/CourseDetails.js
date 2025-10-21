@@ -89,21 +89,31 @@ const CourseDetails = () => {
     const fetchCourseData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:4000/api/search2/courses?department=CSCE&courseNumber=221`);
+        
+        // Parse courseId (e.g., "CSCE120" -> department="CSCE", courseNumber="120")
+        const match = courseId.match(/^([A-Z]+)(\d+)$/);
+        if (!match) {
+          throw new Error('Invalid course ID format');
+        }
+        const department = match[1];
+        const courseNumber = match[2];
+        
+        const res = await fetch(`http://localhost:4000/api/search2/courses?department=${department}&courseNumber=${courseNumber}`);
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-        //const data = await res.json();
+        const responseData = await res.json();
 
         // The data is like { CSCE_221: {...}, MATH_151: {...}, ... }
-        
-        const course = data.data
-        console.log(data)
+        // Find the course that matches our courseId
+        const courseKey = `${department}_${courseNumber}`;
+        const course = responseData[courseKey] || responseData.data || responseData;
+        console.log('Loaded course:', course)
 
-        const profRes = await fetch(`http://localhost:4000/api/search2/professors?department=CSCE&courseNumber=221`);
+        const profRes = await fetch(`http://localhost:4000/api/search2/professors?department=${department}&courseNumber=${courseNumber}`);
         if (!profRes.ok) throw new Error(`HTTP error ${profRes.status}`);
         const profInfo = await profRes.json();
 
         const formattedProfData = await aggregateProfessorData(course, profInfo);
-        console.log(formattedProfData)
+        console.log('Formatted professor data:', formattedProfData)
         // Set the state variables in sequence
         setProfData(formattedProfData);
         setCourseData(course);
@@ -121,9 +131,49 @@ const CourseDetails = () => {
   if (loading) return <div className="p-10 text-center text-gray-500">Loading...</div>;
   if (!courseData) return <div className="p-10 text-center text-red-500">Course not found</div>;
 
-  const info = courseData.info;
+  const info = courseData.info || {};
   const teachers = courseData.professors || [];
-  const timePeriods = Object.keys(courseData.sections || {});
+  
+  // Calculate actual average GPA from all sections
+  const calculateAverageGPA = (sections) => {
+    if (!sections || Object.keys(sections).length === 0) return 0;
+    
+    let totalGpaSum = 0;
+    let totalStudents = 0;
+    
+    for (const semester in sections) {
+      const semesterSections = sections[semester];
+      for (const section of semesterSections) {
+        if (section.gpa != null && section.students != null && section.students > 0) {
+          totalGpaSum += section.gpa * section.students;
+          totalStudents += section.students;
+        }
+      }
+    }
+    
+    return totalStudents > 0 ? (totalGpaSum / totalStudents) : 0;
+  };
+  
+  const calculatedAverageGPA = calculateAverageGPA(courseData.sections);
+  
+  // Sort time periods chronologically
+  const sortTimePeriods = (periods) => {
+    const seasonOrder = { 'Spring': 1, 'Summer': 2, 'Fall': 3 };
+    return periods.sort((a, b) => {
+      const [seasonA, yearA] = a.split(' ');
+      const [seasonB, yearB] = b.split(' ');
+      
+      // Compare years first
+      if (yearA !== yearB) {
+        return parseInt(yearA) - parseInt(yearB);
+      }
+      
+      // If same year, compare seasons
+      return seasonOrder[seasonA] - seasonOrder[seasonB];
+    });
+  };
+  
+  const timePeriods = sortTimePeriods(Object.keys(courseData.sections || {}));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pt-16">
@@ -131,22 +181,22 @@ const CourseDetails = () => {
         {/* Course Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-3 text-maroon">
-            {`${info.department} ${info.number} - ${info.title}`}
+            {`${info.department || '?'} ${info.number || '?'} - ${info.title || '?'}`}
           </h1>
-          <p className="text-gray-600 mb-4 leading-relaxed">{info.description}</p>
+          <p className="text-gray-600 mb-4 leading-relaxed">{info.description || '?'}</p>
 
           <div className="flex flex-wrap gap-3">
             <div className="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg font-medium">
-              {info.department}
+              {info.department || '?'}
             </div>
             <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg font-medium">
-              Avg GPA: {info.averageGPA.toFixed(2)}
+              Avg GPA: {calculatedAverageGPA > 0 ? calculatedAverageGPA.toFixed(2) : '?'}
             </div>
             <div className="bg-amber-100 text-amber-800 px-4 py-2 rounded-lg font-medium">
-              Sections: {info.totalSections}
+              Sections: {info.totalSections != null ? info.totalSections : '?'}
             </div>
             <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg font-medium">
-              Students: {info.totalStudents}
+              Students: {info.totalStudents != null ? info.totalStudents : '?'}
             </div>
           </div>
         </div>
