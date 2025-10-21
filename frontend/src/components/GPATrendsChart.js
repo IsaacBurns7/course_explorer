@@ -9,7 +9,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
 
     const renderChart = () => {
         const canvas = canvasRef.current;
-        if (!canvas) return;
+        if (!canvas || !teachers || teachers.length === 0 || !timePeriods || timePeriods.length === 0) return;
 
         const ctx = canvas.getContext('2d');
         
@@ -87,6 +87,8 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
 
         // Draw lines for each teacher
         teachers.forEach((teacher, index) => {
+            if (!teacher.gpaHistory || teacher.gpaHistory.length === 0) return;
+            
             const color = colors[index % colors.length];
             ctx.strokeStyle = color;
             ctx.fillStyle = color;
@@ -95,6 +97,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             // Draw line
             ctx.beginPath();
             teacher.gpaHistory.forEach((gpa, i) => {
+                if (gpa == null) return;
                 const x = margin.left + i * xStep;
                 const y = margin.top + chartHeight - (gpa / 4) * chartHeight;
                 
@@ -108,6 +111,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
 
             // Draw points
             teacher.gpaHistory.forEach((gpa, i) => {
+                if (gpa == null) return;
                 const x = margin.left + i * xStep;
                 const y = margin.top + chartHeight - (gpa / 4) * chartHeight;
                 
@@ -127,7 +131,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             ctx.fillStyle = '#374151';
             ctx.font = '11px sans-serif';
             ctx.textAlign = 'left';
-            const lastName = teacher.name.split(' ').pop();
+            const lastName = (teacher.name || 'Unknown').split(' ').pop();
             ctx.fillText(lastName, legendX + 20, legendY + 4);
             ctx.fillStyle = color;
         });

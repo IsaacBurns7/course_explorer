@@ -4,7 +4,7 @@ const TeacherTable = ({ teachers }) => {
     const [filteredTeachers, setFilteredTeachers] = useState(teachers);
     const [filters, setFilters] = useState({
         minGpa: 0,
-        minRating: 1,
+        minRating: 0,
         teachingNext: true
     });
 
@@ -99,30 +99,36 @@ const TeacherTable = ({ teachers }) => {
                     
                     <div className="flex items-center space-x-2">
                         <label htmlFor="minGpa" className="text-sm font-medium text-gray-700">Min GPA:</label>
-                        <input 
-                            type="number" 
+                        <select 
                             id="minGpa" 
-                            min="0" 
-                            max="4" 
-                            step="0.1" 
                             value={filters.minGpa}
-                            className="w-16 px-1.5 py-1 border border-gray-300 rounded text-sm focus:border-maroon focus:outline-none focus:ring-2 focus:ring-maroon focus:ring-opacity-20"
+                            className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-900 focus:border-maroon focus:outline-none focus:ring-2 focus:ring-maroon focus:ring-opacity-20"
                             onChange={(e) => handleFilterChange('minGpa', parseFloat(e.target.value) || 0)}
-                        />
+                        >
+                            <option value="0">All</option>
+                            <option value="2">2.0+</option>
+                            <option value="2.5">2.5+</option>
+                            <option value="3">3.0+</option>
+                            <option value="3.5">3.5+</option>
+                            <option value="4">4.0</option>
+                        </select>
                     </div>
                     
                     <div className="flex items-center space-x-2">
                         <label htmlFor="minRating" className="text-sm font-medium text-gray-700">Min Rating:</label>
-                        <input 
-                            type="number" 
+                        <select 
                             id="minRating" 
-                            min="1" 
-                            max="5" 
-                            step="0.1" 
                             value={filters.minRating}
-                            className="w-16 px-1.5 py-1 border border-gray-300 rounded text-sm focus:border-maroon focus:outline-none focus:ring-2 focus:ring-maroon focus:ring-opacity-20"
-                            onChange={(e) => handleFilterChange('minRating', parseFloat(e.target.value) || 1)}
-                        />
+                            className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-900 focus:border-maroon focus:outline-none focus:ring-2 focus:ring-maroon focus:ring-opacity-20"
+                            onChange={(e) => handleFilterChange('minRating', parseFloat(e.target.value) || 0)}
+                        >
+                            <option value="0">All</option>
+                            <option value="1">1.0+</option>
+                            <option value="2">2.0+</option>
+                            <option value="3">3.0+</option>
+                            <option value="4">4.0+</option>
+                            <option value="5">5.0</option>
+                        </select>
                     </div>
                     
                     <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
@@ -147,8 +153,8 @@ const TeacherTable = ({ teachers }) => {
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teacher</th>
-                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Avg GPA</th>
                                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Class GPA</th>
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Avg GPA</th>
                                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
                                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Would Take Again</th>
                                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Difficulty</th>
@@ -159,37 +165,39 @@ const TeacherTable = ({ teachers }) => {
                             {filteredTeachers.map(teacher => (
                                 <tr key={teacher.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{teacher.name}</div>
-                                        {!teacher.teachingNext && (
-                                            <div className="text-sm text-red-600">Not teaching next semester</div>
+                                        <div className="text-sm font-medium text-gray-900">{teacher.name || '?'}</div>
+                                        {teacher.teachingNext && (
+                                            <div className="text-sm text-green-600 font-medium">Teaching next semester</div>
                                         )}
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-center">
-                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getGpaColor(teacher.avgGpa)}`}>
-                                            {teacher.avgGpa.toFixed(1)}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-4 whitespace-nowrap text-center">
                                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getGpaColor(teacher.classGpa)}`}>
-                                            {teacher.classGpa.toFixed(1)}
+                                            {teacher.classGpa != null ? teacher.classGpa.toFixed(1) : '?'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-center">
-                                        <div className="flex items-center justify-center">
-                                            <span className="text-sm font-medium text-gray-900">{teacher.rating.toFixed(1)}</span>
-                                            <span className="ml-1 text-yellow-400">
-                                                {'★'.repeat(Math.round(teacher.rating))}
-                                            </span>
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getGpaColor(teacher.avgGpa)}`}>
+                                            {teacher.avgGpa != null ? teacher.avgGpa.toFixed(1) : '?'}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                                        <div className="flex flex-col items-center justify-center">
+                                            <span className="text-sm font-medium text-gray-900">{teacher.rating != null ? teacher.rating.toFixed(1) : '?'}</span>
+                                            {teacher.rating > 0 && (
+                                                <span className="text-yellow-400 text-xs leading-none">
+                                                    {'★'.repeat(Math.round(teacher.rating))}
+                                                </span>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-center">
                                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getWouldTakeAgainColor(teacher.wouldTakeAgain)}`}>
-                                            {teacher.wouldTakeAgain}%
+                                            {teacher.wouldTakeAgain != null ? `${teacher.wouldTakeAgain.toFixed(1)}%` : '?'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-center">
                                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(teacher.difficulty)}`}>
-                                            {teacher.difficulty.toFixed(1)}
+                                            {teacher.difficulty != null ? teacher.difficulty.toFixed(1) : '?'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">

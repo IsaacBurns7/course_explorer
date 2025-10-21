@@ -23,6 +23,11 @@ import { useSearchData } from "../hooks/useSearchData";
 // import { useProfessorsInfo } from "../hooks/useProfessorsInfo";
 // import { useGraphData } from "../hooks/useGraphData";
 
+/**
+ * @deprecated This component is being phased out. 
+ * Use CourseDetails component at /course/:courseId instead.
+ * The /dashboard route now redirects to the new design.
+ */
 const SearchResults = () => {
     const [searchParams, setSearchParams] = useSearchParams(); 
     const department = searchParams.get("dept");
