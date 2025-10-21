@@ -11,6 +11,7 @@ function generateCourseSQL(courseId, courseObj) {
   // 1. Courses Table
   // ---------------------------
   const c = courseObj.info;
+  
   sqlStatements.push({
     table: "course_explorer.courses",
     text: `INSERT INTO course_explorer.courses 
@@ -57,6 +58,7 @@ function generateCourseSQL(courseId, courseObj) {
     });
   }
 
+ 
   // ---------------------------
   // 4. Sections & related tables
   // ---------------------------
@@ -106,6 +108,7 @@ function generateCourseSQL(courseId, courseObj) {
         ]
       });
 
+     
       // Section Times
       if (sec.times) {
         for (const [day, [start, end]] of Object.entries(sec.times)) {
@@ -132,6 +135,7 @@ function generateCourseSQL(courseId, courseObj) {
           values: [courseId, semId, sec.section, attr]
         });
       }
+      
     }
   }
 
@@ -162,7 +166,7 @@ console.log(`Generated ${allSQLStatements.length} SQL statements.`);
 
     let count = 1;
     for (const stmt of allSQLStatements) {
-      console.log(`(${count}/${allSQLStatements.length}) Inserting into ${stmt.table}...`);
+      process.stdout.write(`\r(${count}/${allSQLStatements.length}) Inserting into ${stmt.table}...`);
       count++;
       await pool.query(stmt.text, stmt.values);
     }
