@@ -6,6 +6,45 @@ import HistoricalDataTable from '../components/HistoricalDataTable';
 
 import data from './TEMP_DATA'
 
+const linkifyCourseCodes = (description) => {
+  const regex = /\b([A-Z]{2,4})\s(\d{3})\b/g;
+
+  const parts = [];
+  let lastIndex = 0;
+
+  let match;
+  while ((match = regex.exec(description)) !== null) {
+    const [fullMatch, dept, courseNumber] = match;
+    const matchStart = match.index;
+
+    // Push the text before the match
+    if (matchStart > lastIndex) {
+      parts.push(description.slice(lastIndex, matchStart));
+    }
+
+    // Push the link
+    parts.push(
+      <a
+        key={`${dept}-${courseNumber}-${matchStart}`}
+        href={`/course/${dept}${courseNumber}`}
+        target = "_blank"
+        className="text-blue-600 hover:underline"
+      >
+        {fullMatch}
+      </a>
+    );
+
+    lastIndex = match.index + fullMatch.length;
+  }
+
+  // Push any remaining text
+  if (lastIndex < description.length) {
+    parts.push(description.slice(lastIndex));
+  }
+
+  return parts;
+}
+
 const aggregateProfessorData = async (courseData, profInfo) => {
   const sections = courseData.sections || {};
   const professorMap = {};
@@ -183,7 +222,7 @@ const CourseDetails = () => {
           <h1 className="text-3xl font-bold mb-3 text-maroon">
             {`${info.department || '?'} ${info.number || '?'} - ${info.title || '?'}`}
           </h1>
-          <p className="text-gray-600 mb-4 leading-relaxed">{info.description || '?'}</p>
+          <p className="text-gray-600 mb-4 leading-relaxed">{info.description ? linkifyCourseCodes(info.description) : "?"}</p>
 
           <div className="flex flex-wrap gap-3">
             <div className="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg font-medium">
