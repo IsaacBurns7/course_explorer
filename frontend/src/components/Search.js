@@ -19,11 +19,13 @@ export default function AutoCompleteSearch({navbarMode}) {
   useEffect(() => {
     getAllCourses()
       .then(courseSet => {
-        setCourses(prev => {
-          const newSet = new Set(prev);
-          courseSet.forEach((courseKey) => newSet.add(courseKey));
-          return newSet;
-        });
+        if (courseSet && courseSet.forEach) {
+          setCourses(prev => {
+            const newSet = new Set(prev);
+            courseSet.forEach((courseKey) => newSet.add(courseKey));
+            return newSet;
+          });
+        }
       })
       .catch(err => console.error("Failed to load courses", err));
   }, []);
@@ -52,6 +54,11 @@ export default function AutoCompleteSearch({navbarMode}) {
   }
 
   function displayMatches(value) {
+    if (!value.trim()) {
+    setMatches([]);
+    setDropdownOpen(false);
+    return;
+  }
     const matchArray = findMatches(value, Array.from(courses)).slice(0, 10);
     setMatches(matchArray);
     setDropdownOpen(matchArray.length > 0);
@@ -61,6 +68,7 @@ export default function AutoCompleteSearch({navbarMode}) {
     setInputText(courseName);
     setDropdownOpen(false);
     setActiveIndex(-1);
+    handleSubmit(courseName);
   }
 
   function handleSubmit(selectedCourse) {
@@ -120,82 +128,116 @@ export default function AutoCompleteSearch({navbarMode}) {
   }, [activeIndex]);
 
   return (
-    <form
-      className= {`mx-auto flex items-center ${navbarMode ? "w-96" : ""} relative`}
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(inputText);
-      }}
+   <form
+  className={`mx-auto flex items-center justify-center relative gap-2 ${
+    navbarMode ? "w-80 md:w-96" : "w-full max-w-lg"
+  }`}
+  onSubmit={(e) => {
+    e.preventDefault();
+    handleSubmit(inputText);
+  }}
+>
+  {/* Search Input */}
+  <input
+    ref={inputRef}
+    type="text"
+    placeholder={
+      navbarMode
+        ? "DEPT 123"
+        : "Search for a course"
+    }
+    className={`
+      flex-grow
+      text-md 
+      pr-8 pl-4 py-${navbarMode ? "2" : "4"}
+      rounded-xl
+      bg-white/5
+      backdrop-blur-md
+      text-gray-200
+      placeholder-gray-500
+      border border-white/20
+      focus:outline-none
+      focus:ring-2 focus:ring-white/30
+      transition duration-300
+      shadow-[0_0_25px_rgba(255,255,255,0.05)]
+    `}
+    value={inputText}
+    onChange={(e) => {
+      const value = e.target.value.toUpperCase();
+      setInputText(value);
+      setError(false);
+      displayMatches(value);
+    }}
+    onFocus={() => displayMatches(inputText)}
+    onKeyDown={handleKeyDown}
+  />
+
+  {/* Transparent Submit Button */}
+  <button
+    type="submit"
+    className={`
+      px-6 py-${navbarMode ? "2" : "3"}
+      rounded-xl
+      border border-white/50
+      text-white
+      font-medium
+      bg-transparent
+      hover:bg-white/10
+      transition-all duration-300
+      whitespace-nowrap
+    `}
+  >
+    Search
+  </button>
+
+  {/* Error Message */}
+  {error && (
+    <p className="absolute -bottom-6 left-4 text-red-400 text-sm">
+      ⚠️ Please enter a valid course
+    </p>
+  )}
+
+  {/* Dropdown */}
+  {dropdownOpen && matches.length > 0 && (
+    <ul
+      ref={resultsRef}
+      className="absolute top-full left-0 z-20 w-full bg-background backdrop-blur-md border border-gray-800 text-gray-100 rounded-xl mt-2 shadow-xl max-h-64 overflow-y-auto"
     >
-      {/* Search Input */}
-      <input
-        ref={inputRef}
-        type="text"
-        placeholder={`${navbarMode ? "DEPT 123" : "Input Class/Professor Name (Ex: CSCE 120)"}`}
-        className={`pl-4 ${navbarMode ? "py-2" : "py-3 ml-5"} w-96 bg-gray-900 border border-gray-700 text-white rounded-full hover:bg-gray-800 transition duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
-        value={inputText}
-        onChange={(e) => {
-          const value = e.target.value.toUpperCase();
-          setInputText(value);
-          setError(false);
-          displayMatches(value);
-        }}
-        onFocus={() => displayMatches(inputText)}
-        onKeyDown={handleKeyDown}
-      />
-
-      {/* Error Message */}
-      {error && (
-        <p className="absolute -bottom-6 left-4 text-red-500 text-sm">
-          ⚠️ Please enter a valid course
-        </p>
-      )}
-
-      {/* Dropdown */}
-      {dropdownOpen && matches.length > 0 && (
-        <ul
-          ref={resultsRef}
-          className="absolute top-full left-0 z-10 w-full bg-background text-white rounded-md mt-2 shadow-lg max-h-60 overflow-y-auto"
-        >
-          {matches.map((courseName, index) => {
-            const regex = new RegExp(`(${inputText})`, "gi");
-            const parts = courseName.split(regex).filter((el) => el !== "");
-            return (
-              <li
-                key={index}
-                className={`px-4 py-2 cursor-pointer ${
-                  index === activeIndex
-                    ? "bg-blue-400"
-                    : "hover:bg-gray-200 hover:text-black"
-                }`}
-                onMouseEnter={() => setActiveIndex(index)}
-                onClick={() => handleSelect(courseName)}
+      {matches.map((courseName, index) => {
+        const regex = new RegExp(`(${inputText})`, "gi");
+        const parts = courseName.split(regex).filter((el) => el !== "");
+        return (
+          <li
+  key={index}
+  className={`
+    px-4 py-2 cursor-pointer transition-all
+    ${index === activeIndex
+      ? "bg-dark-hover text-yellow-300"
+      : "hover:bg-dark-hover hover:text-yellow-200"
+    }
+  `}
+  onMouseEnter={() => setActiveIndex(index)}
+  onClick={() => handleSelect(courseName)}
+>
+            {parts.map((string, i) => (
+              <span
+                key={i}
+                className={
+                  regex.test(string)
+                    ? "font-semibold text-yellow-400"
+                    : "text-gray-200"
+                }
               >
-                {parts.map((string, i) => (
-                  <span
-                    key={i}
-                    className={
-                      regex.test(string)
-                        ? "font-extrabold text-yellow-400"
-                        : "font-normal"
-                    }
-                  >
-                    {string}
-                  </span>
-                ))}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                {string}
+              </span>
+            ))}
+          </li>
+        );
+      })}
+    </ul>
+  )}
+</form>
 
-      {/* Search Button */}
-      <button
-        type="submit"
-        className="ml-4 px-6 py-2 border border-purple-500 text-white rounded-full hover:bg-purple-600 transition duration-300"
-      >
-        Search
-      </button>
-    </form>
+
   );
 }
