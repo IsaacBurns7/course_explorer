@@ -1,4 +1,4 @@
-const courseInfo = require('./data_Fall2025_patched.json');
+const courseInfo = require('./data_Spring2026.json');
 const { Pool} = require('pg');
 require('dotenv').config({path: '../.env'});
 /**
@@ -33,6 +33,7 @@ function generateCourseSQL(courseId, courseObj) {
   // ---------------------------
   // 2. Course Attributes
   // ---------------------------
+  /*
   for (const attr of c.attributes || []) {
     sqlStatements.push({
       table: "course_explorer.courses_attributes",
@@ -43,7 +44,7 @@ function generateCourseSQL(courseId, courseObj) {
       values: [courseId, attr]
     });
   }
-
+  */
   // ---------------------------
   // 3. Professors
   // ---------------------------
@@ -58,13 +59,13 @@ function generateCourseSQL(courseId, courseObj) {
     });
   }
 
- 
   // ---------------------------
   // 4. Sections & related tables
   // ---------------------------
   for (const [semesterKey, sections] of Object.entries(courseObj.sections)) {
     for (const sec of sections) {
       const semId = `${semesterKey}`;
+      if (semId != "Spring 2026") continue;
       if (semId == `undefined undefined`) {
         console.log("UNDEFINED UNDEFINED FOUND!")
         process.exit(0)
@@ -174,6 +175,6 @@ console.log(`Generated ${allSQLStatements.length} SQL statements.`);
   } catch (err) {
     console.error("❌ Error inserting:", err);
   } finally {
-    await pool.end();
+
   }
 })();

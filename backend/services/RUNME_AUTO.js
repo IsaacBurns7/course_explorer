@@ -4,33 +4,58 @@ const populateClasses = require('./populateClasses');
 const adjustData = require('./adjustClasses');
 
 // ---------------------------
-// Semester prompt
+// Parse CLI arguments
 // ---------------------------
-const sem = rl.question("What semester would you like to parse? Format it in YYYYS format, where YYYY is year (2025) and S is semester (1 = Spring, 2 = Summer, 3 = Fall): ");
+const args = Object.fromEntries(
+  process.argv.slice(2).map(arg => {
+    const [key, value] = arg.replace(/^--/, '').split('=');
+    return [key, value];
+  })
+);
+
+const sem = args.semester;
+const filePath = args.file;
+
+// ---------------------------
+// Validate semester
+// ---------------------------
 const semRegex = /^\d{4}[123]$/;
-if (!sem.match(semRegex)) {
-    console.log("Invalid Semester");
-    process.exit(0);
+if (!sem || !sem.match(semRegex)) {
+  console.error("❌ Invalid or missing semester. Use --semester=YYYYS (e.g., --semester=20251)");
+  process.exit(1);
 }
+
+const year = sem.substring(0, 4);
+const semMap = { "1": "Spring", "2": "Summer", "3": "Fall" };
+const semName = semMap[sem.substring(4, 5)];
+
+if (!semName) {
+  console.error("Invalid semester code (must end in 1, 2, or 3)");
+  process.exit(1);
+}
+
+console.log(`📘 Semester: ${semName} ${year}`);
+if (filePath) console.log(`Using file: ${filePath}`);
 
 // ---------------------------
 // Helper to change semester key formats
 // ---------------------------
 function changeSem(data) {
-    for (const key of Object.keys(data)) {
-        for (const keySem of Object.keys(data[key].sections)) {
-            let year = keySem.substring(0, 4);
-            let semMap = {"1": "Spring", "2": "Summer", "3": "Fall"};
-            let semname = semMap[keySem.substring(4, 5)];
-            if (semname == undefined) continue;
-            if (keySem == `${semname} ${year}`) continue;
+  for (const key of Object.keys(data)) {
+    for (const keySem of Object.keys(data[key].sections)) {
+      const year = keySem.substring(0, 4);
+      const semMap = { "1": "Spring", "2": "Summer", "3": "Fall" };
+      const semname = semMap[keySem.substring(4, 5)];
+      if (semname == undefined) continue;
+      if (keySem == `${semname} ${year}`) continue;
 
-            data[key].sections[`${semname} ${year}`] = data[key].sections[keySem];
-            delete data[key].sections[keySem];
-        }
+      data[key].sections[`${semname} ${year}`] = data[key].sections[keySem];
+      delete data[key].sections[keySem];
     }
-    return data;
+  }
+  return data;
 }
+
 
 // ---------------------------
 // Merge helper
@@ -47,10 +72,8 @@ function mergeData(existingData, newData) {
                 
                 sectionVal.forEach(x => {
                     existingData[courseKey].info.totalStudents += ((x.A || 0) + (x.B || 0) + (x.C || 0) + (x.D || 0) + (x.F || 0) + (x.I || 0) + (x.S || 0) + (x.U || 0) + (x.Q || 0) + (x.X || 0));
-                    console.log(x.prof_id)
                     if (x.prof_id && !existingData[courseKey].professors.includes(x.prof_id)) {
                         existingData[courseKey].professors.push(x.prof_id)
-                        console.log("Added " + x.prof_id)
                     }
                 })
             }
@@ -197,35 +220,34 @@ async function main() {
     // ---------------------------
     // Choose file mode
     // ---------------------------
-    const mode = rl.question("Would you like to (1) create a new file or (2) add to an existing file? (enter 1 or 2): ");
-
     let data = {};
 
-    if (mode === '2') {
-        const existingPath = rl.question("Enter the path to the existing JSON file: ");
-        try {
-            const raw = fs.readFileSync(existingPath, 'utf8');
-            data = JSON.parse(raw);
-            console.log(`Loaded existing data from ${existingPath}`);
-        } catch (err) {
-            console.error("Error reading existing file:", err);
-            process.exit(1);
-        }
+    if (filePath && fs.existsSync(filePath)) {
+    try {
+        const raw = fs.readFileSync(filePath, 'utf8');
+        data = JSON.parse(raw);
+        console.log(`Loaded existing data from ${filePath}`);
+    } catch (err) {
+        console.error("Error reading existing file:", err);
+        process.exit(1);
+    }
+    } else if (filePath) {
+    console.warn(`File not found at ${filePath}. A new one will be created.`);
     }
 
     console.log("Populating Classes in CSTAT...");
     let newData = await populateClasses.gatherData({}, semName, "College Station", year);
 
     console.log("----------------------------------------------------------");
-    rl.question("Populating Classes in Galveston, Press Enter to Continue:");
+    console.log("Populating Classes in Galveston, Press Enter to Continue:");
     newData = await populateClasses.gatherData(newData, semName, "Galveston", year);
 
     console.log("----------------------------------------------------------");
-    rl.question("Finding missing professors in CSTAT, Press Enter to Continue:");
+    console.log("Finding missing professors in CSTAT, Press Enter to Continue:");
     newData = await adjustData.findMissingProfessors(newData, "College Station");
 
     console.log("----------------------------------------------------------");
-    rl.question("Finding missing professors in Galveston, Press Enter to Continue:");
+    console.log("Finding missing professors in Galveston, Press Enter to Continue:");
     newData = await adjustData.findMissingProfessors(newData, "Galveston");
 
     if (mode === '2') {
@@ -236,19 +258,19 @@ async function main() {
     }
 
     console.log("----------------------------------------------------------");
-    rl.question("Populating Titles, Press Enter to Continue:");
+    console.log("Populating Titles, Press Enter to Continue:");
     data = await adjustData.addTitleAndDesc(data);
 
     console.log("----------------------------------------------------------");
-    rl.question("Adding Students, Press Enter to Continue:");
+    console.log("Adding Students, Press Enter to Continue:");
     data = await adjustData.addStudents(data);
 
     console.log("----------------------------------------------------------");
-    rl.question("Add Attributes to courses, Press Enter to Continue:");
+    console.log("Add Attributes to courses, Press Enter to Continue:");
     data = await patchAllCourses(data);
 
     console.log("----------------------------------------------------------");
-    rl.question("Adjusting GPA calculations, Press Enter to Continue:");
+    console.log("Adjusting GPA calculations, Press Enter to Continue:");
     data = await adjustGPA(data);
 
     // Merge with existing if applicable
