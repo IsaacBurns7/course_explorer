@@ -54,6 +54,9 @@ const getProfessorDataForCourse = async(req, res) => {
         `;
         // console.log(sql3);
         const result3 = await client.query(sql3, [courseId]);
+        result3.rows.forEach(x => {
+            console.log(x.professor_data)
+        })
         if (!result3.rows.length) {
             return res.status(404).json({ error: `No professors found for course with ID ${courseId}.` });
         }

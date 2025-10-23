@@ -27,7 +27,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         // Draw grid and axes
         ctx.strokeStyle = '#e5e7eb';
         ctx.lineWidth = 1;
-        
+
         // Vertical grid lines
         for (let i = 0; i < timePeriods.length; i++) {
             const x = margin.left + i * xStep;
@@ -37,7 +37,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             ctx.stroke();
         }
 
-        // Horizontal grid lines (0.0 to 4.0 GPA)
+        // Horizontal grid lines (0.0–4.0 GPA)
         for (let i = 0; i <= 8; i++) {
             const y = margin.top + (i / 8) * chartHeight;
             ctx.beginPath();
@@ -55,7 +55,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         ctx.lineTo(margin.left + chartWidth, margin.top + chartHeight);
         ctx.stroke();
 
-        // Draw time period labels
+        // X-axis labels (semesters)
         ctx.fillStyle = '#374151';
         ctx.font = '12px sans-serif';
         ctx.textAlign = 'center';
@@ -68,7 +68,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             ctx.restore();
         });
 
-        // Draw y-axis labels (GPA scale)
+        // Y-axis labels (GPA)
         ctx.textAlign = 'right';
         for (let i = 0; i <= 8; i++) {
             const y = margin.top + chartHeight - (i / 8) * chartHeight;
@@ -85,10 +85,21 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         ctx.fillText('GPA', 0, 0);
         ctx.restore();
 
-        // Draw lines for each teacher
+        // --- MAIN CHANGE: Convert new GPA data format ---
         teachers.forEach((teacher, index) => {
-            if (!teacher.gpaHistory || teacher.gpaHistory.length === 0) return;
-            
+            if (!teacher.gpaHistory || typeof teacher.gpaHistory !== 'object') return;
+
+            // Compute average GPA for each time period
+            const gpaHistory = timePeriods.map(period => {
+                const termGpas = teacher.gpaHistory[period];
+                if (!termGpas || termGpas.length === 0) return null;
+                const avg = termGpas.reduce((a, b) => a + b, 0) / termGpas.length;
+                return avg;
+            });
+
+            // Skip if all values are null
+            if (gpaHistory.every(v => v == null)) return;
+
             const color = colors[index % colors.length];
             ctx.strokeStyle = color;
             ctx.fillStyle = color;
@@ -96,12 +107,11 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
 
             // Draw line
             ctx.beginPath();
-            teacher.gpaHistory.forEach((gpa, i) => {
+            gpaHistory.forEach((gpa, i) => {
                 if (gpa == null) return;
                 const x = margin.left + i * xStep;
                 const y = margin.top + chartHeight - (gpa / 4) * chartHeight;
-                
-                if (i === 0) {
+                if (i === 0 || gpaHistory[i - 1] == null) {
                     ctx.moveTo(x, y);
                 } else {
                     ctx.lineTo(x, y);
@@ -109,12 +119,11 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             });
             ctx.stroke();
 
-            // Draw points
-            teacher.gpaHistory.forEach((gpa, i) => {
+            // Draw data points
+            gpaHistory.forEach((gpa, i) => {
                 if (gpa == null) return;
                 const x = margin.left + i * xStep;
                 const y = margin.top + chartHeight - (gpa / 4) * chartHeight;
-                
                 ctx.beginPath();
                 ctx.arc(x, y, 3, 0, 2 * Math.PI);
                 ctx.fill();
@@ -124,10 +133,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             const legendX = margin.left + chartWidth + 20;
             const legendY = margin.top + index * 25;
             
-            // Legend color box
             ctx.fillRect(legendX, legendY - 6, 12, 12);
-            
-            // Legend text
             ctx.fillStyle = '#374151';
             ctx.font = '11px sans-serif';
             ctx.textAlign = 'left';

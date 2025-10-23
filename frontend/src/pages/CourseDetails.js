@@ -62,10 +62,10 @@ const aggregateProfessorData = async (courseData, profInfo) => {
           name: sec.prof || info.name || "Unknown",
           totalStudents: 0,
           totalGpa: 0,
-          gpas: [],
+          gpas: {},
           totalSections: 0,
           gradeTotals: { A: 0, B: 0, C: 0, D: 0, F: 0 },
-          avgGpa: 0,
+          avgGpa: Number(info.averageGPA),
           classGpa: 0,
           rating: Number(info.averageRating) || 0,
           wouldTakeAgain: Number(info.wouldTakeAgain) || 0,
@@ -76,9 +76,12 @@ const aggregateProfessorData = async (courseData, profInfo) => {
 
       // Aggregate GPA & grade data
       const prof = professorMap[id];
-      prof.totalStudents += sec.students || 0;
-      prof.totalGpa += (sec.gpa || 0) * (sec.students || 0);
-      prof.gpas.push(sec.gpa || 0);
+      const students = (sec.A || 0) + (sec.B || 0) + (sec.C || 0) + (sec.D || 0) + (sec.F || 0)
+      prof.totalStudents += students
+      prof.totalGpa += (sec.gpa || 0) * students
+      if (!prof.gpas[semester]) prof.gpas[semester] = []
+
+      prof.gpas[semester].push(sec.gpa || 0);
       prof.totalSections += 1;
 
       for (const grade of ["A", "B", "C", "D", "F"]) {
@@ -99,10 +102,11 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       ? Object.fromEntries(Object.entries(p.gradeTotals).map(([k, v]) => [k, Math.round((v / totalGrades) * 100)]))
       : p.gradeTotals;
 
+    console.log(p.gpas)
     return {
       id: p.id,
       name: p.name,
-      avgGpa: p.gpas.length ? Number((p.gpas.reduce((a, b) => a + b, 0) / p.gpas.length).toFixed(3)) : 0,
+      avgGpa: p.avgGpa,
       classGpa: p.totalStudents ? Number((p.totalGpa / p.totalStudents).toFixed(3)) : 0,
       rating: p.rating,
       wouldTakeAgain: p.wouldTakeAgain,
@@ -150,6 +154,8 @@ const CourseDetails = () => {
         const profRes = await fetch(`http://localhost:4000/api/search2/professors?department=${department}&courseNumber=${courseNumber}`);
         if (!profRes.ok) throw new Error(`HTTP error ${profRes.status}`);
         const profInfo = await profRes.json();
+
+        console.log(profInfo)
 
         const formattedProfData = await aggregateProfessorData(course, profInfo);
         console.log('Formatted professor data:', formattedProfData)
@@ -246,8 +252,8 @@ const CourseDetails = () => {
         {/* GPA Trends Chart */}
         <GPATrendsChart teachers={profData} timePeriods={timePeriods} />
 
-                {/* Historical Data Table */}
-                <HistoricalDataTable teachers={profData} timePeriods={timePeriods} />
+        {/* Historical Data Table */}
+        <HistoricalDataTable teachers={profData} timePeriods={timePeriods} />
       </div>
     </div>
   );
