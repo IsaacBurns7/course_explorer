@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { BookOpen, GraduationCap, CalendarDays, CheckCircle, School } from "lucide-react";
+
 
 const TeacherTable = ({ teachers }) => {
     const [filteredTeachers, setFilteredTeachers] = useState(teachers);
@@ -165,11 +167,25 @@ const TeacherTable = ({ teachers }) => {
                             {filteredTeachers.map(teacher => (
                                 <tr key={teacher.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{teacher.name || '?'}</div>
-                                        {teacher.teachingNext && (
-                                            <div className="text-sm text-green-600 font-medium">Teaching next semester</div>
-                                        )}
-                                    </td>
+  <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+    <span>{teacher.name || '?'}</span>
+
+    {teacher.teachingNext && (
+      <div className="relative group inline-flex items-center">
+        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500 text-white hover:bg-green-600 transition">
+          <CheckCircle className="w-3.5 h-3.5" />
+        </div>
+
+        {/* Tooltip */}
+        <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity">
+  Teaching Next Semester
+</span>
+      </div>
+    )}
+  </div>
+</td>
+
+
                                     <td className="px-4 py-4 whitespace-nowrap text-center">
                                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getGpaColor(teacher.classGpa)}`}>
                                             {teacher.classGpa != null ? teacher.classGpa.toFixed(1) : '?'}
