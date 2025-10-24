@@ -88,7 +88,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       }
 
       // Mark if teaching next
-      if (semester === "Fall 2025") {
+      if (semester === "Spring 2026") {
         prof.teachingNext = true;
       }
     }
