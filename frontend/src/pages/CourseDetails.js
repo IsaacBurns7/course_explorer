@@ -28,7 +28,7 @@ const linkifyCourseCodes = (description) => {
         key={`${dept}-${courseNumber}-${matchStart}`}
         href={`/course/${dept}${courseNumber}`}
         target = "_blank"
-        className="text-blue-600 hover:underline"
+        className="text-blue-light hover:text-blue-dark hover:underline"
       >
         {fullMatch}
       </a>
@@ -49,7 +49,6 @@ const aggregateProfessorData = async (courseData, profInfo) => {
   const sections = courseData.sections || {};
   const professorMap = {};
 
-  console.log(courseData)
   // Aggregate per-section data by professor
   for (const [semester, semSections] of Object.entries(sections)) {
     for (const sec of semSections) {
@@ -102,7 +101,6 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       ? Object.fromEntries(Object.entries(p.gradeTotals).map(([k, v]) => [k, Math.round((v / totalGrades) * 100)]))
       : p.gradeTotals;
 
-    console.log(p.gpas)
     return {
       id: p.id,
       name: p.name,
@@ -149,16 +147,16 @@ const CourseDetails = () => {
         // Find the course that matches our courseId
         const courseKey = `${department}_${courseNumber}`;
         const course = responseData[courseKey] || responseData.data || responseData;
-        console.log('Loaded course:', course)
 
         const profRes = await fetch(`http://localhost:4000/api/search2/professors?department=${department}&courseNumber=${courseNumber}`);
         if (!profRes.ok) throw new Error(`HTTP error ${profRes.status}`);
         const profInfo = await profRes.json();
 
         console.log(profInfo)
+ 
 
         const formattedProfData = await aggregateProfessorData(course, profInfo);
-        console.log('Formatted professor data:', formattedProfData)
+
         // Set the state variables in sequence
         setProfData(formattedProfData);
         setCourseData(course);
@@ -221,29 +219,31 @@ const CourseDetails = () => {
   const timePeriods = sortTimePeriods(Object.keys(courseData.sections || {}));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pt-16">
+    <div className="min-h-screen bg-background text-beige-light pt-16">
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Course Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-3 text-maroon">
+          <h1 className="text-3xl font-bold mb-3">
             {`${info.department || '?'} ${info.number || '?'} - ${info.title || '?'}`}
           </h1>
-          <p className="text-gray-600 mb-4 leading-relaxed">{info.description ? linkifyCourseCodes(info.description) : "?"}</p>
+          <p className="mb-4 leading-relaxed">{info.description ? linkifyCourseCodes(info.description) : "?"}</p>
 
-          <div className="flex flex-wrap gap-3">
-            <div className="bg-purple-100 text-purple-800 px-4 py-2 rounded-lg font-medium">
-              {info.department || '?'}
-            </div>
-            <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg font-medium">
-              Avg GPA: {calculatedAverageGPA > 0 ? calculatedAverageGPA.toFixed(2) : '?'}
-            </div>
-            <div className="bg-amber-100 text-amber-800 px-4 py-2 rounded-lg font-medium">
-              Sections: {info.totalSections != null ? info.totalSections : '?'}
-            </div>
-            <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg font-medium">
-              Students: {info.totalStudents != null ? info.totalStudents : '?'}
-            </div>
+         <div className="flex flex-wrap gap-3">
+          <div className="bg-purple-dark text-purple-light px-4 py-2 rounded-lg font-medium border border-dark-border">
+            {info.department || '?'}
           </div>
+          <div className="bg-green-dark text-green-light px-4 py-2 rounded-lg font-medium border border-dark-border">
+            Avg GPA: {calculatedAverageGPA > 0 ? calculatedAverageGPA.toFixed(2) : '?'}
+          </div>
+          <div className="bg-yellow-dark text-yellow-light px-4 py-2 rounded-lg font-medium border border-dark-border">
+            Sections: {info.totalSections != null ? info.totalSections : '?'}
+          </div>
+          <div className="bg-blue-dark text-blue-light px-4 py-2 rounded-lg font-medium border border-dark-border">
+            Students: {info.totalStudents != null ? info.totalStudents : '?'}
+          </div>
+        </div>
+
         </div>
 
          {/* Teachers Table Component */}
