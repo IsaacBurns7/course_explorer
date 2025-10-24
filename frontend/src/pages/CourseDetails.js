@@ -104,7 +104,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
     return {
       id: p.id,
       name: p.name,
-      avgGpa: p.avgGpa,
+      avgGpa: p.avgGpa || 0,
       classGpa: p.totalStudents ? Number((p.totalGpa / p.totalStudents).toFixed(3)) : 0,
       rating: p.rating,
       wouldTakeAgain: p.wouldTakeAgain,
@@ -139,7 +139,7 @@ const CourseDetails = () => {
         const department = match[1];
         const courseNumber = match[2];
         
-        const res = await fetch(`http://localhost:4000/api/search2/courses?department=${department}&courseNumber=${courseNumber}`);
+        const res = await fetch(`/server/api/search2/courses?department=${department}&courseNumber=${courseNumber}`);
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const responseData = await res.json();
 
@@ -148,7 +148,7 @@ const CourseDetails = () => {
         const courseKey = `${department}_${courseNumber}`;
         const course = responseData[courseKey] || responseData.data || responseData;
 
-        const profRes = await fetch(`http://localhost:4000/api/search2/professors?department=${department}&courseNumber=${courseNumber}`);
+        const profRes = await fetch(`/server/api/search2/professors?department=${department}&courseNumber=${courseNumber}`);
         if (!profRes.ok) throw new Error(`HTTP error ${profRes.status}`);
         const profInfo = await profRes.json();
 
@@ -171,7 +171,18 @@ const CourseDetails = () => {
     if (courseId) fetchCourseData();
   }, [courseId]);
 
-  if (loading) return <div className="p-10 text-center text-gray-500">Loading...</div>;
+  if (loading) {
+  return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-background text-beige-light z-50">
+      {/* Spinner */}
+      <div className="w-16 h-16 border-4 border-green-light border-t-transparent rounded-full animate-spin mb-6"></div>
+      
+      {/* Text */}
+      <h2 className="text-xl font-semibold mb-2 animate-pulse">Loading Course Data...</h2>
+      <p className="text-sm text-gray-400">Fetching sections, professors, and GPA history</p>
+    </div>
+  );
+}
   if (!courseData) return <div className="p-10 text-center text-red-500">Course not found</div>;
 
   const info = courseData.info || {};

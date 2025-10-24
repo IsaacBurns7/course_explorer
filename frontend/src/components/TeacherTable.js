@@ -215,21 +215,18 @@
                     >
                     {/* Teacher name + teaching badge */}
                     <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-sm font-medium text-beige-light">
+                    <div className="flex flex-col text-sm font-medium text-beige-light">
                         <span>{teacher.name || '?'}</span>
 
                         {teacher.teachingNext && (
-                            <div className="relative group inline-flex items-center">
-                            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-dark text-green-light hover:bg-green-light hover:text-green-dark transition">
-                                <CheckCircle className="w-3.5 h-3.5" />
-                            </div>
-                            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 whitespace-nowrap rounded bg-dark-border px-2 py-1 text-xs text-beige-light opacity-0 group-hover:opacity-100 transition-opacity">
-                                Teaching Next Semester
-                            </span>
-                            </div>
-                        )}
+                        <div className="flex items-center gap-1 text-xs font-medium text-green-light mt-1">
+                            <span className="w-2 h-2 bg-green-dark rounded-full"></span>
+                            Teaching Next Semester
                         </div>
+                        )}
+                    </div>
                     </td>
+
 
                     {/* Class GPA */}
                     <td className="px-4 py-4 whitespace-nowrap text-center">
@@ -304,7 +301,7 @@
                         {renderGradeDistribution(teacher)}
                     </td>
                     </tr>
-                ))}
+                ))}     
                 </tbody>
             </table>
             </div>
