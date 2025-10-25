@@ -274,7 +274,7 @@ const CourseDetails = () => {
         <GPATrendsChart teachers={profData} timePeriods={timePeriods} />
 
         {/* Historical Data Table */}
-        <HistoricalDataTable teachers={profData} timePeriods={timePeriods} />
+        <HistoricalDataTable teachers={profData} timePeriods={timePeriods} mode="raw" />
       </div>
     </div>
   );
