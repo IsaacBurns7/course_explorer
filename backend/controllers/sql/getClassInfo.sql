@@ -3,7 +3,7 @@ SELECT
     'department', c.department,
     'number', c.number,
     'title', c.title,
-    'hours', CASE WHEN cs.hours ~ '^[0-9]+$' THEN cs.hours::int ELSE 0 END
+    'hours', CASE WHEN cs.hours ~ '^[0-9]+$' THEN cs.hours::int ELSE 0 END,
     'info', jsonb_build_object(
       'id', c.id::text,
       'title', c.title,
@@ -43,23 +43,23 @@ SELECT
                             SELECT 1 
                             FROM course_explorer.courses_sections cs_history
                             WHERE cs_history.professor_id = p.id
-                                AND cs_history.course_id = c.course_id
+                                AND cs_history.course_id = cs.course_id
                                 AND cs_history.semester_id LIKE (
                                     CASE
-                                        WHEN c.semester_id LIKE 'Fall%' THEN 'Fall%'
-                                        WHEN c.semester_id LIKE 'Spring%' THEN 'Spring%'
-                                        WHEN c.semester_id LIKE 'Summer%' THEN 'Summer%' 
+                                        WHEN cs.semester_id LIKE 'Fall%' THEN 'Fall%'
+                                        WHEN cs.semester_id LIKE 'Spring%' THEN 'Spring%'
+                                        WHEN cs.semester_id LIKE 'Summer%' THEN 'Summer%' 
                                     END
                                 )
                                 AND SUBSTRING(cs_history.semester_id FROM '\d{4}')::int >=
-                                    SUBSTRING(c.semester_id FROM '\d{4}')::int - 3
-                                AND cs_history.semester_id < c.semester_id
+                                    SUBSTRING(cs.semester_id FROM '\d{4}')::int - 3
+                                AND cs_history.semester_id < cs.semester_id
                         )
                         THEN CONCAT('Doesn''t typically teach ', 
                             CASE 
-                                WHEN c.semester_id LIKE 'Fall%' THEN 'Fall'
-                                WHEN c.semester_id LIKE 'Spring%' THEN 'Spring'
-                                WHEN c.semester_id LIKE 'Summer%' THEN 'Summer'
+                                WHEN cs.semester_id LIKE 'Fall%' THEN 'Fall'
+                                WHEN cs.semester_id LIKE 'Spring%' THEN 'Spring'
+                                WHEN cs.semester_id LIKE 'Summer%' THEN 'Summer'
                             END
                         )
                         ELSE NULL
@@ -73,4 +73,4 @@ FROM course_explorer.courses c
 JOIN course_explorer.courses_sections cs ON cs.course_id = c.id
 JOIN course_explorer.professors p ON p.id = cs.professor_id
 WHERE c.id = $1
-GROUP BY c.id, c.department, c.number, c.title;
+GROUP BY c.id, c.department, c.number, c.title, cs.hours;
