@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import TeacherTable from '../components/TeacherTable';
 import GPATrendsChart from '../components/GPATrendsChart';
 import HistoricalDataTable from '../components/HistoricalDataTable';
+import pinwheelBg from '../assets/Pinwheel_3.png';
 
 import data from './TEMP_DATA'
 
@@ -227,22 +228,35 @@ const CourseDetails = () => {
       const [seasonA, yearA] = a.split(' ');
       const [seasonB, yearB] = b.split(' ');
       
-      // Compare years first
+      // Compare years first (reversed for descending order)
       if (yearA !== yearB) {
-        return parseInt(yearA) - parseInt(yearB);
+        return parseInt(yearB) - parseInt(yearA);
       }
       
-      // If same year, compare seasons
-      return seasonOrder[seasonA] - seasonOrder[seasonB];
+      // If same year, compare seasons (reversed for descending order)
+      return seasonOrder[seasonB] - seasonOrder[seasonA];
     });
   };
   
   const timePeriods = sortTimePeriods(Object.keys(courseData.sections || {}));
 
   return (
-    <div className="min-h-screen bg-background text-beige-light pt-16">
+    <div 
+      className="min-h-screen bg-background text-beige-light pt-16 relative"
+    >
+      {/* Background image with opacity */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url(${pinwheelBg})`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: 'auto',
+          backgroundPosition: 'top left',
+          opacity: 0.1
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
         {/* Course Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-3">
@@ -274,7 +288,7 @@ const CourseDetails = () => {
         <GPATrendsChart teachers={profData} timePeriods={timePeriods} />
 
         {/* Historical Data Table */}
-        <HistoricalDataTable teachers={profData} timePeriods={timePeriods} mode="raw" />
+        <HistoricalDataTable teachers={profData} timePeriods={timePeriods} />
       </div>
     </div>
   );

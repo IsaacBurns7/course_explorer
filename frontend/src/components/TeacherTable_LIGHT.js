@@ -162,17 +162,24 @@ const TeacherTable = ({ teachers }) => {
           </div>
 
           {/* Teaching Next checkbox */}
-          <label className="flex items-center space-x-2 text-sm font-medium text-beige-dark">
+          <div className="flex items-center space-x-2">
             <input
               type="checkbox"
+              id="teachingNext"
               checked={filters.teachingNext}
-              className="w-4 h-4 border-dark-border rounded bg-dark-input text-maroon focus:ring-maroon"
               onChange={(e) =>
                 handleFilterChange('teachingNext', e.target.checked)
               }
+              className="w-4 h-4 rounded border-dark-border bg-dark-input text-maroon focus:ring-maroon focus:ring-2 cursor-pointer"
+              style={{ accentColor: '#500000' }}
             />
-            <span>Teaching Next Semester</span>
-          </label>
+            <label
+              htmlFor="teachingNext"
+              className="text-sm font-medium text-beige-dark cursor-pointer"
+            >
+              Teaching Next Semester
+            </label>
+          </div>
         </div>
       </div>
 
@@ -261,9 +268,9 @@ const TeacherTable = ({ teachers }) => {
                   <td className="px-4 py-4 whitespace-nowrap text-center">
                     <div className="flex flex-col items-center justify-center">
                       <span className="text-sm font-medium text-beige-light">
-                        {teacher.rating != null
+                        {teacher.rating != null && teacher.rating > 0
                           ? teacher.rating.toFixed(1)
-                          : '?'}
+                          : '-'}
                       </span>
                       {teacher.rating > 0 && (
                         <span className="text-yellow-light text-xs leading-none">
