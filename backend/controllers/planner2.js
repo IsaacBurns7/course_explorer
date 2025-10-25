@@ -31,8 +31,11 @@ const getBestClasses = async (parsed, req, res) => {
         const sqlFilePath = path.join(__dirname, '/sql/getBestClasses.sql');;
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         const queryResult = await client.query(sql, [courseIds, semesterIds]);
+
+        console.log(JSON.stringify(queryResult.rows[0]?.result, null, 2))
         return res.status(200).json(queryResult.rows[0]?.result || {});
     } catch (error ) {
+        console.log(error)
         return res.status(500).json({error: error});
     } finally {
         client.release();
@@ -73,9 +76,9 @@ const getClassInfo = async (req, res) => {
         if (queryResult.rows.length === 0) {
             return res.status(404).json({ error: "Class not found" });
         }       
-        console.log("Returning class info:", queryResult.rows[0].row_to_json, Object.keys(queryResult.rows[0].row_to_json));
 
-        return res.status(200).json(queryResult.rows[0].row_to_json);
+
+        return res.status(200).json(queryResult.rows[0].result);
         // return res.status(200).json({result:" exists "});
     
         // professors.sort((a, b) => (b.info.averageGPA + b.info.averageRating) - (a.info.averageGPA + a.info.averageRating));
