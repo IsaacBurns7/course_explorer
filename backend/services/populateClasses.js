@@ -466,5 +466,74 @@ async function gatherData(courses = {}, semester, site = "College Station", year
     }
 }
 
+async function getPrereq(courseData) {
+  const seasonOrder = { Spring: 1, Summer: 2, Fall: 3 };
+  const site = { "College Station": 1, Galveston: 2 };
+
+  for (const course of Object.keys(courseData)) {
+    const sections = courseData[course].sections;
+    const semesters = Object.keys(sections);
+
+    // Skip if no sections
+    if (!semesters.length) continue;
+
+    // 🧠 Find latest semester (largest numeric term)
+    let maxTerm = -Infinity;
+    let maxSemester = null;
+    for (const sem of semesters) {
+      const [season, yearStr] = sem.split(" ");
+      if (!seasonOrder[season]) continue; // skip weird keys
+
+      const numericTerm = parseInt(`${yearStr}${seasonOrder[season]}`);
+      if (numericTerm > maxTerm) {
+        maxTerm = numericTerm;
+        maxSemester = sem;
+      }
+    }
+
+    if (!maxSemester) continue; // no valid semester found
+    const [maxSeason, maxYearStr] = maxSemester.split(" ");
+    const baseTerm = `${maxYearStr}${seasonOrder[maxSeason]}`;
+
+    // 🧭 Pick the first valid section in that semester
+    const targetSection = sections[maxSemester].find((s) => s.crn);
+    if (!targetSection) continue;
+
+    const currentTerm = baseTerm + (site[targetSection.site] || "1");
+
+    console.log(`Fetching for ${course}, term ${currentTerm}`);
+
+    try {
+      const response = await fetch("https://howdyportal.tamu.edu/api/section-prereqs", {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          "accept-language": "en-US,en;q=0.9",
+          "content-type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({
+          term: currentTerm,
+          crn: targetSection.crn,
+        }),
+        method: "POST",
+      });
+
+      const json = await response.json();
+
+      if (json?.P_PRE_REQS_OUT) {
+        courseData[course].info.prereqString = json.P_PRE_REQS_OUT;
+      } else {
+        console.warn(`No prereq found for ${course}`);
+      }
+    } catch (err) {
+      console.error(`Error fetching ${course}:`, err.message);
+    }
+  }
+
+  // ✅ Write once at the end
+
+  return courseData
+  fs.writeFileSync("data_Spring2026_Prereq.json", JSON.stringify(courseData, null, 2), "utf8");
+  console.log("✅ data_Spring2026_Prereq.json written successfully!");
+}
 
 module.exports = { gatherData }
