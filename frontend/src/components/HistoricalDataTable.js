@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
   const [showByProfessor, setShowByProfessor] = useState(false); // checkbox state
-
+  const [isAnimating, setIsAnimating] = useState(false);
+  const scrollRef = useRef(null);
   const mode = showByProfessor ? 'raw' : 'aggregated';
 
   const getGpaColor = (gpa) => {
@@ -47,6 +49,12 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
     return gpas.length ? gpas.reduce((a, b) => a + b, 0) / gpas.length : null;
   });
 
+  const tableVariants = {
+    hidden: { opacity: 0, y: -10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+    exit: { opacity: 0, y: 10, transition: { duration: 0.3 } },
+  };
+
   return (
     <div className="bg-dark-card rounded-xl shadow-md border border-dark-border mb-8">
       {/* Header with checkbox */}
@@ -69,13 +77,27 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
             onChange={(e) => setShowByProfessor(e.target.checked)}
             className="w-4 h-4 text-beige-light bg-dark-input border-dark-border rounded"
           />
-          Show by Professor
+          Reverse Axes
         </label>
       </div>
 
       <div className="overflow-x-auto">
+        <div
+        ref={scrollRef}
+        className={`overflow-x-auto ${isAnimating ? 'overflow-hidden' : ''}`}
+        >
+        <AnimatePresence mode="wait">
         {mode === 'aggregated' ? (
           // --- Aggregated mode ---
+           <motion.div
+              key="aggregated"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={tableVariants}
+              onAnimationStart={() => setIsAnimating(true)}
+              onAnimationComplete={() => setIsAnimating(false)}
+            >
           <table className="w-full text-xs">
             <thead className="bg-dark-header">
               <tr>
@@ -163,8 +185,19 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
               )}
             </tbody>
           </table>
+          </motion.div>
         ) : (
           // --- Raw mode (Show by Professor) ---
+
+          <motion.div
+              key="raw"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={tableVariants}
+              onAnimationStart={() => setIsAnimating(true)}
+              onAnimationComplete={() => setIsAnimating(false)}
+            >
           <table className="w-full">
             <thead className="bg-dark-header">
               <tr>
@@ -243,7 +276,10 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
               )}
             </tbody>
           </table>
+          </motion.div>
         )}
+        </AnimatePresence>
+        </div>
       </div>
     </div>
   );
