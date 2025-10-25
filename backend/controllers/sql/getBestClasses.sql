@@ -12,7 +12,7 @@ FROM (
                 'department', department,
                 'number', number,
                 'title', title,
-                'hours', hours::int,
+                'hours', CASE WHEN hours ~ '^[0-9]+$' THEN hours::int ELSE 0 END, /* hours could be N/A*/
                 'professors', professors
             )
         ) AS courses
@@ -38,7 +38,17 @@ FROM (
                                 FROM course_explorer.professor_ratings pr
                                 WHERE pr.professor_id = p.id
                             )::numeric, 1)::text,
-                            '0.0'
+                            'N/A'
+                        ),
+                        'debugId', p.id,
+                        'debugClass', c.course_id,
+                        'classRating', COALESCE(
+                            ROUND((
+                                SELECT SUM(value * frequency) / NULLIF(SUM(frequency), 0)
+                                FROM course_explorer.professor_ratings pr
+                                WHERE (pr.professor_id = p.id AND pr.course_id = c.course_id)
+                            )::numeric, 1)::text,
+                            'N/A'
                         ),
                         'name', p.name,
                         'site', c.site,
