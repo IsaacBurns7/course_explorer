@@ -388,7 +388,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                                         </span>
                                         <span className="bg-green-dark text-green-light px-2 py-1 rounded text-xs">
                                           Class Rating:{" "}
-                                          {selectedProf.info.courseRating ?? "N/A"}
+                                          {selectedProf.info.classRating ?? "N/A"}
                                         </span>
                                         <span className="bg-purple-dark text-purple-light px-2 py-1 rounded text-xs">
                                           {selectedProf.info.site ?? "Unknown"}
