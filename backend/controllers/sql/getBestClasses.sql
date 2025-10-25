@@ -22,9 +22,9 @@ FROM (
             c.department,
             c.number,
             c.title,
-            c.hours,
+            MAX(c.hours) AS hours,
             jsonb_agg(
-                jsonb_build_object(
+                DISTINCT jsonb_build_object(
                     'info', jsonb_build_object(
                         'averageGPA', ROUND((
                             SELECT AVG(cs.gpa)
@@ -101,7 +101,7 @@ FROM (
             ) pairs ON c.id = pairs.course_id
         ) c
         JOIN course_explorer.professors p ON p.id = c.professor_id
-        GROUP BY c.semester_id, c.course_id, c.department, c.number, c.title, c.hours
+        GROUP BY c.semester_id, c.course_id, c.department, c.number, c.title
     ) courses_with_professors
     GROUP BY semester_id
 ) semesters;

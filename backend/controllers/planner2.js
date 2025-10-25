@@ -28,11 +28,14 @@ const getBestClasses = async (parsed, req, res) => {
             }
         }
         
+        console.log(semesterIds)
+        console.log(courseIds)
         const sqlFilePath = path.join(__dirname, '/sql/getBestClasses.sql');;
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         const queryResult = await client.query(sql, [courseIds, semesterIds]);
 
-        console.log(JSON.stringify(queryResult.rows[0]?.result, null, 2))
+
+        //console.log(queryResult.rows[0].result)
         return res.status(200).json(queryResult.rows[0]?.result || {});
     } catch (error ) {
         console.log(error)
@@ -76,7 +79,6 @@ const getClassInfo = async (req, res) => {
         if (queryResult.rows.length === 0) {
             return res.status(404).json({ error: "Class not found" });
         }       
-
 
         return res.status(200).json(queryResult.rows[0].result);
         // return res.status(200).json({result:" exists "});
