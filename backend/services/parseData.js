@@ -283,6 +283,7 @@ async function parseDegreePlanPDF(pdfBuffer) {
 }
 
 function parseViewPlanFormat(text) {
+    /*
   const termPattern = /^(\d{4})\s+(Fall|Spring|Summer)/i;
   const coursePattern = /^([A-Z]{2,4})[\t ]+(\d{3})[\t ]+(.+?)[\t ]+(\d+)(?:[\t ].*)?$/;
 
@@ -327,6 +328,54 @@ function parseViewPlanFormat(text) {
     return {error: "No courses found — you may have copied from the wrong view (use 'View Plan')."};
   }
   return terms;
+  */
+
+    const termPattern = /(\d{4})\s*-\s*(Fall|Spring|Summer)/;
+    const coursePattern = /([A-Z]{2,4})\s*-\s*(\d{3})\s*\n\((\d)\)\n([A-Z0-9\-\s&']+)/;
+
+    const seen = new Set();
+    const lines = text.split(/\r?\n/);
+    const terms = {};
+    let currentTerm = null;
+
+    for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    // Detect a term (e.g. "2024 - Fall")
+    const termMatch = line.match(termPattern);
+    if (termMatch) {
+        const [_, year, season] = termMatch;
+        currentTerm = `${season} ${year}`;
+        if (!terms[currentTerm]) terms[currentTerm] = [];
+        continue;
+    }
+
+    // Detect course blocks
+    const block = lines.slice(i, i + 4).join("\n");
+    const courseMatch = block.match(coursePattern);
+    if (courseMatch && currentTerm) {
+        const [_, dept, number, hours, title] = courseMatch;
+
+        const obj = {
+        department: dept.trim(),
+        number: number.trim(),
+        title: ` ${title.trim()} `,
+        hours: hours.trim(),
+        }
+
+        const key = `${currentTerm}-${dept}-${number}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        console.log(seen)
+        terms[currentTerm].push(obj);
+
+        i+=3
+    }
+    }
+
+    console.log(terms)
+    return terms
 }
 
 function parseAlternateDegreePlan(text) {
@@ -410,6 +459,7 @@ function parseDegreePlanText(text) {
   const hasViewPlanPattern = /^\d{4}\s+(Fall|Spring|Summer)/m.test(text);
   const hasAlternatePattern = /^\d{4}\s*-\s*(Fall|Spring|Summer)/m.test(text);
 
+  return parseViewPlanFormat(text);
   if (hasViewPlanPattern && !hasAlternatePattern) {
     return parseViewPlanFormat(text);
   }
