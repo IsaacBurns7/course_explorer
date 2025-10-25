@@ -54,9 +54,9 @@ const aggregateProfessorData = async (courseData, profInfo) => {
     for (const sec of semSections) {
       const id = sec.prof_id;
       
-      if (!professorMap[id]) {
+      if (!professorMap[sec.prof]) {
         const info = profInfo[id]?.info || {};
-        professorMap[id] = {
+        professorMap[sec.prof] = {
           id,
           name: sec.prof || info.name || "Unknown",
           totalStudents: 0,
@@ -74,7 +74,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       }
 
       // Aggregate GPA & grade data
-      const prof = professorMap[id];
+      const prof = professorMap[sec.prof];
       const students = (sec.A || 0) + (sec.B || 0) + (sec.C || 0) + (sec.D || 0) + (sec.F || 0)
       prof.totalStudents += students
       prof.totalGpa += (sec.gpa || 0) * students
@@ -97,7 +97,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
   // Finalize averages
   return Object.values(professorMap).map((p) => {
     const totalGrades = Object.values(p.gradeTotals).reduce((a, b) => a + b, 0);
-    const grades = totalGrades
+    const gradePercentages = totalGrades
       ? Object.fromEntries(Object.entries(p.gradeTotals).map(([k, v]) => [k, Math.round((v / totalGrades) * 100)]))
       : p.gradeTotals;
 
@@ -106,11 +106,13 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       name: p.name,
       avgGpa: p.avgGpa || 0,
       classGpa: p.totalStudents ? Number((p.totalGpa / p.totalStudents).toFixed(3)) : 0,
+      students: p.totalStudents,
       rating: p.rating,
       wouldTakeAgain: p.wouldTakeAgain,
       difficulty: p.difficulty || 3.0,
       teachingNext: p.teachingNext,
-      grades,
+      grades: p.gradeTotals,
+      gradePercentages,
       gpaHistory: p.gpas, // last 6 semesters
     };
   });
@@ -183,7 +185,15 @@ const CourseDetails = () => {
     </div>
   );
 }
-  if (!courseData) return <div className="p-10 text-center text-red-500">Course not found</div>;
+  if (!courseData || courseData == {})  {
+    return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-background">
+      {/* Text */}
+      <h2 className="text-xl font-semibold mb-2 text-red-400">{`Course ${courseId} Not Found...`}</h2>
+      <a href = "/"><p className="text-blue-light hover:text-blue-dark hover:underline">Go Back to Home</p></a>
+    </div>
+  );
+  }
 
   const info = courseData.info || {};
   const teachers = courseData.professors || [];

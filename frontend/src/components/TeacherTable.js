@@ -71,32 +71,30 @@
         <div className="w-full">
             <div className="bg-dark-border rounded-full h-6 relative flex overflow-hidden">
             {grades.map((grade) => {
-                const count = teacher.grades[grade];
-                const percentage =
-                totalStudents > 0 ? (count / totalStudents) * 100 : 0;
+                const count = teacher.grades[grade] || 0;
+                const percentage = teacher.gradePercentages?.[grade] || 0;
 
                 if (count > 0) {
-                return (
+                    return (
                     <div
-                    key={grade}
-                    className="h-6 flex items-center justify-center text-xs font-medium text-blackX transition-all duration-500"
-                    style={{
-                        width: `${percentage}%`,
+                        key={grade}
+                        className="h-6 flex items-center justify-center text-xs font-medium text-blackX transition-all duration-500"
+                        style={{
+                        width: `max(${percentage}%, 24px)`,
                         backgroundColor: gradeColors[grade],
-                    }}
-                    title={`${grade}: ${count} students (${percentage.toFixed(
-                        1
-                    )}%)`}
+                        }}
+                        title={`${grade}: ${count} students (${percentage.toFixed(1)}%)`}
                     >
-                    {count > 3 ? count : ''}
+                        {count > 3 ? count : ''}
                     </div>
-                );
+                    );
                 }
                 return null;
-            })}
+                })}
+
             </div>
             <div className="text-xs text-beige-dark mt-1">
-            {totalStudents} students
+            {teacher.students} students
             </div>
         </div>
         );
