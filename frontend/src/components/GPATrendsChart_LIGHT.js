@@ -1,168 +1,120 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useMemo } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const GPATrendsChart = ({ teachers, timePeriods }) => {
-    const canvasRef = useRef(null);
+    const colors = [
+        '#5d0024', '#7c2d12', '#a16207', '#166534', '#1e40af',
+        '#be185d', '#0f766e', '#7c3aed', '#dc2626', '#059669'
+    ];
 
-    useEffect(() => {
-        renderChart();
-    }, [teachers, timePeriods]);
+    // Light theme colors
+    const gridColor = '#e5e7eb';
+    const textColor = '#374151';
 
-    const renderChart = () => {
-        const canvas = canvasRef.current;
-        if (!canvas || !teachers || teachers.length === 0 || !timePeriods || timePeriods.length === 0) return;
+    // Transform data for Recharts (no reverse for light theme)
+    const chartData = useMemo(() => {
+        if (!teachers || teachers.length === 0 || !timePeriods || timePeriods.length === 0) return [];
 
-        const ctx = canvas.getContext('2d');
-        
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return timePeriods.map(period => {
+        const dataPoint = { period };
 
-        // Chart dimensions
-        const margin = { top: 40, right: 200, bottom: 80, left: 60 };
-        const chartWidth = canvas.width - margin.left - margin.right;
-        const chartHeight = canvas.height - margin.top - margin.bottom;
-
-        const xStep = chartWidth / (timePeriods.length - 1);
-        const colors = ['#5d0024', '#7c2d12', '#a16207', '#166534', '#1e40af', '#be185d', '#0f766e', '#7c3aed', '#dc2626', '#059669'];
-
-        // Draw grid and axes
-        ctx.strokeStyle = '#e5e7eb';
-        ctx.lineWidth = 1;
-
-        // Vertical grid lines
-        for (let i = 0; i < timePeriods.length; i++) {
-            const x = margin.left + i * xStep;
-            ctx.beginPath();
-            ctx.moveTo(x, margin.top);
-            ctx.lineTo(x, margin.top + chartHeight);
-            ctx.stroke();
-        }
-
-        // Horizontal grid lines (0.0–4.0 GPA)
-        for (let i = 0; i <= 8; i++) {
-            const y = margin.top + (i / 8) * chartHeight;
-            ctx.beginPath();
-            ctx.moveTo(margin.left, y);
-            ctx.lineTo(margin.left + chartWidth, y);
-            ctx.stroke();
-        }
-
-        // Draw axes
-        ctx.strokeStyle = '#374151';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(margin.left, margin.top);
-        ctx.lineTo(margin.left, margin.top + chartHeight);
-        ctx.lineTo(margin.left + chartWidth, margin.top + chartHeight);
-        ctx.stroke();
-
-        // X-axis labels (semesters)
-        ctx.fillStyle = '#374151';
-        ctx.font = '12px sans-serif';
-        ctx.textAlign = 'center';
-        timePeriods.forEach((period, i) => {
-            const x = margin.left + i * xStep;
-            ctx.save();
-            ctx.translate(x, canvas.height - 20);
-            ctx.rotate(-Math.PI / 6);
-            ctx.fillText(period, 0, 0);
-            ctx.restore();
-        });
-
-        // Y-axis labels (GPA)
-        ctx.textAlign = 'right';
-        for (let i = 0; i <= 8; i++) {
-            const y = margin.top + chartHeight - (i / 8) * chartHeight;
-            const gpaValue = (i / 2).toFixed(1);
-            ctx.fillText(gpaValue, margin.left - 10, y + 4);
-        }
-
-        // Y-axis title
-        ctx.save();
-        ctx.translate(20, margin.top + chartHeight / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.textAlign = 'center';
-        ctx.font = '14px sans-serif';
-        ctx.fillText('GPA', 0, 0);
-        ctx.restore();
-
-        // --- MAIN CHANGE: Convert new GPA data format ---
         teachers.forEach((teacher, index) => {
             if (!teacher.gpaHistory || typeof teacher.gpaHistory !== 'object') return;
 
-            // Compute average GPA for each time period
-            const gpaHistory = timePeriods.map(period => {
-                const termGpas = teacher.gpaHistory[period];
-                if (!termGpas || termGpas.length === 0) return null;
-                const avg = termGpas.reduce((a, b) => a + b, 0) / termGpas.length;
-                return avg;
-            });
-
-            // Skip if all values are null
-            if (gpaHistory.every(v => v == null)) return;
-
-            const color = colors[index % colors.length];
-            ctx.strokeStyle = color;
-            ctx.fillStyle = color;
-            ctx.lineWidth = 2;
-
-            // Draw line
-            ctx.beginPath();
-            gpaHistory.forEach((gpa, i) => {
-                if (gpa == null) return;
-                const x = margin.left + i * xStep;
-                const y = margin.top + chartHeight - (gpa / 4) * chartHeight;
-                if (i === 0 || gpaHistory[i - 1] == null) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            });
-            ctx.stroke();
-
-            // Draw data points
-            gpaHistory.forEach((gpa, i) => {
-                if (gpa == null) return;
-                const x = margin.left + i * xStep;
-                const y = margin.top + chartHeight - (gpa / 4) * chartHeight;
-                ctx.beginPath();
-                ctx.arc(x, y, 3, 0, 2 * Math.PI);
-                ctx.fill();
-            });
-
-            // Draw legend
-            const legendX = margin.left + chartWidth + 20;
-            const legendY = margin.top + index * 25;
-            
-            ctx.fillRect(legendX, legendY - 6, 12, 12);
-            ctx.fillStyle = '#374151';
-            ctx.font = '11px sans-serif';
-            ctx.textAlign = 'left';
-            const lastName = (teacher.name || 'Unknown').split(' ').pop();
-            ctx.fillText(lastName, legendX + 20, legendY + 4);
-            ctx.fillStyle = color;
+            const termGpas = teacher.gpaHistory[period];
+            if (!termGpas || termGpas.length === 0) {
+            dataPoint[`teacher${index}`] = null;
+            } else {
+            const avgGpa = termGpas.reduce((a, b) => a + b, 0) / termGpas.length;
+            dataPoint[`teacher${index}`] = avgGpa;
+            }
         });
 
-        // Chart title
-        ctx.fillStyle = '#374151';
-        ctx.font = 'bold 16px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Historical GPA Trends by Teacher', canvas.width / 2, 25);
-    };
+        return dataPoint;
+        });
+    }, [teachers, timePeriods]);
+
+    // Generate teacher labels for legend
+    const teacherLabels = useMemo(() => {
+        if (!teachers || teachers.length === 0) return [];
+        return teachers.map((teacher, index) => ({
+        key: `teacher${index}`,
+        name: (teacher.name || 'Unknown').split(' ').pop(),
+        color: colors[index % colors.length]
+        }));
+    }, [teachers]);
+
+    if (!teachers || teachers.length === 0 || !timePeriods || timePeriods.length === 0) {
+        return null;
+    }
 
     return (
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-8">
-            <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-800">GPA Trends Over Time</h2>
-                <p className="text-sm text-gray-600 mt-1">Historical GPA data for all teachers</p>
-            </div>
-            <div className="p-6">
-                <canvas 
-                    ref={canvasRef} 
-                    width={1000} 
-                    height={400}
-                    className="w-full h-auto max-w-full"
+        <div className="p-6 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-800">GPA Trends Over Time</h2>
+            <p className="text-sm text-gray-600 mt-1">Historical GPA data for all teachers</p>
+        </div>
+        <div className="p-6">
+            <ResponsiveContainer width="100%" height={400}>
+            <LineChart
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                <XAxis
+                dataKey="period"
+                angle={-30}
+                textAnchor="end"
+                height={80}
+                tick={{ fill: textColor, fontSize: 12 }}
+                stroke={textColor}
                 />
-            </div>
+                <YAxis
+                domain={[0, 4]}
+                ticks={[0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]}
+                tick={{ fill: textColor, fontSize: 12 }}
+                stroke={textColor}
+                label={{
+                    value: 'GPA',
+                    angle: -90,
+                    position: 'insideLeft',
+                    style: { fill: textColor, fontSize: 14 }
+                }}
+                />
+                <Tooltip
+                contentStyle={{
+                    backgroundColor: '#ffffff',
+                    border: `1px solid ${gridColor}`,
+                    borderRadius: '8px',
+                    color: textColor
+                }}
+                labelStyle={{ color: textColor, fontWeight: 'bold' }}
+                formatter={(value) => value !== null ? value.toFixed(2) : 'N/A'}
+                />
+                <Legend
+                wrapperStyle={{ paddingTop: '20px' }}
+                iconType="line"
+                formatter={(value, entry) => {
+                    const teacherLabel = teacherLabels.find(t => t.key === entry.dataKey);
+                    return <span style={{ color: textColor }}>{teacherLabel?.name || value}</span>;
+                }}
+                />
+                {teacherLabels.map((teacher) => (
+                <Line
+                    key={teacher.key}
+                    type="linear"
+                    dataKey={teacher.key}
+                    stroke={teacher.color}
+                    strokeWidth={2}
+                    dot={{ fill: teacher.color, r: 3 }}
+                    activeDot={{ r: 5 }}
+                    connectNulls={false}
+                    name={teacher.name}
+                />
+                ))}
+            </LineChart>
+            </ResponsiveContainer>
+        </div>
         </div>
     );
 };
