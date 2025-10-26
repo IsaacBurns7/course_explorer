@@ -6,7 +6,7 @@ const TeacherTable = ({ teachers }) => {
   const [filters, setFilters] = useState({
     minGpa: 0,
     minRating: 0,
-    teachingNext: true,
+    teachingNext: false,
   });
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const TeacherTable = ({ teachers }) => {
         teacher.rating >= filters.minRating &&
         (!filters.teachingNext || teacher.teachingNext)
       );
-    });
+    }).sort((a, b) => (b.teachingNext === true) - (a.teachingNext === true));
     setFilteredTeachers(filtered);
   };
 
@@ -33,6 +33,7 @@ const TeacherTable = ({ teachers }) => {
 
   // Updated to use your dark palette
   const getGpaColor = (gpa) => {
+    if (gpa == null || gpa == 0) return 'bg-dark-input text-beige-dark';
     if (gpa >= 3.5) return 'bg-emerald-dark text-emerald-light';
     if (gpa >= 3.0) return 'bg-yellow-dark text-yellow-light';
     if (gpa >= 2.5) return 'bg-blue-dark text-blue-light';
@@ -40,6 +41,7 @@ const TeacherTable = ({ teachers }) => {
   };
 
   const getWouldTakeAgainColor = (percentage) => {
+    if (percentage == null || percentage == 0) return 'bg-dark-input text-beige-dark';
     if (percentage >= 80) return 'bg-emerald-dark text-emerald-light';
     if (percentage >= 65) return 'bg-yellow-dark text-yellow-light';
     if (percentage >= 50) return 'bg-blue-dark text-blue-light';
@@ -47,6 +49,7 @@ const TeacherTable = ({ teachers }) => {
   };
 
   const getDifficultyColor = (difficulty) => {
+    if (difficulty == null || difficulty == 0) return 'bg-dark-input text-beige-dark';
     if (difficulty <= 2.5) return 'bg-emerald-dark text-emerald-light';
     if (difficulty <= 3.5) return 'bg-yellow-dark text-yellow-light';
     if (difficulty <= 4.0) return 'bg-blue-dark text-blue-light';
@@ -206,7 +209,7 @@ const TeacherTable = ({ teachers }) => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full table-fixed">
             <thead className="bg-dark-header">
               <tr>
                 {[
@@ -220,7 +223,7 @@ const TeacherTable = ({ teachers }) => {
                 ].map((header) => (
                   <th
                     key={header}
-                    className="px-6 py-3 text-xs font-medium text-beige-dark uppercase tracking-wider text-center"
+                    className={`px-6 py-3 text-xs font-medium text-beige-dark uppercase tracking-wider text-center ${header == "Teacher" ? "w-64 text-left" : ""}`}
                   >
                     {header}
                   </th>
@@ -237,14 +240,29 @@ const TeacherTable = ({ teachers }) => {
                   {/* Teacher name + teaching badge */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-col text-sm font-medium text-beige-light">
-                      <span>{teacher.name || '?'}</span>
+                      <a
+  href={teacher.rmpLink}
+  target="_blank"
+  rel="noopener noreferrer"
+  className={teacher.rmpLink ? " hover:text-blue-400 hover:underline cursor-pointer": ""}
+>
+  <span>{teacher.name || '?'}</span>
+</a>
 
                       {teacher.teachingNext && (
-                        <div className="flex items-center gap-1 text-xs font-medium text-green-light mt-1">
-                          <span className="w-2 h-2 bg-green-dark rounded-full"></span>
-                          Teaching Next Semester
+                        <div className="flex items-center gap-1 text-xs font-medium text-green-light mt-1 flex-wrap">
+  <span className="w-2 h-2 bg-green-dark rounded-full flex-shrink-0"></span>
+  Teaching Next Semester
+</div>
+                      )}
+
+                      {teacher.students == 0 && (
+                        <div className="flex items-center gap-1 text-xs font-medium text-yellow-light mt-1">
+                          <span className="w-2 h-2 bg-yellow-dark rounded-full"></span>
+                          New Professor
                         </div>
                       )}
+
                     </div>
                   </td>
 
@@ -256,9 +274,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.classGpa
                       )}`}
                     >
-                      {teacher.classGpa != null
+                      {teacher.classGpa != null && teacher.classGpa != 0
                         ? teacher.classGpa.toFixed(1)
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
@@ -269,9 +287,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.avgGpa
                       )}`}
                     >
-                      {teacher.avgGpa != null
+                      {teacher.avgGpa != null && teacher.avgGpa != 0
                         ? teacher.avgGpa.toFixed(1)
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
@@ -298,9 +316,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.wouldTakeAgain
                       )}`}
                     >
-                      {teacher.wouldTakeAgain != null
+                      {(teacher.wouldTakeAgain != null && teacher.wouldTakeAgain != 0)
                         ? `${teacher.wouldTakeAgain.toFixed(1)}%`
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
@@ -311,9 +329,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.difficulty
                       )}`}
                     >
-                      {teacher.difficulty != null
+                      {teacher.difficulty != null && teacher.difficulty != 0
                         ? teacher.difficulty.toFixed(1)
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
