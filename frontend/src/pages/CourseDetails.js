@@ -4,6 +4,7 @@ import TeacherTable from '../components/TeacherTable';
 import GPATrendsChart from '../components/GPATrendsChart';
 import HistoricalDataTable from '../components/HistoricalDataTable';
 import pinwheelBg from '../assets/Pinwheel_3.png';
+import { BookOpen, TrendingUp, Users, FileText } from 'lucide-react';
 
 import data from './TEMP_DATA'
 
@@ -23,13 +24,13 @@ const linkifyCourseCodes = (description) => {
       parts.push(description.slice(lastIndex, matchStart));
     }
 
-    // Push the link
+    // Push the link (revert to light blue theme)
     parts.push(
       <a
         key={`${dept}-${courseNumber}-${matchStart}`}
         href={`/course/${dept}${courseNumber}`}
         target = "_blank"
-        className="text-blue-light hover:text-blue-dark hover:underline"
+        className="text-blue-light hover:text-blue-dark hover:underline transition-colors"
       >
         {fullMatch}
       </a>
@@ -188,12 +189,12 @@ const CourseDetails = () => {
 }
   if (!courseData || courseData == {})  {
     return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-background">
-      {/* Text */}
-      <h2 className="text-xl font-semibold mb-2 text-red-400">{`Course ${courseId} Not Found...`}</h2>
-      <a href = "/"><p className="text-blue-light hover:text-blue-dark hover:underline">Go Back to Home</p></a>
-    </div>
-  );
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-background">
+        {/* Text */}
+        <h2 className="text-xl font-semibold mb-2 text-red-light">{`Course ${courseId} Not Found...`}</h2>
+        <a href = "/"><p className="text-blue-light hover:text-blue-dark hover:underline transition-colors">Go Back to Home</p></a>
+      </div>
+    );
   }
 
   const info = courseData.info || {};
@@ -265,17 +266,21 @@ const CourseDetails = () => {
           <p className="mb-4 leading-relaxed">{info.description ? linkifyCourseCodes(info.description) : "?"}</p>
 
          <div className="flex flex-wrap gap-3">
-          <div className="bg-purple-dark text-purple-light px-4 py-2 rounded-lg font-medium border border-dark-border">
-            {info.department || '?'}
+          <div className="bg-purple-dark text-purple-light px-4 py-2 rounded-lg font-medium border border-dark-border flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow">
+            <BookOpen className="h-5 w-5" />
+            <span>{info.department || '?'}</span>
           </div>
-          <div className="bg-green-dark text-green-light px-4 py-2 rounded-lg font-medium border border-dark-border">
-            Avg GPA: {calculatedAverageGPA > 0 ? calculatedAverageGPA.toFixed(2) : '?'}
+          <div className="bg-green-dark text-green-light px-4 py-2 rounded-lg font-medium border border-dark-border flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow">
+            <TrendingUp className="h-5 w-5" />
+            <span>Avg GPA: {calculatedAverageGPA > 0 ? calculatedAverageGPA.toFixed(2) : '?'}</span>
           </div>
-          <div className="bg-yellow-dark text-yellow-light px-4 py-2 rounded-lg font-medium border border-dark-border">
-            Sections: {info.totalSections != null ? info.totalSections : '?'}
+          <div className="bg-yellow-dark text-yellow-light px-4 py-2 rounded-lg font-medium border border-dark-border flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow">
+            <FileText className="h-5 w-5" />
+            <span>Sections: {info.totalSections != null ? info.totalSections : '?'}</span>
           </div>
-          <div className="bg-blue-dark text-blue-light px-4 py-2 rounded-lg font-medium border border-dark-border">
-            Students: {info.totalStudents != null ? info.totalStudents : '?'}
+          <div className="bg-blue-dark text-blue-light px-4 py-2 rounded-lg font-medium border border-dark-border flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow">
+            <Users className="h-5 w-5" />
+            <span>Students: {info.totalStudents != null ? info.totalStudents : '?'}</span>
           </div>
         </div>
 
