@@ -65,7 +65,8 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         pointRadius: 3,
         pointHoverRadius: 5,
         spanGaps: false,
-        tension: 0 // This makes lines straight (0 = linear)
+        tension: 0, // make lines straight (0 = linear)
+        clip: false // don't clip points at edges
       };
     }).filter(Boolean);
 
@@ -78,6 +79,15 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
   const options = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
+    clip: false,
+    layout: {
+      padding: {
+        top: 15,
+        bottom: 15,
+        left: 10,
+        right: 10
+      }
+    },
     interaction: {
       mode: 'point', // Only show tooltip for the exact point being hovered
       intersect: true
@@ -128,6 +138,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         }
       },
       y: {
+        beginAtZero: true,
         min: 0,
         max: 4,
         ticks: {
@@ -138,7 +149,13 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
           }
         },
         grid: {
-          color: gridColor
+          color: gridColor,
+          drawBorder: true,
+          lineWidth: 1
+        },
+        border: {
+          display: true,
+          width: 2
         },
         title: {
           display: true,
