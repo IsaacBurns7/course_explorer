@@ -85,7 +85,7 @@ const Landing = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             <span className="text-xl md:text-2xl lg:text-3xl font-bold">
-              <span className="bg-gradient-to-r from-yellow-400 to-yellow-200 text-transparent bg-clip-text drop-shadow-lg">
+              <span className="bg-gradient-to-r from-yellow-light to-beige-light text-transparent bg-clip-text drop-shadow-lg">
                 ACE your{" "}
                 <TextType
                   text={["classes.", "semester.", "future."]}
@@ -134,7 +134,7 @@ const Landing = () => {
           onClick={() =>
             document.getElementById("features-section")?.scrollIntoView({ behavior: "smooth" })
           }
-          className="flex flex-col items-center text-muted-foreground hover:text-yellow-400 transition-colors"
+          className="flex flex-col items-center text-muted-foreground hover:text-maroon transition-colors"
         >
           <span className="text-sm mb-1">Learn more</span>
           <motion.div

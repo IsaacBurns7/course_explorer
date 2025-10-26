@@ -1,11 +1,13 @@
 import React, { useRef, useEffect } from 'react';
+import { useTheme } from '../context/theme';
 
 const GPATrendsChart = ({ teachers, timePeriods }) => {
   const canvasRef = useRef(null);
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     renderChart();
-  }, [teachers, timePeriods]);
+  }, [teachers, timePeriods, isDarkMode]);
 
   const renderChart = () => {
     const canvas = canvasRef.current;
@@ -17,25 +19,26 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
     const margin = { top: 40, right: 200, bottom: 80, left: 60 };
     const chartWidth = canvas.width - margin.left - margin.right;
     const chartHeight = canvas.height - margin.top - margin.bottom;
-
-    const xStep = chartWidth / (timePeriods.length - 1);
+    // Default to reversed axes on X (most recent on the left)
+    const periods = [...timePeriods].reverse();
+    const xStep = chartWidth / (periods.length - 1);
     const colors = [
       '#be123c', '#b45309', '#a16207', '#16a34a', '#2563eb',
       '#7e22ce', '#0d9488', '#f97316', '#dc2626', '#22c55e'
     ];
 
-    // === Dark theme colors ===
-    const gridColor = '#3f3f46';
-    const axisColor = '#71717a';
-    const textColor = '#e7e5e4';
-    const titleColor = '#f5f5f4';
+    // === Theme colors ===
+    const gridColor = isDarkMode ? '#3f3f46' : '#d1d5db';
+    const axisColor = isDarkMode ? '#71717a' : '#6b7280';
+    const textColor = isDarkMode ? '#e7e5e4' : '#000000';
+    const titleColor = isDarkMode ? '#f5f5f4' : '#000000';
 
     // Draw grid and axes
     ctx.strokeStyle = gridColor;
     ctx.lineWidth = 1;
 
     // Vertical grid lines
-    for (let i = 0; i < timePeriods.length; i++) {
+    for (let i = 0; i < periods.length; i++) {
       const x = margin.left + i * xStep;
       ctx.beginPath();
       ctx.moveTo(x, margin.top);
@@ -65,7 +68,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
     ctx.fillStyle = textColor;
     ctx.font = '12px sans-serif';
     ctx.textAlign = 'center';
-    timePeriods.forEach((period, i) => {
+    periods.forEach((period, i) => {
       const x = margin.left + i * xStep;
       ctx.save();
       ctx.translate(x, canvas.height - 20);
@@ -95,7 +98,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
     teachers.forEach((teacher, index) => {
       if (!teacher.gpaHistory || typeof teacher.gpaHistory !== 'object') return;
 
-      const gpaHistory = timePeriods.map(period => {
+      const gpaHistory = periods.map(period => {
         const termGpas = teacher.gpaHistory[period];
         if (!termGpas || termGpas.length === 0) return null;
         return termGpas.reduce((a, b) => a + b, 0) / termGpas.length;
@@ -130,7 +133,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
       });
 
       // Legend
-      const legendX = margin.left + chartWidth + 20;
+  const legendX = margin.left + chartWidth + 20;
       const legendY = margin.top + index * 25;
       ctx.fillStyle = color;
       ctx.fillRect(legendX, legendY - 6, 12, 12);
