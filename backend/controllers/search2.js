@@ -36,7 +36,8 @@ const getProfessorDataForCourse = async(req, res) => {
                         'totalStudents', p.totalStudents,
                         'wouldTakeAgain', p.wouldTakeAgain,
                         'totalRatings', SUM(pr.frequency),
-                        'averageRating', SUM(pr.value * pr.frequency) * 1.0 / NULLIF(SUM(pr.frequency), 0)
+                        'averageRating', SUM(pr.value * pr.frequency) * 1.0 / NULLIF(SUM(pr.frequency), 0),
+                        'rmpLink', p.rmpLink
                     ),
                     'courses', (
                         SELECT JSON_AGG(course_id) 

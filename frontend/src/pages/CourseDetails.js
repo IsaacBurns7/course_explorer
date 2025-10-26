@@ -7,6 +7,7 @@ import pinwheelBg from '../assets/Pinwheel_3.png';
 
 import data from './TEMP_DATA'
 
+
 const linkifyCourseCodes = (description) => {
   const regex = /\b([A-Z]{2,4})\s(\d{3})\b/g;
 
@@ -57,6 +58,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       
       if (!professorMap[sec.prof]) {
         const info = profInfo[id]?.info || {};
+        if (!info.name && !sec.prof) continue;
         professorMap[sec.prof] = {
           id,
           name: sec.prof || info.name || "Unknown",
@@ -71,17 +73,19 @@ const aggregateProfessorData = async (courseData, profInfo) => {
           wouldTakeAgain: Number(info.wouldTakeAgain) || 0,
           difficulty: Number(info.difficulty) || 0,
           teachingNext: false,
+          rmpLink: info.rmpLink
         };
       }
 
       // Aggregate GPA & grade data
       const prof = professorMap[sec.prof];
       const students = (sec.A || 0) + (sec.B || 0) + (sec.C || 0) + (sec.D || 0) + (sec.F || 0)
+      const gpa = ((4 * (sec.A || 0)) + (3 * (sec.B || 0)) + (2 * (sec.C || 0) + (sec.D || 0))) / (students > 0 ? students : 1)
       prof.totalStudents += students
-      prof.totalGpa += (sec.gpa || 0) * students
+      prof.totalGpa += (sec.gpa || gpa) * students
       if (!prof.gpas[semester]) prof.gpas[semester] = []
 
-      prof.gpas[semester].push(sec.gpa || 0);
+      prof.gpas[semester].push(sec.gpa || gpa);
       prof.totalSections += 1;
 
       for (const grade of ["A", "B", "C", "D", "F"]) {
@@ -110,11 +114,12 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       students: p.totalStudents,
       rating: p.rating,
       wouldTakeAgain: p.wouldTakeAgain,
-      difficulty: p.difficulty || 3.0,
+      difficulty: p.difficulty || 0,
       teachingNext: p.teachingNext,
       grades: p.gradeTotals,
       gradePercentages,
       gpaHistory: p.gpas, // last 6 semesters
+      rmpLink: p.rmpLink
     };
   });
 };
@@ -146,6 +151,7 @@ const CourseDetails = () => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const responseData = await res.json();
 
+        console.log(responseData)
         // The data is like { CSCE_221: {...}, MATH_151: {...}, ... }
         // Find the course that matches our courseId
         const courseKey = `${department}_${courseNumber}`;
@@ -155,11 +161,12 @@ const CourseDetails = () => {
         if (!profRes.ok) throw new Error(`HTTP error ${profRes.status}`);
         const profInfo = await profRes.json();
 
-        console.log(profInfo)
  
 
         const formattedProfData = await aggregateProfessorData(course, profInfo);
 
+        console.log("FORMATTED:")
+        console.log(formattedProfData)
         // Set the state variables in sequence
         setProfData(formattedProfData);
         setCourseData(course);
@@ -201,23 +208,26 @@ const CourseDetails = () => {
   
   // Calculate actual average GPA from all sections
   const calculateAverageGPA = (sections) => {
-    if (!sections || Object.keys(sections).length === 0) return 0;
-    
-    let totalGpaSum = 0;
-    let totalStudents = 0;
-    
-    for (const semester in sections) {
-      const semesterSections = sections[semester];
-      for (const section of semesterSections) {
-        if (section.gpa != null && section.students != null && section.students > 0) {
-          totalGpaSum += section.gpa * section.students;
-          totalStudents += section.students;
-        }
-      }
+  if (!sections || Object.keys(sections).length === 0) return 0;
+  
+  let totalGpaSum = 0;
+  let totalStudents = 0;
+  
+  for (const semester in sections) {
+    const semesterSections = sections[semester];
+    for (const sec of semesterSections) {
+      const students = (sec.A || 0) + (sec.B || 0) + (sec.C || 0) + (sec.D || 0) + (sec.F || 0);
+      const gpa = students > 0
+        ? (4*(sec.A || 0) + 3*(sec.B || 0) + 2*(sec.C || 0) + 1*(sec.D || 0)) / students
+        : 0;
+
+      totalGpaSum += gpa * students;
+      totalStudents += students;
     }
-    
-    return totalStudents > 0 ? (totalGpaSum / totalStudents) : 0;
-  };
+  }
+  
+  return totalStudents > 0 ? totalGpaSum / totalStudents : 0;
+};
   
   const calculatedAverageGPA = calculateAverageGPA(courseData.sections);
   
