@@ -94,14 +94,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
     },
     plugins: {
       legend: {
-        position: 'bottom',
-        labels: {
-          color: textColor,
-          padding: 15,
-          font: {
-            size: 11
-          }
-        }
+        display: false
       },
       tooltip: {
         backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
@@ -175,6 +168,36 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
 
   return (
     <div className="bg-dark-card rounded-xl shadow-md border border-dark-border mb-8">
+      <style jsx>{`
+        .custom-legend {
+          max-height: 320px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding: 10px;
+          width: 150px;
+        }
+        .legend-item {
+          display: flex;
+          align-items: center;
+          margin-bottom: 8px;
+          cursor: pointer;
+          font-size: 11px;
+        }
+        .legend-item:hover {
+          opacity: 0.8;
+        }
+        .legend-color {
+          width: 20px;
+          height: 3px;
+          margin-right: 8px;
+          flex-shrink: 0;
+        }
+        .legend-label {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      `}</style>
       <div className="p-6 border-b border-dark-border">
         <h2 className="text-lg font-semibold text-beige-light">
           GPA Trends Over Time
@@ -184,8 +207,21 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         </p>
       </div>
       <div className="p-6">
-        <div style={{ height: '400px' }}>
-          <Line data={chartData} options={options} />
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <div style={{ flex: 1, height: '400px' }}>
+            <Line data={chartData} options={options} />
+          </div>
+          <div className="custom-legend" style={{ color: textColor }}>
+            {chartData.datasets.map((dataset, index) => (
+              <div key={index} className="legend-item" title={dataset.label}>
+                <div
+                  className="legend-color"
+                  style={{ backgroundColor: dataset.borderColor }}
+                />
+                <span className="legend-label">{dataset.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
