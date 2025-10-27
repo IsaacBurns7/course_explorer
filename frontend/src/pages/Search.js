@@ -137,7 +137,7 @@ export default function AutoCompleteSearch({navbarMode}) {
   return (
    <form
   className={`mx-auto flex items-center justify-center relative gap-2 ${
-    navbarMode ? "w-full min-w-[200px]" : "w-full max-w-lg"
+    navbarMode ? "w-full" : "w-full max-w-lg"
   }`}
   onSubmit={(e) => {
     e.preventDefault();
@@ -154,7 +154,7 @@ export default function AutoCompleteSearch({navbarMode}) {
         : "Search for a course"
     }
     className={`
-      flex-grow min-w-0
+      flex-grow
       ${navbarMode ? "text-base" : "text-lg"}
       pr-3 pl-4 py-2
       rounded-full
@@ -208,7 +208,7 @@ export default function AutoCompleteSearch({navbarMode}) {
 
   {/* Error Message */}
   {error && (
-    <p className="absolute -bottom-6 left-4 text-red-light text-sm">
+    <p className="absolute -bottom-6 left-4 text-red-400 text-sm">
       ⚠️ Please enter a valid course
     </p>
   )}
@@ -235,10 +235,10 @@ export default function AutoCompleteSearch({navbarMode}) {
           <li
             key={index}
             className={`
-              lm-bright px-4 py-3 cursor-pointer transition-all
+              px-4 py-3 cursor-pointer transition-all
               ${index === activeIndex
-                ? "bg-maroon text-beige-light"
-                : "hover:bg-maroon hover:text-beige-light"
+                ? "bg-[#442828] text-beige-light"
+                : "hover:bg-[#442828] hover:text-beige-light"
               }
             `}
             onMouseEnter={() => setActiveIndex(index)}
@@ -249,7 +249,7 @@ export default function AutoCompleteSearch({navbarMode}) {
                 key={i}
                 className={
                   regex.test(string)
-                    ? "font-semibold text-maroon"
+                    ? "font-semibold text-yellow-400"
                     : index === activeIndex 
                     ? "text-beige-light" 
                     : "text-beige-dark"
