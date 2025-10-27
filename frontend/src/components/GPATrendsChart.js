@@ -440,19 +440,24 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
           display: flex;
           gap: 8px;
           padding: 10px 10px 5px 10px;
-          border-top: 1px solid;
         }
         .legend-button {
           flex: 1;
           padding: 6px 12px;
-          font-size: 11px;
+          font-size: 12px;
           border-radius: 4px;
           cursor: pointer;
-          transition: opacity 0.2s;
+          transition: all 0.2s;
           text-align: center;
+          background-color: ${isDarkMode ? '#241616' : '#FFFFFF'};
+          color: ${isDarkMode ? '#F5F5DC' : '#374151'};
+          border: 1px solid ${isDarkMode ? '#5a3a3a' : '#D0D0C0'};
         }
         .legend-button:hover {
-          opacity: 0.8;
+          background-color: ${isDarkMode ? '#2d1d1d' : '#f9fafb'};
+        }
+        .legend-button:focus {
+          outline: none;
         }
 
         @media (max-width: 768px) {
@@ -495,14 +500,21 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             align-items: center;
           }
           .legend-nav-button {
-            padding: 4px 8px;
+            padding: 4px 12px;
             font-size: 12px;
-            background-color: ${isDarkMode ? '#374151' : '#e5e7eb'};
-            color: ${textColor};
-            border: 1px solid ${gridColor};
+            background-color: ${isDarkMode ? '#241616' : '#FFFFFF'};
+            color: ${isDarkMode ? '#F5F5DC' : '#374151'};
+            border: 1px solid ${isDarkMode ? '#5a3a3a' : '#D0D0C0'};
             border-radius: 4px;
             cursor: pointer;
             height: 28px;
+            transition: all 0.2s;
+          }
+          .legend-nav-button:hover:not(:disabled) {
+            background-color: ${isDarkMode ? '#2d1d1d' : '#f9fafb'};
+          }
+          .legend-nav-button:focus {
+            outline: none;
           }
           .legend-nav-button:disabled {
             opacity: 0.3;
@@ -527,11 +539,22 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
           }
           .legend-button {
             flex: none;
-            padding: 4px 8px;
-            font-size: 11px;
+            padding: 4px 12px;
+            font-size: 12px;
             white-space: nowrap;
             height: 28px;
             width: 70px;
+            background-color: ${isDarkMode ? '#241616' : '#FFFFFF'};
+            color: ${isDarkMode ? '#F5F5DC' : '#374151'};
+            border: 1px solid ${isDarkMode ? '#5a3a3a' : '#D0D0C0'};
+            border-radius: 4px;
+            transition: all 0.2s;
+          }
+          .legend-button:hover {
+            background-color: ${isDarkMode ? '#2d1d1d' : '#f9fafb'};
+          }
+          .legend-button:focus {
+            outline: none;
           }
         }
       `}</style>
@@ -574,11 +597,6 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
                   <button
                     className="legend-button"
                     onClick={toggleAll}
-                    style={{
-                      backgroundColor: isDarkMode ? '#374151' : '#e5e7eb',
-                      color: textColor,
-                      border: `1px solid ${gridColor}`
-                    }}
                   >
                     {toggleAllText}
                   </button>
@@ -594,7 +612,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
                         >
                           ←
                         </button>
-                        <span style={{ fontSize: '10px', color: textColor }}>
+                        <span style={{ fontSize: '12px', color: textColor }}>
                           {legendPage + 1} / {Math.ceil(allDatasets.length / 9)}
                         </span>
                         <button
@@ -620,11 +638,6 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
                 <button
                   className="legend-button"
                   onClick={toggleAll}
-                  style={{
-                    backgroundColor: isDarkMode ? '#374151' : '#e5e7eb',
-                    color: textColor,
-                    border: `1px solid ${gridColor}`
-                  }}
                 >
                   {toggleAllText}
                 </button>
