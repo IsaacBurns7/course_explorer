@@ -5,7 +5,7 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
   const [showByProfessor, setShowByProfessor] = useState(false); // checkbox state
   const [isAnimating, setIsAnimating] = useState(false);
   const scrollRef = useRef(null);
-  const mode = showByProfessor ? 'raw' : 'aggregated';
+  const mode = showByProfessor ? 'aggregated' : 'raw';
 
   const getGpaColor = (gpa) => {
     if (gpa == null || gpa === 0) return 'bg-dark-input text-beige-dark';

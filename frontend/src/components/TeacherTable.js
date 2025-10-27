@@ -33,13 +33,16 @@ const TeacherTable = ({ teachers }) => {
 
   // Updated to use your dark palette
   const getGpaColor = (gpa) => {
+    if (gpa == 0 || gpa == null) return 'bg-dark-input text-beige-dark'
     if (gpa >= 3.5) return 'bg-emerald-dark text-emerald-light';
     if (gpa >= 3.0) return 'bg-yellow-dark text-yellow-light';
     if (gpa >= 2.5) return 'bg-purple-dark text-purple-light';
+  
     return 'bg-red-dark text-red-light';
   };
 
   const getWouldTakeAgainColor = (percentage) => {
+    if (percentage == 0 || percentage == null) return 'bg-dark-input text-beige-dark'
     if (percentage >= 80) return 'bg-emerald-dark text-emerald-light';
     if (percentage >= 65) return 'bg-yellow-dark text-yellow-light';
     if (percentage >= 50) return 'bg-purple-dark text-purple-light';
@@ -47,6 +50,7 @@ const TeacherTable = ({ teachers }) => {
   };
 
   const getDifficultyColor = (difficulty) => {
+    if (difficulty == 0 || difficulty == null) return 'bg-dark-input text-beige-dark'
     if (difficulty <= 2.5) return 'bg-emerald-dark text-emerald-light';
     if (difficulty <= 3.5) return 'bg-yellow-dark text-yellow-light';
     if (difficulty <= 4.0) return 'bg-purple-dark text-purple-light';
@@ -240,9 +244,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.classGpa
                       )}`}
                     >
-                      {teacher.classGpa != null
+                      {teacher.classGpa != null && teacher.classGpa != 0
                         ? teacher.classGpa.toFixed(1)
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
@@ -253,9 +257,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.avgGpa
                       )}`}
                     >
-                      {teacher.avgGpa != null
+                      {teacher.avgGpa != null && teacher.avgGpa != 0
                         ? teacher.avgGpa.toFixed(1)
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
@@ -282,9 +286,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.wouldTakeAgain
                       )}`}
                     >
-                      {teacher.wouldTakeAgain != null
+                      {teacher.wouldTakeAgain != null && teacher.wouldTakeAgain != 0
                         ? `${teacher.wouldTakeAgain.toFixed(1)}%`
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
@@ -295,9 +299,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.difficulty
                       )}`}
                     >
-                      {teacher.difficulty != null
+                      {teacher.difficulty != null && teacher.difficulty != 0
                         ? teacher.difficulty.toFixed(1)
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
