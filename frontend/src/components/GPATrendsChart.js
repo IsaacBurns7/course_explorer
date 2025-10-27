@@ -64,7 +64,10 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         backgroundColor: color,
         borderWidth: 2,
         pointRadius: 3,
-        pointHoverRadius: 5,
+        pointHoverRadius: 3,
+        pointBorderWidth: 0,
+        pointHoverBorderWidth: 4,
+        pointHoverBorderColor: color + '60',
         spanGaps: false,
         tension: 0, // make lines straight (0 = linear)
         clip: false // don't clip points at edges
@@ -94,7 +97,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
       borderColor: visibleDatasets[index] ? dataset.borderColor : (isDarkMode ? '#4a5568' : '#d1d5db'),
       backgroundColor: visibleDatasets[index] ? dataset.backgroundColor : (isDarkMode ? '#4a5568' : '#d1d5db'),
       borderWidth: visibleDatasets[index] ? 2 : 1,
-      pointRadius: visibleDatasets[index] ? 3 : 2
+      pointRadius: 3
     }));
 
     return {
@@ -140,6 +143,36 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
       },
       y: {
         duration: 0
+      }
+    },
+    onClick: (event, elements, chart) => {
+      if (elements.length > 0) {
+        const xIndex = elements[0].index;
+        const datasetIndex = elements[0].datasetIndex;
+
+        // Get the GPA value at the clicked point
+        const clickedGPA = allDatasets[datasetIndex].data[xIndex];
+
+        // Find all datasets with similar GPA at this x position (within 0.05 range)
+        const threshold = 0.05;
+        const datasetsWithSimilarGPA = [];
+        allDatasets.forEach((dataset, idx) => {
+          const gpa = dataset.data[xIndex];
+          if (gpa !== null && gpa !== undefined && Math.abs(gpa - clickedGPA) <= threshold) {
+            datasetsWithSimilarGPA.push(idx);
+          }
+        });
+
+        // Toggle all datasets with similar GPA at this position
+        setVisibleDatasets(prev => {
+          const newState = { ...prev };
+          // Determine if we should hide or show (based on the clicked dataset's state)
+          const shouldHide = prev[datasetIndex];
+          datasetsWithSimilarGPA.forEach(index => {
+            newState[index] = !shouldHide;
+          });
+          return newState;
+        });
       }
     },
     transitions: {
@@ -210,6 +243,75 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             const teacherName = context.dataset.label;
             const gpa = context.parsed.y;
             return `${teacherName}: ${gpa !== null ? gpa.toFixed(2) : 'N/A'}`;
+          },
+          labelColor: function(context) {
+            const datasetIndex = context.datasetIndex;
+            const originalColor = allDatasets[datasetIndex].borderColor;
+            const isVisible = visibleDatasets[datasetIndex];
+
+            if (isVisible) {
+              return {
+                backgroundColor: originalColor,
+                borderColor: originalColor,
+                borderWidth: 1
+              };
+            }
+
+            // Match legend: blend original color at 40% opacity with tooltip background
+            // This simulates the legend's opacity: 0.4 effect
+            const tooltipBg = isDarkMode ? '#1f2937' : '#ffffff';
+
+            // Parse hex color to RGB
+            const r = parseInt(originalColor.slice(1, 3), 16);
+            const g = parseInt(originalColor.slice(3, 5), 16);
+            const b = parseInt(originalColor.slice(5, 7), 16);
+
+            // Parse background color to RGB
+            const bgR = parseInt(tooltipBg.slice(1, 3), 16);
+            const bgG = parseInt(tooltipBg.slice(3, 5), 16);
+            const bgB = parseInt(tooltipBg.slice(5, 7), 16);
+
+            // Blend at 40% opacity
+            const blendedR = Math.round(r * 0.4 + bgR * 0.6);
+            const blendedG = Math.round(g * 0.4 + bgG * 0.6);
+            const blendedB = Math.round(b * 0.4 + bgB * 0.6);
+
+            const blendedColor = `#${blendedR.toString(16).padStart(2, '0')}${blendedG.toString(16).padStart(2, '0')}${blendedB.toString(16).padStart(2, '0')}`;
+
+            return {
+              backgroundColor: blendedColor,
+              borderColor: blendedColor,
+              borderWidth: 1
+            };
+          },
+          labelTextColor: function(context) {
+            const datasetIndex = context.datasetIndex;
+            const isVisible = visibleDatasets[datasetIndex];
+
+            if (isVisible) {
+              return textColor;
+            }
+
+            // Blend text color at 40% opacity with tooltip background
+            const tooltipBg = isDarkMode ? '#1f2937' : '#ffffff';
+            const textColorHex = textColor;
+
+            // Parse text color to RGB
+            const r = parseInt(textColorHex.slice(1, 3), 16);
+            const g = parseInt(textColorHex.slice(3, 5), 16);
+            const b = parseInt(textColorHex.slice(5, 7), 16);
+
+            // Parse background color to RGB
+            const bgR = parseInt(tooltipBg.slice(1, 3), 16);
+            const bgG = parseInt(tooltipBg.slice(3, 5), 16);
+            const bgB = parseInt(tooltipBg.slice(5, 7), 16);
+
+            // Blend at 40% opacity
+            const blendedR = Math.round(r * 0.4 + bgR * 0.6);
+            const blendedG = Math.round(g * 0.4 + bgG * 0.6);
+            const blendedB = Math.round(b * 0.4 + bgB * 0.6);
+
+            return `#${blendedR.toString(16).padStart(2, '0')}${blendedG.toString(16).padStart(2, '0')}${blendedB.toString(16).padStart(2, '0')}`;
           }
         }
       }
@@ -258,7 +360,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         }
       }
     }
-  }), [isDarkMode, textColor, gridColor]);
+  }), [isDarkMode, textColor, gridColor, allDatasets, visibleDatasets]);
 
   if (!chartData || chartData.datasets.length === 0) {
     return null;
