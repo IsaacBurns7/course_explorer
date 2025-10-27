@@ -324,6 +324,16 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
           minRotation: 30,
           font: {
             size: 12
+          },
+          callback: function(value, index, ticks) {
+            const label = this.getLabelForValue(value);
+            // Progressive label hiding based on screen size
+            if (window.innerWidth <= 480) {
+              return index % 3 === 0 ? label : '';
+            } else if (window.innerWidth <= 768) {
+              return index % 2 === 0 ? label : '';
+            }
+            return label;
           }
         },
         grid: {
@@ -369,6 +379,23 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
   return (
     <div className="bg-dark-card rounded-xl shadow-md border border-dark-border mb-8">
       <style jsx>{`
+        .chart-container {
+          display: flex;
+          gap: 16px;
+          flex-direction: row;
+        }
+        .chart-wrapper {
+          flex: 1;
+          height: 400px;
+          min-height: 400px;
+          min-width: 0;
+        }
+        .legend-wrapper {
+          display: flex;
+          flex-direction: column;
+          height: 360px;
+          margin-top: 15px;
+        }
         .custom-legend {
           max-height: 295px;
           overflow-y: auto;
@@ -418,6 +445,34 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         .legend-button:hover {
           opacity: 0.8;
         }
+
+        @media (max-width: 768px) {
+          .chart-container {
+            flex-direction: column;
+          }
+          .chart-wrapper {
+            height: 300px;
+            min-height: 300px;
+          }
+          .legend-wrapper {
+            flex-direction: row;
+            height: auto;
+            margin-top: 20px;
+            gap: 12px;
+          }
+          .custom-legend {
+            width: 100%;
+            max-height: 200px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+          }
+          .legend-buttons {
+            width: 100%;
+            margin-top: 0;
+            padding: 10px;
+          }
+        }
       `}</style>
       <div className="p-6 border-b border-dark-border">
         <h2 className="text-lg font-semibold text-beige-light">
@@ -428,11 +483,11 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         </p>
       </div>
       <div className="p-6">
-        <div style={{ display: 'flex', gap: '16px' }}>
-          <div style={{ flex: 1, height: '400px' }}>
+        <div className="chart-container">
+          <div className="chart-wrapper">
             <Line data={chartData} options={options} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', height: '360px', marginTop: '15px' }}>
+          <div className="legend-wrapper">
             <div className="custom-legend" style={{ color: textColor, flex: '0 1 auto' }}>
               {allDatasets.map((dataset, index) => (
                 <div
