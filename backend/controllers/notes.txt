@@ -67,6 +67,8 @@ for big int, let mask = 0n, n meaning BigInt - convert to string when saving to 
 OPTION 2
 
 Beam search
+(Exactly the same as previous example, just only take top 50000, rest are DEAD)
+
 
 OPTION 3
 

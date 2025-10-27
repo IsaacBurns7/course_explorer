@@ -90,23 +90,75 @@ const getClassInfo = async (req, res) => {
     }
 }
 
-const timeIndex = new Map();
+//time -> key
+//1-1 mapping 
+const timeToMaskBit = new Map();
+const maskBitToTime = new Map();
 let counter = 0;
-function getTimeIndex(day, start, end){
+
+//note: since hm in js can store objects, probably change this key...
+function getMaskBitForTime(day, start, end){
     const key = `${day}-${start}-${end}`;
-    if(!timeIndex.has(key)){
-        timeIndex.set(key, counter++);
+    if(!timeToMaskBit.has(key)){
+        timeToMaskBit.set(key, counter);
+        maskBitToTime.set(counter, key);
+        counter++;
     }
-    return timeIndex.get(key);
+    return timeToMaskBit.get(key);
 }
+
+/*
+interface: {
+    day: string
+    start: string (11:30 AM, or 02:20 PM)
+    end: string same as start
+}
+*/
+function getTimeForMaskBit(bitNumber){
+    const key = bitNumber;
+    if(!maskBitToTime.has(key)){
+        throw new Error("Key not found");
+    }
+    const value = maskBitToTime.get(key);
+    const schedule = value.split("-");
+    const time = {
+        day: schedule[0],
+        start: schedule[1],
+        end: schedule[2]
+    }
+    return time;
+}
+//key -> time 
 
 function generateMask(sectionTimes){
     let mask = 0n;
     for(const {day, start, end} of sectionTimes){
-        const bit = BigInt(getTimeIndex(day, start, end));
+        const bit = BigInt(getMaskBitForTime(day, start, end));
         mask |= (1n << bit);
     }
     return mask;
+}
+
+/*
+interface: {
+    schedule: {
+        day: string,
+        start: string,
+        end: string
+    }
+}
+*/
+function generateSchedule(timeMask){
+    const schedule = [];
+    for(let i = 0;i<counter;i++){
+        let mask = (1n << BigInt(i));
+        // console.log(mask, timeMask);
+        if(BigInt(mask & timeMask) == mask){
+            schedule.push(getTimeForMaskBit(i));
+        }
+    }
+    // console.log(`Using mask ${timeMask}, generated schedule, ${schedule}`, schedule);
+    return schedule;
 }
 
 function parseTime(str) {
@@ -117,23 +169,31 @@ function parseTime(str) {
     return hour * 60 + minute;
 }
 
+/*
+interface: {
+    currentSchedule: {
+
+    }
+    scheduleOfAddedClass: {
+        day: string,
+        start: string,
+        end: string
+    }
+}
+*/
 function checkOverlap(currentSchedule, scheduleOfAddedClass){
-    for(const sectionTimes of currentSchedule){ 
-        for(const {day, start, end} of sectionTimes){
-            const startMinutes = parseTime(start);
-            const endMinutes = parseTime(end);
-            for(const {day: day2, start: start2, end: end2} of scheduleOfAddedClass){
-                if(day != day2){
-                    continue;
-                }
-
-                const start2Minutes = parseTime(start2);
-                const end2Minutes = parseTime(end2);
-
-                if(startMinutes < end2Minutes && endMinutes > start2Minutes){
-                    return true;
-                }   
+    for(const {day, start, end} of scheduleOfAddedClass){
+        const startMinutes = parseTime(start);
+        const endMinutes = parseTime(end);
+        for(const {day: day2, start: start2, end: end2} of currentSchedule){
+            if(day != day2){
+                continue;
             }
+            const start2Minutes = parseTime(start2);
+            const end2Minutes = parseTime(end2);
+            if(startMinutes < end2Minutes && endMinutes > start2Minutes){
+                return true;
+            }   
         }
     }
     return false;
@@ -145,14 +205,19 @@ if we merge intervals, we can check overlap in O(n log n) for n intervals
 const getOptimalSchedule = async (req, res) => {
     const client = await pool.connect();
     try { 
-        const courses = req.body.courses; //enforce type "CSCE_120" since thats what DB handles
+        // console.log(req.body);
+        const courses = req.body.courses;
         const semester = req.body.semester;
         const sqlFilePath = path.join(__dirname, "./sql/getOptimalSchedule.sql");
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
-        const queryResult = await client.query(sql, [courses]);
+        // console.log(sql);
+        // console.log("Params: ", [courses, semester]);
+        const queryResult = await client.query(sql, [courses, semester]);
+        // console.log(queryResult.rows);
         
         const courseProfessorSectionPairs = queryResult.rows.map((pair) => {
             let raw = pair.schedule;
+            // console.log("Raw: ", raw);
             raw = raw.replace(/[()]/g, '[').replace(/[()]/g, ']'); // optional, depends on your DB output
             raw = raw.replace(/^\{|\}$/g, ''); // remove outer braces
             raw = '[' + raw + ']'; // wrap into array brackets
@@ -162,54 +227,96 @@ const getOptimalSchedule = async (req, res) => {
             .split('","')
             .map(s => s.replace(/["{}]/g, '').trim())
             .map(s => s.replace(/[()]/g, ''))
+            // .map(s => s.replace(/\[/g), '')
+            // .map(s => s.replace(/\\/g), '')
             .map(s => s.split(','))
             .map(([day, start, end]) => ({
-                day: day.trim(),
-                start: start.replace(/"/g, '').trim(),
-                end: end.replace(/"/g, '').trim()
+                day: day.replace(/[\["]/g, '').trim(),
+                start: start.replace(/[\\"]/g, '').trim(),
+                end: end.replace(/[\\"\[\]]/g, '').trim()
             }));
             pair.schedule = items;
+            console.log("Unraw: ", pair);
             return pair;
         });
-        const coursesMap = new Map();
+        const coursesMap = {};
 
         for(const pair of courseProfessorSectionPairs){
             const courseId = pair.course_id;
-            if(!coursesMap.has(courseId)){
-                coursesMap.set(courseId, []);
+            // console.log(`Inserting pair ${pair}`);
+            if(!coursesMap[courseId]){
+                coursesMap[courseId] = [];
             }
-            coursesMap.push(pair);
+            coursesMap[courseId].push(pair);
         }
 
+        // console.log(coursesMap);
         let dp = new Map();
-        dp.set(0, 0);
+        dp.set(0n, {score: 0.0, schedule: []});
 
-        //NOTE: prof_score is not implemented yet
-        //to implement, ratings is already a thing
-        //need to create MV for GPA of (course_id, professor) pair
+        //take top 200 entries ?
+        //mask -> schedule
         for(const course of courses){
             let new_dp = new Map();
-            console.log("Iterating through course: ", course);
-            const pairs = coursesMap.get(course);
-            for(const [mask, score] of dp.entries()){
-                for(const {professor_id, section_id, schedule, prof_score} of pairs){
-                    const section_score = prof_score;
+            const pairs = coursesMap[course];
+            console.log("Iterating through", course);
+            for(const [mask, {score, schedule: currentSchedule}] of dp.entries()){
+                const scheduleRaw = generateSchedule(mask); //not needed?
+                for(const {professor_id, section_id, schedule, professor_score} of pairs){
+                    const section_score = parseFloat(professor_score);
                     const section_mask = generateMask(schedule);
-                    // print("Checking section: ", section);
-                    if((section_mask & mask == 0) && !checkOverlap(schedule, schedule)){
+                    //schedule has sectionTimes 
+                    // console.log("Must compare:", currentSchedule, schedule);
+                    if(((section_mask & mask) === 0n) && !checkOverlap(schedule, scheduleRaw)){
                         const new_mask = mask | section_mask; 
                         const new_score = score + section_score;
 
                         if(!new_dp.get(new_mask) || new_score > new_dp.get(new_mask)){
-                           new_dp.set(new_mask, new_score);
+                            const new_entry = {
+                                score: new_score,
+                                schedule: [...currentSchedule, {
+                                    course_id: course, professor_id, section_id, schedule
+                                }]
+                            };
+                           new_dp.set(new_mask, new_entry);
                         }
                     }
                 }
             } 
-            dp = new_dp;
+            dp = new Map(
+                [...new_dp.entries()]
+                .sort((a,b) => b[1].score - a[1].score)
+                .slice(0,200)
+            );
         }
 
-        return res.status(200).json({message: "hehe"});
+        const topSchedules = [...dp.values()]
+        .sort((a, b) => b.score - a.score)
+        .slice(0,100)
+        .map(entry => ({
+            total_score: entry.score,
+            schedule: entry.schedule
+        }));
+
+        // console.log(dp);
+        /*
+        interface: {
+            schedules: [
+                {
+                    total_score: int,
+                    schedule: [
+                        {
+                            course_id: string,
+                            professor_id: string,
+                            section_id: int,
+                            schedule: [{ day: string, start: string, end: string}], start: "02:20 PM"
+                        }
+                    ]
+                }   
+            ]
+        }
+        */
+        return res.status(200).json({ schedules: topSchedules});
     } catch (err) {
         console.error("Planner error:", err);
         return res.status(500).json({error: "Internal server error"});
