@@ -26,6 +26,15 @@ ChartJS.register(
 const GPATrendsChart = ({ teachers, timePeriods }) => {
   const { isDarkMode } = useTheme();
   const [visibleDatasets, setVisibleDatasets] = React.useState({});
+  const [legendPage, setLegendPage] = React.useState(0);
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const colors = [
     '#be123c', '#b45309', '#a16207', '#16a34a', '#2563eb',
@@ -406,9 +415,9 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         .legend-item {
           display: flex;
           align-items: center;
-          margin-bottom: 8px;
+          margin-bottom: 12px;
           cursor: pointer;
-          font-size: 11px;
+          font-size: 12px;
         }
         .legend-item:hover {
           opacity: 0.8;
@@ -455,22 +464,74 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             min-height: 300px;
           }
           .legend-wrapper {
-            flex-direction: row;
+            flex-direction: column;
             height: auto;
-            margin-top: 20px;
-            gap: 12px;
+            margin-top: -10px;
+            gap: 18px;
+            align-items: stretch;
+          }
+          .legend-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+          }
+          .legend-controls > * {
+            height: 28px;
+          }
+          .legend-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
           }
           .custom-legend {
             width: 100%;
-            max-height: 200px;
+            max-height: none;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, auto);
             gap: 8px;
+            padding: 0;
+            align-items: center;
+          }
+          .legend-nav-button {
+            padding: 4px 8px;
+            font-size: 12px;
+            background-color: ${isDarkMode ? '#374151' : '#e5e7eb'};
+            color: ${textColor};
+            border: 1px solid ${gridColor};
+            border-radius: 4px;
+            cursor: pointer;
+            height: 28px;
+          }
+          .legend-nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+          }
+          .legend-item {
+            margin-bottom: 0;
+          }
+          .legend-color {
+            width: 16px;
+            height: 3px;
+            margin-right: 6px;
+          }
+          .legend-label {
+            white-space: nowrap;
           }
           .legend-buttons {
-            width: 100%;
+            width: auto;
             margin-top: 0;
-            padding: 10px;
+            padding: 0;
+            border-top: none;
+          }
+          .legend-button {
+            flex: none;
+            padding: 4px 8px;
+            font-size: 11px;
+            white-space: nowrap;
+            height: 28px;
+            width: 70px;
           }
         }
       `}</style>
@@ -489,40 +550,86 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
           </div>
           <div className="legend-wrapper">
             <div className="custom-legend" style={{ color: textColor, flex: '0 1 auto' }}>
-              {allDatasets.map((dataset, index) => (
-                <div
-                  key={index}
-                  className={`legend-item ${!visibleDatasets[index] ? 'hidden' : ''}`}
-                  title={dataset.label}
-                  onClick={() => toggleDataset(index)}
-                >
+              {(isMobile ? allDatasets.slice(legendPage * 9, (legendPage + 1) * 9) : allDatasets).map((dataset, idx) => {
+                const index = isMobile ? legendPage * 9 + idx : idx;
+                return (
                   <div
-                    className="legend-color"
-                    style={{ backgroundColor: dataset.borderColor }}
-                  />
-                  <span className="legend-label">{dataset.label}</span>
-                </div>
-              ))}
+                    key={index}
+                    className={`legend-item ${!visibleDatasets[index] ? 'hidden' : ''}`}
+                    title={dataset.label}
+                    onClick={() => toggleDataset(index)}
+                  >
+                    <div
+                      className="legend-color"
+                      style={{ backgroundColor: dataset.borderColor }}
+                    />
+                    <span className="legend-label">{dataset.label}</span>
+                  </div>
+                );
+              })}
             </div>
-            <div
-              className="legend-buttons"
-              style={{
-                borderTopColor: gridColor,
-                marginTop: '12px'
-              }}
-            >
-              <button
-                className="legend-button"
-                onClick={toggleAll}
+            {isMobile ? (
+              <div className="legend-controls">
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+                  <button
+                    className="legend-button"
+                    onClick={toggleAll}
+                    style={{
+                      backgroundColor: isDarkMode ? '#374151' : '#e5e7eb',
+                      color: textColor,
+                      border: `1px solid ${gridColor}`
+                    }}
+                  >
+                    {toggleAllText}
+                  </button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                  <div className="legend-nav">
+                    {allDatasets.length > 9 && (
+                      <>
+                        <button
+                          className="legend-nav-button"
+                          onClick={() => setLegendPage(Math.max(0, legendPage - 1))}
+                          disabled={legendPage === 0}
+                        >
+                          ←
+                        </button>
+                        <span style={{ fontSize: '10px', color: textColor }}>
+                          {legendPage + 1} / {Math.ceil(allDatasets.length / 9)}
+                        </span>
+                        <button
+                          className="legend-nav-button"
+                          onClick={() => setLegendPage(Math.min(Math.ceil(allDatasets.length / 9) - 1, legendPage + 1))}
+                          disabled={legendPage >= Math.ceil(allDatasets.length / 9) - 1}
+                        >
+                          →
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="legend-buttons"
                 style={{
-                  backgroundColor: isDarkMode ? '#374151' : '#e5e7eb',
-                  color: textColor,
-                  border: `1px solid ${gridColor}`
+                  borderTopColor: gridColor,
+                  marginTop: '12px'
                 }}
               >
-                {toggleAllText}
-              </button>
-            </div>
+                <button
+                  className="legend-button"
+                  onClick={toggleAll}
+                  style={{
+                    backgroundColor: isDarkMode ? '#374151' : '#e5e7eb',
+                    color: textColor,
+                    border: `1px solid ${gridColor}`
+                  }}
+                >
+                  {toggleAllText}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
