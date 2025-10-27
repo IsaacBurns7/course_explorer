@@ -5,7 +5,7 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
   const [showByProfessor, setShowByProfessor] = useState(false); // checkbox state
   const [isAnimating, setIsAnimating] = useState(false);
   const scrollRef = useRef(null);
-  const mode = showByProfessor ? 'aggregated' : 'raw';
+  const mode = showByProfessor ? 'raw' : 'aggregated';
 
   const getGpaColor = (gpa) => {
     if (gpa == null || gpa === 0) return 'bg-dark-input text-beige-dark';
@@ -110,36 +110,16 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
                     className="px-3 py-2 text-center font-medium text-beige-dark uppercase tracking-wider whitespace-nowrap"
                   >
                     <div className="flex flex-col items-center justify-center">
-                      <a
-                        href={teacher.rmpLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={teacher.rmpLink ? " hover:text-blue-400 hover:underline cursor-pointer": ""}
-                      >
-                        <span>{teacher.name || '?'}</span>
-                      </a>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        {teacher.teachingNext && (
-                          <div
-                            className="flex items-center gap-1 text-[10px] font-medium text-green-light"
-                            title="Teaching Next Semester"
-                          >
-                            <span className="w-2 h-2 bg-green-dark rounded-full"></span>
-                            Teaching
-                          </div>
-                        )}
-
-                        {teacher.students == 0 && (
-                          <div
-                            className="flex items-center gap-1 text-[10px] font-medium text-yellow-light"
-                            title="New Professor"
-                          >
-                            <span className="w-2 h-2 bg-yellow-dark rounded-full"></span>
-                            New
-                          </div>
-                        )}
-                      </div>
-
+                      <span>{teacher.name || '?'}</span>
+                      {teacher.teachingNext && (
+                        <div
+                          className="flex items-center gap-1 text-[10px] font-medium text-green-light mt-0.5"
+                          title="Teaching Next Semester"
+                        >
+                          <span className="w-2 h-2 bg-green-dark rounded-full"></span>
+                          Teaching
+                        </div>
+                      )}
                     </div>
                   </th>
                 ))}
@@ -250,28 +230,13 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
                 </tr>
               ) : (
                 sortedTeachers.map((teacher) => (
-                  <tr key={teacher.id} className="hover:bg-dark-hover transition-colors text-beige-light text-sm font-medium">
+                  <tr key={teacher.id} className="hover:bg-dark-hover transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <a
-                        href={teacher.rmpLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={teacher.rmpLink ? " hover:text-blue-400 hover:underline cursor-pointer": ""}
-                      >
-                        <span>{teacher.name || '?'}</span>
-                      </a>
-                      
+                      <div className="text-sm font-medium text-beige-light">{teacher.name || '?'}</div>
                       {teacher.teachingNext && (
                         <div className="flex items-center gap-1 text-xs font-medium text-green-light mt-1">
                           <span className="w-2 h-2 bg-green-dark rounded-full"></span>
                           Teaching Next Semester
-                        </div>
-                      )}
-
-                      {teacher.students == 0 && (
-                        <div className="flex items-center gap-1 text-xs font-medium text-yellow-light mt-1">
-                          <span className="w-2 h-2 bg-yellow-dark rounded-full"></span>
-                          New Professor
                         </div>
                       )}
                     </td>
