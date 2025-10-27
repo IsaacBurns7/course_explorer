@@ -35,21 +35,21 @@ const TeacherTable = ({ teachers }) => {
   const getGpaColor = (gpa) => {
     if (gpa >= 3.5) return 'bg-emerald-dark text-emerald-light';
     if (gpa >= 3.0) return 'bg-yellow-dark text-yellow-light';
-    if (gpa >= 2.5) return 'bg-blue-dark text-blue-light';
+    if (gpa >= 2.5) return 'bg-purple-dark text-purple-light';
     return 'bg-red-dark text-red-light';
   };
 
   const getWouldTakeAgainColor = (percentage) => {
     if (percentage >= 80) return 'bg-emerald-dark text-emerald-light';
     if (percentage >= 65) return 'bg-yellow-dark text-yellow-light';
-    if (percentage >= 50) return 'bg-blue-dark text-blue-light';
+    if (percentage >= 50) return 'bg-purple-dark text-purple-light';
     return 'bg-red-dark text-red-light';
   };
 
   const getDifficultyColor = (difficulty) => {
     if (difficulty <= 2.5) return 'bg-emerald-dark text-emerald-light';
     if (difficulty <= 3.5) return 'bg-yellow-dark text-yellow-light';
-    if (difficulty <= 4.0) return 'bg-blue-dark text-blue-light';
+    if (difficulty <= 4.0) return 'bg-purple-dark text-purple-light';
     return 'bg-red-dark text-red-light';
   };
 
@@ -60,11 +60,11 @@ const TeacherTable = ({ teachers }) => {
     );
     const grades = ['A', 'B', 'C', 'D', 'F'];
     const gradeColors = {
-      A: '#7DAA95', // emerald-light - warmer teal for A
-      B: '#7BA3CC', // blue-light - softer blue for B
-      C: '#D4B17A', // yellow-light - warmer gold for C
-      D: '#B299C0', // purple-light - softer lavender for D
-      F: '#C97980', // red-light - softer rose for F
+      A: '#6EE7B7', // emerald-light
+      B: '#93C5FD', // blue-light
+      C: '#FDE68A', // yellow-light
+      D: '#FCA5A5', // red-light
+      F: '#5F1E2A', // red-dark
     };
 
     return (
@@ -120,15 +120,7 @@ const TeacherTable = ({ teachers }) => {
             <select
               id="minGpa"
               value={filters.minGpa}
-              className="bg-dark-input text-beige-light px-3 py-1 border border-dark-border rounded text-sm focus:border-maroon focus:outline-none focus:ring-1 focus:ring-maroon appearance-none cursor-pointer"
-              style={{
-                WebkitAppearance: 'none',
-                MozAppearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23F5F5DC' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 0.5rem center',
-                paddingRight: '2rem'
-              }}
+              className="bg-dark-input text-beige-light px-3 py-1 border border-dark-border rounded text-sm focus:border-maroon focus:outline-none focus:ring-1 focus:ring-maroon"
               onChange={(e) =>
                 handleFilterChange('minGpa', parseFloat(e.target.value) || 0)
               }
@@ -153,15 +145,7 @@ const TeacherTable = ({ teachers }) => {
             <select
               id="minRating"
               value={filters.minRating}
-              className="bg-dark-input text-beige-light px-3 py-1 border border-dark-border rounded text-sm focus:border-maroon focus:outline-none focus:ring-1 focus:ring-maroon appearance-none cursor-pointer"
-              style={{
-                WebkitAppearance: 'none',
-                MozAppearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23F5F5DC' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 0.5rem center',
-                paddingRight: '2rem'
-              }}
+              className="bg-dark-input text-beige-light px-3 py-1 border border-dark-border rounded text-sm focus:border-maroon focus:outline-none focus:ring-1 focus:ring-maroon"
               onChange={(e) =>
                 handleFilterChange('minRating', parseFloat(e.target.value) || 0)
               }
@@ -284,7 +268,7 @@ const TeacherTable = ({ teachers }) => {
                           : '-'}
                       </span>
                       {teacher.rating > 0 && (
-                        <span className="star-rating text-xs leading-none">
+                        <span className="text-yellow-light text-xs leading-none">
                           {'★'.repeat(Math.round(teacher.rating))}
                         </span>
                       )}

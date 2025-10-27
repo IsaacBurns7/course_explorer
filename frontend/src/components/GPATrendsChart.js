@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-import { useTheme } from '../context/theme';
+// import { useTheme } from '../context/theme';
 
 // Register Chart.js components
 ChartJS.register(
@@ -24,7 +24,8 @@ ChartJS.register(
 );
 
 const GPATrendsChart = ({ teachers, timePeriods }) => {
-  const { isDarkMode } = useTheme();
+  // const { isDarkMode } = useTheme();
+  const isDarkMode = true;
   const [visibleDatasets, setVisibleDatasets] = React.useState({});
   const [legendPage, setLegendPage] = React.useState(0);
   const [isMobile, setIsMobile] = React.useState(false);
