@@ -110,7 +110,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       students: p.totalStudents,
       rating: p.rating,
       wouldTakeAgain: p.wouldTakeAgain,
-      difficulty: p.difficulty || 3.0,
+      difficulty: p.difficulty || 0,
       teachingNext: p.teachingNext,
       grades: p.gradeTotals,
       gradePercentages,
