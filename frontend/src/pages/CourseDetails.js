@@ -57,6 +57,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       
       if (!professorMap[sec.prof]) {
         const info = profInfo[id]?.info || {};
+        if (!sec.prof && !info.name) continue;
         professorMap[sec.prof] = {
           id,
           name: sec.prof || info.name || "Unknown",

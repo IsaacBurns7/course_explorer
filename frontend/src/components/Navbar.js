@@ -57,7 +57,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-4 sm:space-x-6 flex-1 ml-12 justify-center">
             <Link
               to="/"
-              className="lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-maroon hover:text-beige-light transition-all duration-200"
+              className="lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-dark-select hover:text-beige-light transition-all duration-200"
             >
               <Home className="h-4 w-4" />
               <span className="hidden xl:inline font-medium">Home</span>
@@ -81,7 +81,7 @@ const Navbar = () => {
             */}
             <Link
               to="/planner"
-              className="lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-maroon hover:text-beige-light transition-all duration-200"
+              className="lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-dark-select hover:text-beige-light transition-all duration-200"
             >
               <Calendar className="h-4 w-4" />
               <span className="hidden xl:inline font-medium">Planner</span>

@@ -6,7 +6,7 @@ const TeacherTable = ({ teachers }) => {
   const [filters, setFilters] = useState({
     minGpa: 0,
     minRating: 0,
-    teachingNext: true,
+    teachingNext: false,
   });
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const TeacherTable = ({ teachers }) => {
         teacher.rating >= filters.minRating &&
         (!filters.teachingNext || teacher.teachingNext)
       );
-    });
+    }).sort((a, b) => (b.teachingNext - a.teachingNext));
     setFilteredTeachers(filtered);
   };
 
