@@ -499,7 +499,8 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
   </td>
 
   <td className="p-3 text-left text-yellow-200 text-xs" colSpan={2}>
-  {semester.courses.reduce((sum, course) => sum + course.hours, 0) > 19 && (
+  {!hasSemesterPassed(semester.name) &&
+  semester.courses.reduce((sum, course) => sum + course.hours, 0) > 19 && (
     <span className="bg-yellow-900 px-3 py-1 rounded">
       This semester exceeds the typical 19 credit hour limit. Advisor approval may be required.
     </span>
