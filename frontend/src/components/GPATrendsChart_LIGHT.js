@@ -266,7 +266,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 mb-8">
         <style jsx>{`
             .custom-legend {
-            max-height: 320px;
+            max-height: 295px;
             overflow-y: auto;
             overflow-x: hidden;
             padding: 10px;
@@ -324,7 +324,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             <div style={{ flex: 1, height: '400px' }}>
                 <Line data={chartData} options={options} />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', height: '400px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', height: '360px', marginTop: '7x' }}>
                 <div className="custom-legend" style={{ color: textColor, flex: '0 1 auto' }}>
                 {allDatasets.map((dataset, index) => (
                     <div
@@ -345,7 +345,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
                 className="legend-buttons"
                 style={{
                     borderTopColor: gridColor,
-                    marginTop: 'auto'
+                    marginTop: '0'
                 }}
                 >
                 <button
