@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
-  const [showByProfessor, setShowByProfessor] = useState(true); // checkbox state - default to reversed axes
+  const [showByProfessor, setShowByProfessor] = useState(false); // checkbox state
   const [isAnimating, setIsAnimating] = useState(false);
   const scrollRef = useRef(null);
   const mode = showByProfessor ? 'aggregated' : 'raw';
@@ -11,7 +11,7 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
     if (gpa == null || gpa === 0) return 'bg-dark-input text-beige-dark';
     if (gpa >= 3.5) return 'bg-emerald-dark text-emerald-light';
     if (gpa >= 3.0) return 'bg-yellow-dark text-yellow-light';
-    if (gpa >= 2.5) return 'bg-red-dark text-red-light';
+    if (gpa >= 2.5) return 'bg-purple-dark text-purple-light';
     return 'bg-red-dark text-red-light';
   };
 
@@ -75,8 +75,7 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
             type="checkbox"
             checked={showByProfessor}
             onChange={(e) => setShowByProfessor(e.target.checked)}
-            className="w-4 h-4 text-maroon bg-dark-input border-dark-border rounded focus:ring-maroon"
-            style={{ accentColor: '#500000' }}
+            className="w-4 h-4 text-beige-light bg-dark-input border-dark-border rounded"
           />
           Reverse Axes
         </label>
