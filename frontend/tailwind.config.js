@@ -29,27 +29,19 @@ module.exports = {
 "dark-input": "#241616", 
 "dark-select": "#6E2E2E",
 
-        // Light mode colors
-        "light-bg": "#FFFFFF",
-        "light-card": "#F5F5F0",  // off-white
-        "light-border": "#D0D0C0",
-        "light-input": "#FFFFFF",
-        "light-text": "#1B1111",
-        "light-text-secondary": "#5F5F5F",
-
-        // Cohesive badge colors for dark theme - warmer, maroon-based palette
-        "blue-dark": "#2C4563",      // Warmer dark blue
-        "blue-light": "#7BA3CC",     // Softer blue-gray
-        "yellow-dark": "#665229",    // Warmer gold-brown
-        "yellow-light": "#D4B17A",   // Softer gold
-        "green-dark": "#2D5140",     // Warmer forest green
-        "green-light": "#7FAA92",    // Softer sage
-        "red-dark": "#5F1E2A",       // Keep maroon-red
-        "red-light": "#C97980",      // Softer rose
-        "purple-dark": "#4A3052",    // Warmer purple
-        "purple-light": "#B299C0",   // Softer lavender
-        "emerald-dark": "#2B5D4A",   // Warmer teal
-        "emerald-light": "#7DAA95",  // Softer teal
+        // Badge colors for dark theme
+        "blue-dark": "#1E3A5F",
+        "blue-light": "#93C5FD",
+        "yellow-dark": "#5F4E1E",
+        "yellow-light": "#FDE68A",
+        "green-dark": "#1E5F3A",
+        "green-light": "#86EFAC",
+        "red-dark": "#5F1E2A",
+        "red-light": "#FCA5A5",
+        "purple-dark": "#3F1E5F",
+        "purple-light": "#D8B4FE",
+        "emerald-dark": "#064E3B",
+        "emerald-light": "#6EE7B7",
 
         // Extra A&M theme
         maroon: "#500000",

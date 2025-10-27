@@ -14,7 +14,6 @@ import ComparePage from "./pages/Compare";
 import CourseDetails from "./pages/CourseDetails";
 import DashboardRedirect from "./pages/DashboardRedirect";
 import { SearchContextProvider } from "./context/search";
-import { ThemeProvider } from "./context/theme";
 
 const App = () => {
    //const [professors, setProfessors] = useState([]);
@@ -66,38 +65,36 @@ const App = () => {
 
     return (
         <div className = "App bg-background text-white h-screen relative ">
-            <ThemeProvider>
-                <BrowserRouter>
-                <Navbar />
-                    <div className = "pages min-h-screen">
-                        <SearchContextProvider>
-                            <Routes>
-                                {/* Legacy /dashboard route - redirects to new course details page */}
-                                <Route 
-                                    path = "/dashboard"
-                                    element = {<DashboardRedirect />}
-                                />
-                                <Route 
-                                    path = "/"
-                                    element = {<Landing />}
-                                />
-                                <Route 
-                                    path = "/planner"
-                                    element = {<Planner />}
-                                />
-                                <Route 
-                                    path = "/compare"
-                                    element = {<ComparePage />}
-                                />
-                                <Route 
-                                    path = "/course/:courseId"
-                                    element = {<CourseDetails />}
-                                />
-                            </Routes>
-                        </SearchContextProvider>
-                    </div>
-                </BrowserRouter>
-            </ThemeProvider>
+            <BrowserRouter>
+            <Navbar />
+                <div className = "pages min-h-screen">
+                    <SearchContextProvider>
+                        <Routes>
+                            {/* Legacy /dashboard route - redirects to new course details page */}
+                            <Route 
+                                path = "/dashboard"
+                                element = {<DashboardRedirect />}
+                            />
+                            <Route 
+                                path = "/"
+                                element = {<Landing />}
+                            />
+                            <Route 
+                                path = "/planner"
+                                element = {<Planner />}
+                            />
+                            <Route 
+                                path = "/compare"
+                                element = {<ComparePage />}
+                            />
+                            <Route 
+                                path = "/course/:courseId"
+                                element = {<CourseDetails />}
+                            />
+                        </Routes>
+                    </SearchContextProvider>
+                </div>
+            </BrowserRouter>
         </div>
     );
 }
