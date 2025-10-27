@@ -23,6 +23,8 @@ ChartJS.register(
 );
 
 const GPATrendsChart = ({ teachers, timePeriods }) => {
+    const [visibleDatasets, setVisibleDatasets] = React.useState({});
+
     const colors = [
         '#5d0024', '#7c2d12', '#a16207', '#166534', '#1e40af',
         '#be185d', '#0f766e', '#7c3aed', '#dc2626', '#059669'
@@ -32,7 +34,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
     const gridColor = '#e5e7eb';
     const textColor = '#374151';
 
-    const chartData = useMemo(() => {
+    const allDatasets = useMemo(() => {
         if (!teachers || teachers.length === 0 || !timePeriods || timePeriods.length === 0) return null;
 
         // No reverse for light theme
@@ -67,16 +69,113 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         };
         }).filter(Boolean);
 
+        return datasets;
+    }, [teachers, timePeriods]);
+
+    // Initialize all datasets as visible
+    React.useEffect(() => {
+        if (allDatasets.length > 0 && Object.keys(visibleDatasets).length === 0) {
+        const initialVisibility = {};
+        allDatasets.forEach((dataset, index) => {
+            initialVisibility[index] = true;
+        });
+        setVisibleDatasets(initialVisibility);
+        }
+    }, [allDatasets]);
+
+    const chartData = useMemo(() => {
+        if (!allDatasets || allDatasets.length === 0) return null;
+
+        const periods = timePeriods;
+        const datasets = allDatasets.map((dataset, index) => ({
+        ...dataset,
+        borderColor: visibleDatasets[index] ? dataset.borderColor : '#d1d5db',
+        backgroundColor: visibleDatasets[index] ? dataset.backgroundColor : '#d1d5db',
+        borderWidth: visibleDatasets[index] ? 2 : 1,
+        pointRadius: visibleDatasets[index] ? 3 : 2
+        }));
+
         return {
         labels: periods,
         datasets: datasets
         };
-    }, [teachers, timePeriods]);
+    }, [allDatasets, visibleDatasets, timePeriods]);
+
+    const toggleDataset = (index) => {
+        setVisibleDatasets(prev => ({
+        ...prev,
+        [index]: !prev[index]
+        }));
+    };
+
+    const toggleAll = () => {
+        // Check if most are visible
+        const visibleCount = Object.values(visibleDatasets).filter(v => v).length;
+        const shouldHideAll = visibleCount > allDatasets.length / 2;
+
+        const newState = {};
+        allDatasets.forEach((_, index) => {
+        newState[index] = !shouldHideAll;
+        });
+        setVisibleDatasets(newState);
+    };
+
+    // Determine button text based on current state
+    const visibleCount = Object.values(visibleDatasets).filter(v => v).length;
+    const toggleAllText = visibleCount > allDatasets.length / 2 ? 'Hide All' : 'Show All';
 
     const options = useMemo(() => ({
         responsive: true,
         maintainAspectRatio: false,
         clip: false,
+        animation: false,
+        animations: {
+        colors: {
+            duration: 300
+        },
+        x: {
+            duration: 0
+        },
+        y: {
+            duration: 0
+        }
+        },
+        transitions: {
+        active: {
+            animation: {
+            duration: 0
+            }
+        },
+        resize: {
+            animation: {
+            duration: 0
+            }
+        },
+        show: {
+            animations: {
+            x: {
+                from: 0,
+                duration: 0
+            },
+            y: {
+                from: 0,
+                duration: 0
+            }
+            }
+        },
+        hide: {
+            animations: {
+            x: {
+                to: 0,
+                duration: 0
+            },
+            y: {
+                to: 0,
+                duration: 0
+            }
+            }
+        }
+        },
         layout: {
         padding: {
             top: 15,
@@ -183,6 +282,9 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             .legend-item:hover {
             opacity: 0.8;
             }
+            .legend-item.hidden {
+            opacity: 0.4;
+            }
             .legend-color {
             width: 20px;
             height: 3px;
@@ -194,6 +296,24 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             overflow: hidden;
             text-overflow: ellipsis;
             }
+            .legend-buttons {
+            display: flex;
+            gap: 8px;
+            padding: 10px 10px 5px 10px;
+            border-top: 1px solid;
+            }
+            .legend-button {
+            flex: 1;
+            padding: 6px 12px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-align: center;
+            }
+            .legend-button:hover {
+            opacity: 0.8;
+            }
         `}</style>
         <div className="p-6 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-800">GPA Trends Over Time</h2>
@@ -204,16 +324,42 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
             <div style={{ flex: 1, height: '400px' }}>
                 <Line data={chartData} options={options} />
             </div>
-            <div className="custom-legend" style={{ color: textColor }}>
-                {chartData.datasets.map((dataset, index) => (
-                <div key={index} className="legend-item" title={dataset.label}>
+            <div style={{ display: 'flex', flexDirection: 'column', height: '400px' }}>
+                <div className="custom-legend" style={{ color: textColor, flex: '0 1 auto' }}>
+                {allDatasets.map((dataset, index) => (
                     <div
-                    className="legend-color"
-                    style={{ backgroundColor: dataset.borderColor }}
+                    key={index}
+                    className={`legend-item ${!visibleDatasets[index] ? 'hidden' : ''}`}
+                    title={dataset.label}
+                    onClick={() => toggleDataset(index)}
+                    >
+                    <div
+                        className="legend-color"
+                        style={{ backgroundColor: dataset.borderColor }}
                     />
                     <span className="legend-label">{dataset.label}</span>
-                </div>
+                    </div>
                 ))}
+                </div>
+                <div
+                className="legend-buttons"
+                style={{
+                    borderTopColor: gridColor,
+                    marginTop: 'auto'
+                }}
+                >
+                <button
+                    className="legend-button"
+                    onClick={toggleAll}
+                    style={{
+                    backgroundColor: '#e5e7eb',
+                    color: textColor,
+                    border: `1px solid ${gridColor}`
+                    }}
+                >
+                    {toggleAllText}
+                </button>
+                </div>
             </div>
             </div>
         </div>
