@@ -64,11 +64,11 @@ const TeacherTable = ({ teachers }) => {
     );
     const grades = ['A', 'B', 'C', 'D', 'F'];
     const gradeColors = {
-      A: '#6EE7B7', // emerald-light
-      B: '#93C5FD', // blue-light
-      C: '#FDE68A', // yellow-light
-      D: '#FCA5A5', // red-light
-      F: '#5F1E2A', // red-dark
+      A: '#6EE7B7', // light green / success
+      B: '#93C5FD', // light blue / above average
+      C: '#FDE68A', // light yellow (slightly brighter, more “yellow” than orange)
+  D: '#FDBA8B', // light coral/orange (darker than C, clearly different)
+  F: '#FCA5A5', // light red
     };
 
     return (
@@ -82,14 +82,14 @@ const TeacherTable = ({ teachers }) => {
               return (
                 <div
                   key={grade}
-                  className="h-6 flex items-center justify-center text-xs font-medium text-blackX transition-all duration-500"
+                  className={`h-6 flex items-center justify-center text-xs font-medium text-blackX transition-all duration-50`}
                   style={{
                     width: `max(${percentage}%, 24px)`,
                     backgroundColor: gradeColors[grade],
                   }}
                   title={`${grade}: ${count} students (${percentage.toFixed(1)}%)`}
                 >
-                  {count > 3 ? count : ''}
+                  {count}
                 </div>
               );
             }
