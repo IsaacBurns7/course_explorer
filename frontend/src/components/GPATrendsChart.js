@@ -78,7 +78,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         pointBorderWidth: 0,
         pointHoverBorderWidth: 4,
         pointHoverBorderColor: color + '60',
-        spanGaps: false,
+        spanGaps: true,
         tension: 0, // make lines straight (0 = linear)
         clip: false // don't clip points at edges
       };
