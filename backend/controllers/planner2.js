@@ -12,6 +12,8 @@ const getBestClassesPDF = async(req, res) => {
 const getBestClassesText = async(req, res) => {
   const parsed = await parseDegreePlanText(req.body.content);
   if (parsed.error) return res.status(500).json(parsed);
+
+  console.log(parsed)
   return getBestClasses(parsed, req, res)
 }
 
@@ -31,7 +33,6 @@ const getBestClasses = async (parsed, req, res) => {
         const sqlFilePath = path.join(__dirname, '/sql/getBestClasses.sql');;
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         const queryResult = await client.query(sql, [courseIds, semesterIds]);
-
 
         return res.status(200).json(queryResult.rows[0]?.result || {});
     } catch (error ) {
@@ -59,7 +60,7 @@ const getClassInfo = async (req, res) => {
     const client = await pool.connect();
     try {
         const parsed = req.body.class;
-        console.log("Parsed class:", parsed);
+        //console.log("Parsed class:", parsed);
         if (!parsed || typeof parsed !== 'string' || !parsed.includes(" ")) {
             return res.status(400).json({ error: "Invalid class format. Expected format: 'DEPT NUMBER'" });
         }
@@ -70,9 +71,9 @@ const getClassInfo = async (req, res) => {
 
         const sqlFilePath = path.join(__dirname, './sql/getClassInfo.sql');
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
-        console.log("Executing SQL:" + sql.replace(/\s+/g, ' ').trim() + ` with courseId=${courseId}`);
+        //console.log("Executing SQL:" + sql.replace(/\s+/g, ' ').trim() + ` with courseId=${courseId}`);
         const queryResult = await client.query(sql, [courseId]); 
-        console.log("Query result:", queryResult.rows);
+        //console.log("Query result:", queryResult.rows);
         if (queryResult.rows.length === 0) {
             return res.status(404).json({ error: "Class not found" });
         }       
@@ -99,7 +100,7 @@ const getOptimalSchedule = async (req, res) => {
         const sqlFilePath = path.join(__dirname, "./sql/getOptimalSchedule.sql");
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         const queryResult = await client.query(sql, [list, semester]);
-        console.log(queryResult.rows[0]);
+        //console.log(queryResult.rows[0]);
         return res.status(200).json({message: "hehe"});
     } catch (err) {
         console.error("Planner error:", err);
