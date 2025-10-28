@@ -43,7 +43,7 @@ const Navbar = () => {
                 <use xlinkHref="#glyph1-1" x="33.788898" y="661.82811" width="100%" height="100%" />
               </g>
             </svg>
-            <div className="hidden sm:flex flex-col">
+            <div className="hidden sm:flex flex-col whitespace-nowrap">
               <span className="text-xl font-bold text-beige-light group-hover:text-yellow-400 transition-colors">
                 Aggie Course Explorer
               </span>
@@ -54,7 +54,7 @@ const Navbar = () => {
           </Link>
 
           {/* Left - Navigation Links */}
-          <div className="flex items-center space-x-4 sm:space-x-6 flex-1 justify-center pr-32">
+          <div className="flex items-center flex-grow sm:flex-1 justify-center sm:pr-32 w-[70%] sm:w-auto">
             <Link
               to="/"
               className="lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-dark-select hover:text-beige-light transition-all duration-200"
