@@ -225,6 +225,7 @@ async function parseDegreePlanPDF(pdfBuffer) {
                 allText.push(...texts);
             });
 
+            console.log(JSON.stringify(allText))
             const result = extractSemesters(allText);
             resolve(result);
         });
@@ -237,48 +238,40 @@ async function parseDegreePlanPDF(pdfBuffer) {
     });
 
     function extractSemesters(textArray) {
-        const semesterPattern = /^(Fall|Spring|Summer)\s2\d{3}$/;
-        const results = {};
-        let currentSemester = null;
-        let currentCourses = [];
+        const joined = textArray.join(" ").replace(/\s+/g, " ").trim();
 
-        for (let i = 0; i < textArray.length; i++) {
-            const line = textArray[i];
+        // Match semesters like "2025 - Spring"
+        const semesterRegex = /(\d{4}) - (Fall|Spring|Summer)/g;
+        const matches = [...joined.matchAll(semesterRegex)];
 
-            if (semesterPattern.test(line)) {
-                if (currentSemester) {
-                    results[currentSemester] = [...currentCourses];
-                }
-                currentSemester = line.trim();
-                currentCourses = [];
-            } else if (/^Term Total Credits:/i.test(line)) {
-                if (currentSemester) {
-                    results[currentSemester] = [...currentCourses];
-                    currentSemester = null;
-                    currentCourses = [];
-                }
-            } else if (line.match(/^[A-Z]{2,4} \d{3}/)) {
-                const course = line.split(" ");
-                currentCourses.push({
-                    department: course[0],
-                    number: course[1],
-                    title: "",
-                    hours: ""
-                });
-            } else if (currentCourses.length > 0) {
-                if (/^\d$/.test(line)) {
-                    currentCourses[currentCourses.length - 1].hours = line;
-                } else {
-                    currentCourses[currentCourses.length - 1].title += ' ' + line;
-                }
+        const result = {};
+
+        for (let i = 0; i < matches.length; i++) {
+            const year = matches[i][1];
+            const term = matches[i][2];
+            const nextMatch = matches[i + 1];
+            const startIndex = matches[i].index;
+            const endIndex = nextMatch ? nextMatch.index : joined.length;
+            const block = joined.substring(startIndex, endIndex);
+
+            const key = `${term} ${year}`;
+            result[key] = [];
+
+            // Match course entries: e.g., "CSCE 120 PROGRAM DESIGN & CONCEPTS 3"
+            const courseRegex = /([A-Z]{2,4}) (\d{3}) ([A-Z0-9&'".,\- ]+?) (\d)(?= [A-Z]{2,4} \d{3}| Term|$)/g;
+            const courses = [...block.matchAll(courseRegex)];
+
+            for (const c of courses) {
+            result[key].push({
+                department: c[1],
+                number: c[2],
+                title: " " + c[3].trim() + " ",
+                hours: c[4],
+            });
             }
         }
 
-        if (currentSemester) {
-            results[currentSemester] = [...currentCourses];
-        }
-
-        return results;
+        return result;
     }
 }
 
