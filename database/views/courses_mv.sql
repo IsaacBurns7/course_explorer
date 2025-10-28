@@ -67,6 +67,14 @@ sections_agg AS (
         JSONB_OBJECT_AGG(semester_id, sections_json) AS sections
     FROM sections_by_semester
     GROUP BY course_id
+),
+
+attributes_agg AS (
+    SELECT 
+        course_id,
+        JSONB_AGG(attribute) AS attributes
+    FROM course_explorer.courses_attributes
+    GROUP BY course_id
 )
 
 SELECT 
@@ -81,7 +89,8 @@ SELECT
             'totalSections', c.totalSections,
             'totalStudents', c.totalStudents,
             'averageRating', c.averageRating,
-            'totalRatings', c.totalRatings
+            'totalRatings', c.totalRatings,
+            'attributes', COALESCE(a.attributes, '[]'::jsonb)
         ),
         'professors', (
             SELECT JSONB_AGG(cp.professor_id)
@@ -91,4 +100,5 @@ SELECT
         'sections', sa.sections
     ) AS course_data
 FROM course_explorer.courses AS c
-LEFT JOIN sections_agg sa ON sa.course_id = c.id;
+LEFT JOIN sections_agg sa ON sa.course_id = c.id
+LEFT JOIN attributes_agg a ON a.course_id = c.id; 
