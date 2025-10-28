@@ -27,15 +27,12 @@ const getBestClasses = async (parsed, req, res) => {
                 courseIds.push(`${course.department}_${course.number}`);
             }
         }
-        
-        console.log(semesterIds)
-        console.log(courseIds)
+
         const sqlFilePath = path.join(__dirname, '/sql/getBestClasses.sql');;
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         const queryResult = await client.query(sql, [courseIds, semesterIds]);
 
 
-        //console.log(queryResult.rows[0].result)
         return res.status(200).json(queryResult.rows[0]?.result || {});
     } catch (error ) {
         console.log(error)

@@ -57,12 +57,19 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
     setLoading(true)
     try {
       const response = await axios.post("/server/api/planner2/text", { type: "text", content: textInput });
+
       if (response.data) {
-        console.log(response.data, typeof response.data);
-        setLoading(false)
-        handleClose(true)
-        onPlannerUploaded(response.data)
-      }
+        console.log(Object.keys(response.data).length)
+        if (Object.keys(response.data).length == 0) {
+          showAlert("No Terms Found. Make sure you pressed the \"Expand All\" button", "error")
+        } else {
+          //console.log(response.data, typeof response.data);
+          setLoading(false)
+          handleClose(true)
+          onPlannerUploaded(response.data)
+        }
+      } 
+    
       if (response.error) showAlert(response.error, "error")
     } catch (error) {
       console.error(error)
