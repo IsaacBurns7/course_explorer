@@ -4,7 +4,7 @@ import TeacherTable from '../components/TeacherTable';
 import GPATrendsChart from '../components/GPATrendsChart';
 import HistoricalDataTable from '../components/HistoricalDataTable';
 import pinwheelBg from '../assets/Pinwheel_3.png';
-
+import attributeColors from '../components/AttributeColors';
 import data from './TEMP_DATA'
 
 const linkifyCourseCodes = (description) => {
@@ -57,6 +57,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       
       if (!professorMap[sec.prof]) {
         const info = profInfo[id]?.info || {};
+        if (!sec.prof && !info.name) continue;
         professorMap[sec.prof] = {
           id,
           name: sec.prof || info.name || "Unknown",
@@ -71,6 +72,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
           wouldTakeAgain: Number(info.wouldTakeAgain) || 0,
           difficulty: Number(info.difficulty) || 0,
           teachingNext: false,
+          rmpLink: info.rmpLink
         };
       }
 
@@ -110,11 +112,12 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       students: p.totalStudents,
       rating: p.rating,
       wouldTakeAgain: p.wouldTakeAgain,
-      difficulty: p.difficulty || 3.0,
+      difficulty: p.difficulty || 0,
       teachingNext: p.teachingNext,
       grades: p.gradeTotals,
       gradePercentages,
       gpaHistory: p.gpas, // last 6 semesters
+      rmpLink: p.rmpLink
     };
   });
 };
@@ -154,8 +157,6 @@ const CourseDetails = () => {
         const profRes = await fetch(`/server/api/search2/professors?department=${department}&courseNumber=${courseNumber}`);
         if (!profRes.ok) throw new Error(`HTTP error ${profRes.status}`);
         const profInfo = await profRes.json();
-
-        console.log(profInfo)
  
 
         const formattedProfData = await aggregateProfessorData(course, profInfo);
@@ -239,7 +240,7 @@ const CourseDetails = () => {
   };
   
   const timePeriods = sortTimePeriods(Object.keys(courseData.sections || {}));
-
+  console.log(info)
   return (
     <div 
       className="min-h-screen bg-background text-beige-light pt-16 relative"
@@ -277,6 +278,19 @@ const CourseDetails = () => {
           <div className="bg-blue-dark text-blue-light px-4 py-2 rounded-lg font-medium border border-dark-border">
             Students: {info.totalStudents != null ? info.totalStudents : '?'}
           </div>
+          {info.attributes?.map((attr) => {
+            console.log(attributeColors)
+            const colorClass = attributeColors[attr] || attributeColors["Defualt"];
+            console.log(colorClass)
+            return (
+              <div
+                key={attr}
+                className={`${colorClass} px-4 py-2 rounded-lg font-medium border border-dark-border`}
+              >
+                {attr}
+              </div>
+            );
+          })}
         </div>
 
         </div>

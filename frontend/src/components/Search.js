@@ -237,8 +237,8 @@ export default function AutoCompleteSearch({navbarMode}) {
             className={`
               px-4 py-3 cursor-pointer transition-all
               ${index === activeIndex
-                ? "bg-[#442828] text-beige-light"
-                : "hover:bg-[#442828] hover:text-beige-light"
+                ? "bg-dark-hover text-beige-light"
+                : "hover:bg-dark-hover hover:text-beige-light"
               }
             `}
             onMouseEnter={() => setActiveIndex(index)}

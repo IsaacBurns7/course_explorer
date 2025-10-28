@@ -6,7 +6,7 @@ const TeacherTable = ({ teachers }) => {
   const [filters, setFilters] = useState({
     minGpa: 0,
     minRating: 0,
-    teachingNext: true,
+    teachingNext: false,
   });
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const TeacherTable = ({ teachers }) => {
         teacher.rating >= filters.minRating &&
         (!filters.teachingNext || teacher.teachingNext)
       );
-    });
+    }).sort((a, b) => (b.teachingNext - a.teachingNext));
     setFilteredTeachers(filtered);
   };
 
@@ -33,13 +33,16 @@ const TeacherTable = ({ teachers }) => {
 
   // Updated to use your dark palette
   const getGpaColor = (gpa) => {
+    if (gpa == 0 || gpa == null) return 'bg-dark-input text-beige-dark'
     if (gpa >= 3.5) return 'bg-emerald-dark text-emerald-light';
     if (gpa >= 3.0) return 'bg-yellow-dark text-yellow-light';
     if (gpa >= 2.5) return 'bg-purple-dark text-purple-light';
+  
     return 'bg-red-dark text-red-light';
   };
 
   const getWouldTakeAgainColor = (percentage) => {
+    if (percentage == 0 || percentage == null) return 'bg-dark-input text-beige-dark'
     if (percentage >= 80) return 'bg-emerald-dark text-emerald-light';
     if (percentage >= 65) return 'bg-yellow-dark text-yellow-light';
     if (percentage >= 50) return 'bg-purple-dark text-purple-light';
@@ -47,6 +50,7 @@ const TeacherTable = ({ teachers }) => {
   };
 
   const getDifficultyColor = (difficulty) => {
+    if (difficulty == 0 || difficulty == null) return 'bg-dark-input text-beige-dark'
     if (difficulty <= 2.5) return 'bg-emerald-dark text-emerald-light';
     if (difficulty <= 3.5) return 'bg-yellow-dark text-yellow-light';
     if (difficulty <= 4.0) return 'bg-purple-dark text-purple-light';
@@ -60,11 +64,11 @@ const TeacherTable = ({ teachers }) => {
     );
     const grades = ['A', 'B', 'C', 'D', 'F'];
     const gradeColors = {
-      A: '#6EE7B7', // emerald-light
-      B: '#93C5FD', // blue-light
-      C: '#FDE68A', // yellow-light
-      D: '#FCA5A5', // red-light
-      F: '#5F1E2A', // red-dark
+      A: '#6EE7B7', // light green / success
+      B: '#93C5FD', // light blue / above average
+      C: '#FDE68A', // light yellow (slightly brighter, more “yellow” than orange)
+  D: '#FDBA8B', // light coral/orange (darker than C, clearly different)
+  F: '#FCA5A5', // light red
     };
 
     return (
@@ -78,14 +82,14 @@ const TeacherTable = ({ teachers }) => {
               return (
                 <div
                   key={grade}
-                  className="h-6 flex items-center justify-center text-xs font-medium text-blackX transition-all duration-500"
+                  className={`h-6 flex items-center justify-center text-xs font-medium text-blackX transition-all duration-50`}
                   style={{
                     width: `max(${percentage}%, 24px)`,
                     backgroundColor: gradeColors[grade],
                   }}
                   title={`${grade}: ${count} students (${percentage.toFixed(1)}%)`}
                 >
-                  {count > 3 ? count : ''}
+                  {count}
                 </div>
               );
             }
@@ -190,7 +194,7 @@ const TeacherTable = ({ teachers }) => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full table-fixed">
             <thead className="bg-dark-header">
               <tr>
                 {[
@@ -204,7 +208,7 @@ const TeacherTable = ({ teachers }) => {
                 ].map((header) => (
                   <th
                     key={header}
-                    className="px-6 py-3 text-xs font-medium text-beige-dark uppercase tracking-wider text-center"
+                    className={`px-6 py-3 text-xs font-medium text-beige-dark uppercase tracking-wider text-center ${header == "Teacher" ? "w-64 text-left" : ""}`}
                   >
                     {header}
                   </th>
@@ -221,12 +225,26 @@ const TeacherTable = ({ teachers }) => {
                   {/* Teacher name + teaching badge */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-col text-sm font-medium text-beige-light">
-                      <span>{teacher.name || '?'}</span>
+                       <a
+                        href={teacher.rmpLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={teacher.rmpLink ? " hover:text-blue-400 hover:underline cursor-pointer": ""}
+                      >
+                        <span>{teacher.name || '?'}</span>
+                      </a>
 
                       {teacher.teachingNext && (
                         <div className="flex items-center gap-1 text-xs font-medium text-green-light mt-1">
                           <span className="w-2 h-2 bg-green-dark rounded-full"></span>
                           Teaching Next Semester
+                        </div>
+                      )}
+
+                      {teacher.students == 0 && (
+                        <div className="flex items-center gap-1 text-xs font-medium text-yellow-light mt-1">
+                          <span className="w-2 h-2 bg-yellow-dark rounded-full"></span>
+                          New Professor
                         </div>
                       )}
                     </div>
@@ -240,9 +258,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.classGpa
                       )}`}
                     >
-                      {teacher.classGpa != null
+                      {teacher.classGpa != null && teacher.classGpa != 0
                         ? teacher.classGpa.toFixed(1)
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
@@ -253,9 +271,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.avgGpa
                       )}`}
                     >
-                      {teacher.avgGpa != null
+                      {teacher.avgGpa != null && teacher.avgGpa != 0
                         ? teacher.avgGpa.toFixed(1)
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
@@ -282,9 +300,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.wouldTakeAgain
                       )}`}
                     >
-                      {teacher.wouldTakeAgain != null
+                      {teacher.wouldTakeAgain != null && teacher.wouldTakeAgain != 0
                         ? `${teacher.wouldTakeAgain.toFixed(1)}%`
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 
@@ -295,9 +313,9 @@ const TeacherTable = ({ teachers }) => {
                         teacher.difficulty
                       )}`}
                     >
-                      {teacher.difficulty != null
+                      {teacher.difficulty != null && teacher.difficulty != 0
                         ? teacher.difficulty.toFixed(1)
-                        : '?'}
+                        : '-'}
                     </span>
                   </td>
 

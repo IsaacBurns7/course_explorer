@@ -30,6 +30,18 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
   const [legendPage, setLegendPage] = React.useState(0);
   const [isMobile, setIsMobile] = React.useState(false);
 
+
+  const validPeriods = timePeriods.filter((period) =>
+    teachers.some((teacher) => {
+      let gpa = teacher.gpaHistory?.[period] ?? null;
+      if (Array.isArray(gpa)) {
+        const valid = gpa.filter((v) => v != null && !isNaN(v));
+        gpa = valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
+      }
+      return gpa != null && gpa > 0;
+    })
+  );
+  
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
@@ -47,10 +59,10 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
   const textColor = isDarkMode ? '#e7e5e4' : '#000000';
 
   const allDatasets = useMemo(() => {
-    if (!teachers || teachers.length === 0 || !timePeriods || timePeriods.length === 0) return null;
+    if (!teachers || teachers.length === 0 || !validPeriods || validPeriods.length === 0) return null;
 
     // Reverse periods to show most recent on the left
-    const periods = [...timePeriods].reverse();
+    const periods = [...validPeriods].reverse();
 
     const datasets = teachers.map((teacher, index) => {
       if (!teacher.gpaHistory || typeof teacher.gpaHistory !== 'object') return null;
@@ -85,7 +97,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
     }).filter(Boolean);
 
     return datasets;
-  }, [teachers, timePeriods]);
+  }, [teachers, validPeriods]);
 
   // Initialize all datasets as visible
   React.useEffect(() => {
@@ -101,7 +113,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
   const chartData = useMemo(() => {
     if (!allDatasets || allDatasets.length === 0) return null;
 
-    const periods = [...timePeriods].reverse();
+    const periods = [...validPeriods].reverse();
     const datasets = allDatasets.map((dataset, index) => ({
       ...dataset,
       borderColor: visibleDatasets[index] ? dataset.borderColor : (isDarkMode ? '#4a5568' : '#d1d5db'),
@@ -114,7 +126,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
       labels: periods,
       datasets: datasets
     };
-  }, [allDatasets, visibleDatasets, timePeriods, isDarkMode]);
+  }, [allDatasets, visibleDatasets, validPeriods, isDarkMode]);
 
   const toggleDataset = (index) => {
     setVisibleDatasets(prev => ({
