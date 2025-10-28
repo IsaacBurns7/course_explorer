@@ -72,6 +72,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
           wouldTakeAgain: Number(info.wouldTakeAgain) || 0,
           difficulty: Number(info.difficulty) || 0,
           teachingNext: false,
+          rmpLink: info.rmpLink
         };
       }
 
@@ -116,6 +117,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       grades: p.gradeTotals,
       gradePercentages,
       gpaHistory: p.gpas, // last 6 semesters
+      rmpLink: p.rmpLink
     };
   });
 };
@@ -155,8 +157,6 @@ const CourseDetails = () => {
         const profRes = await fetch(`/server/api/search2/professors?department=${department}&courseNumber=${courseNumber}`);
         if (!profRes.ok) throw new Error(`HTTP error ${profRes.status}`);
         const profInfo = await profRes.json();
-
-        console.log(profInfo)
  
 
         const formattedProfData = await aggregateProfessorData(course, profInfo);
