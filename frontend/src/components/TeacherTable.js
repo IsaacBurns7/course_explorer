@@ -225,12 +225,26 @@ const TeacherTable = ({ teachers }) => {
                   {/* Teacher name + teaching badge */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-col text-sm font-medium text-beige-light">
-                      <span>{teacher.name || '?'}</span>
+                       <a
+                        href={teacher.rmpLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={teacher.rmpLink ? " hover:text-blue-400 hover:underline cursor-pointer": ""}
+                      >
+                        <span>{teacher.name || '?'}</span>
+                      </a>
 
                       {teacher.teachingNext && (
                         <div className="flex items-center gap-1 text-xs font-medium text-green-light mt-1">
                           <span className="w-2 h-2 bg-green-dark rounded-full"></span>
                           Teaching Next Semester
+                        </div>
+                      )}
+
+                      {teacher.students == 0 && (
+                        <div className="flex items-center gap-1 text-xs font-medium text-yellow-light mt-1">
+                          <span className="w-2 h-2 bg-yellow-dark rounded-full"></span>
+                          New Professor
                         </div>
                       )}
                     </div>

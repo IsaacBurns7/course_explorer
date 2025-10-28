@@ -5,6 +5,19 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@font-face {
+  font-family: 'Card Characters';
+  src: url('../assets/cardcharacters.ttf') format('truetype');
+  font-weight: 400; /* or 700 if bold */
+  font-style: normal;
+  font-display: swap;
+}
+
+.card-text {
+  font-family: 'Card Characters', sans-serif;
+}
+
 .test-rule {
     color: red
 }
