@@ -185,8 +185,8 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
                       <div className="bg-dark-input border border-dark-border rounded-lg p-4 mb-4">
                         <h5 className="font-medium text-gray-200 mb-2">Instructions:</h5>
                         <ul className="text-sm text-gray-300 space-y-1">
-                          <li>• Go to your Degree Planner and generate your plan</li>
-                          <li>• Select "View Plan" on the navigation bar</li>
+                          <li>• Go to your Degree Planner in the Howdy Portal and evaluate your degree plan</li>
+                          <li>• Click on "Expand All"</li>
                           <li>• Select the entire page (CTRL + A, CTRL + C)</li>
                           <li>• Paste the contents into the text box (CTRL + V)</li>
                         </ul>
@@ -222,8 +222,8 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
                       <div className="bg-dark-input border border-dark-border rounded-lg p-4 mb-4">
                         <h5 className="font-medium text-gray-200 mb-2">Instructions:</h5>
                         <ul className="text-sm text-gray-300 space-y-1">
-                          <li>• Go to your Degree Planner and generate your plan</li>
-                          <li>• Click on the "Print" button next to Add/Edit plan</li>
+                          <li>• Go to your Degree Planner in the Howdy Portal and evaluate your degree plan</li>
+                          <li>• Click on the "Print" icon in the top right, under your name</li>
                           <li>• Save the document as a PDF</li>
                           <li>• Upload the PDF below</li>
                         </ul>
