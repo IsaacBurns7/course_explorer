@@ -194,7 +194,7 @@ const TeacherTable = ({ teachers }) => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full table-fixed">
             <thead className="bg-dark-header">
               <tr>
                 {[
@@ -208,7 +208,7 @@ const TeacherTable = ({ teachers }) => {
                 ].map((header) => (
                   <th
                     key={header}
-                    className="px-6 py-3 text-xs font-medium text-beige-dark uppercase tracking-wider text-center"
+                    className={`px-6 py-3 text-xs font-medium text-beige-dark uppercase tracking-wider text-center ${header == "Teacher" ? "w-64 text-left" : ""}`}
                   >
                     {header}
                   </th>
