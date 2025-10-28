@@ -131,19 +131,20 @@ const Landing = () => {
   transition={{ delay: 1, duration: 0.8 }}
 >
         <button
-          onClick={() =>
-            document.getElementById("features-section")?.scrollIntoView({ behavior: "smooth" })
-          }
-          className="flex flex-col items-center text-muted-foreground hover:text-yellow-400 transition-colors"
-        >
-          <span className="text-sm mb-1">Learn more</span>
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-          >
-            ↓
-          </motion.div>
-        </button>
+  onClick={() =>
+    document.getElementById("features-section")?.scrollIntoView({ behavior: "smooth" })
+  }
+  className="flex flex-col items-center text-muted-foreground hover:text-yellow-400 transition-colors relative"
+>
+  <span className="text-sm mb-1">Learn more</span>
+  <motion.div
+    animate={{ y: [0, 10, 0] }}
+    transition={{ repeat: Infinity, duration: 1.5 }}
+    className="pointer-events-none"
+  >
+    ↓
+  </motion.div>
+</button>
     </motion.div>
 
       {/* Features Section (3 boxes instead of carousel) */}

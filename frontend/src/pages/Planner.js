@@ -100,7 +100,7 @@ export default function Planner() {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2, duration: 0.5 }}
                 >
-                  Academic Planner
+                  Degree Planner
                 </motion.h1>
                 <motion.p
                   className="text-xl text-gray-300 max-w-2xl mx-auto"
@@ -116,7 +116,7 @@ export default function Planner() {
                 {[{
                   color: "emerald",
                   title: "Start from Scratch",
-                  desc: "Create a brand new academic plan. Perfect for new students or those wanting to completely redesign their course schedule.",
+                  desc: "Create a brand new degree plan. Perfect for new students or those wanting to completely redesign their course schedule.",
                   icon: (
                     <>
                       <path d="M12 5v14" />
@@ -128,7 +128,7 @@ export default function Planner() {
                 {
                   color: "blue",
                   title: "Upload Existing Planner",
-                  desc: "Already have an academic plan? Upload your existing planner from a PDF document or paste the text directly.",
+                  desc: "Already have a degree plan from Howdy? Upload your existing planner from a PDF document or paste the text directly.",
                   icon: (
                     <>
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
