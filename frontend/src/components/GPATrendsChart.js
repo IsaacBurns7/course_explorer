@@ -85,11 +85,11 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         borderColor: color,
         backgroundColor: color,
         borderWidth: 2,
-        pointRadius: 3,
-        pointHoverRadius: 3,
+        pointRadius: 4,
+        pointHoverRadius: 4,
         pointBorderWidth: 0,
-        pointHoverBorderWidth: 4,
-        pointHoverBorderColor: color + '60',
+        pointHoverBorderWidth: 7,
+        pointHoverBorderColor: color + '70',
         spanGaps: true,
         tension: 0, // make lines straight (0 = linear)
         clip: false // don't clip points at edges
@@ -119,7 +119,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
       borderColor: visibleDatasets[index] ? dataset.borderColor : (isDarkMode ? '#4a5568' : '#d1d5db'),
       backgroundColor: visibleDatasets[index] ? dataset.backgroundColor : (isDarkMode ? '#4a5568' : '#d1d5db'),
       borderWidth: visibleDatasets[index] ? 2 : 1,
-      pointRadius: 3
+      pointRadius: 4
     }));
 
     return {
@@ -151,7 +151,35 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
   const visibleCount = Object.values(visibleDatasets).filter(v => v).length;
   const toggleAllText = visibleCount > allDatasets.length / 2 ? 'Hide All' : 'Show All';
 
-  const options = useMemo(() => ({
+  const options = useMemo(() => {
+    // Calculate min and max GPA from all datasets
+    let minGPA = Infinity;
+    let maxGPA = -Infinity;
+
+    if (allDatasets && allDatasets.length > 0) {
+      allDatasets.forEach(dataset => {
+        dataset.data.forEach(value => {
+          if (value !== null && value !== undefined && !isNaN(value)) {
+            minGPA = Math.min(minGPA, value);
+            maxGPA = Math.max(maxGPA, value);
+          }
+        });
+      });
+    }
+
+    // If no valid data, use defaults
+    if (minGPA === Infinity) minGPA = 0;
+    if (maxGPA === -Infinity) maxGPA = 4;
+
+    // Round to nearest 0.5 increment
+    const yMin = Math.max(0, Math.floor(minGPA * 2) / 2);
+    const yMax = Math.min(4, Math.ceil(maxGPA * 2) / 2);
+
+    // Round to nearest 0.25 increment
+    //const yMin = Math.max(0, Math.floor(minGPA * 4) / 4);
+    //const yMax = Math.min(4, Math.ceil(maxGPA * 4) / 4);
+
+    return {
     responsive: true,
     maintainAspectRatio: false,
     clip: false,
@@ -363,9 +391,8 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         }
       },
       y: {
-        beginAtZero: true,
-        min: 0,
-        max: 4,
+        min: yMin,
+        max: yMax,
         ticks: {
           stepSize: 0.5,
           color: textColor,
@@ -392,7 +419,8 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
         }
       }
     }
-  }), [isDarkMode, textColor, gridColor, allDatasets, visibleDatasets]);
+  };
+  }, [isDarkMode, textColor, gridColor, allDatasets, visibleDatasets]);
 
   if (!chartData || chartData.datasets.length === 0) {
     return null;
