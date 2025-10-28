@@ -4,7 +4,7 @@ import TeacherTable from '../components/TeacherTable';
 import GPATrendsChart from '../components/GPATrendsChart';
 import HistoricalDataTable from '../components/HistoricalDataTable';
 import pinwheelBg from '../assets/Pinwheel_3.png';
-
+import attributeColors from '../components/AttributeColors';
 import data from './TEMP_DATA'
 
 const linkifyCourseCodes = (description) => {
@@ -240,7 +240,7 @@ const CourseDetails = () => {
   };
   
   const timePeriods = sortTimePeriods(Object.keys(courseData.sections || {}));
-
+  console.log(info)
   return (
     <div 
       className="min-h-screen bg-background text-beige-light pt-16 relative"
@@ -278,6 +278,19 @@ const CourseDetails = () => {
           <div className="bg-blue-dark text-blue-light px-4 py-2 rounded-lg font-medium border border-dark-border">
             Students: {info.totalStudents != null ? info.totalStudents : '?'}
           </div>
+          {info.attributes?.map((attr) => {
+            console.log(attributeColors)
+            const colorClass = attributeColors[attr] || attributeColors["Defualt"];
+            console.log(colorClass)
+            return (
+              <div
+                key={attr}
+                className={`${colorClass} px-4 py-2 rounded-lg font-medium border border-dark-border`}
+              >
+                {attr}
+              </div>
+            );
+          })}
         </div>
 
         </div>
