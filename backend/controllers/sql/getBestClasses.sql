@@ -12,7 +12,7 @@ FROM (
                 'department', department,
                 'number', number,
                 'title', title,
-                'hours', hours::int,
+                'hours', CASE WHEN hours ~ '^[0-9]+$' THEN hours::int ELSE 0 END, /* hours could be N/A*/
                 'professors', professors
             )
         ) AS courses
@@ -22,9 +22,9 @@ FROM (
             c.department,
             c.number,
             c.title,
-            c.hours,
+            MAX(c.hours) AS hours,
             jsonb_agg(
-                jsonb_build_object(
+                DISTINCT jsonb_build_object(
                     'info', jsonb_build_object(
                         'averageGPA', ROUND((
                             SELECT AVG(cs.gpa)
@@ -38,7 +38,17 @@ FROM (
                                 FROM course_explorer.professor_ratings pr
                                 WHERE pr.professor_id = p.id
                             )::numeric, 1)::text,
-                            '0.0'
+                            'N/A'
+                        ),
+                        'debugId', p.id,
+                        'debugClass', c.course_id,
+                        'classRating', COALESCE(
+                            ROUND((
+                                SELECT SUM(value * frequency) / NULLIF(SUM(frequency), 0)
+                                FROM course_explorer.professor_ratings pr
+                                WHERE (pr.professor_id = p.id AND pr.course_id = c.course_id)
+                            )::numeric, 1)::text,
+                            'N/A'
                         ),
                         'name', p.name,
                         'site', c.site,
@@ -91,7 +101,7 @@ FROM (
             ) pairs ON c.id = pairs.course_id
         ) c
         JOIN course_explorer.professors p ON p.id = c.professor_id
-        GROUP BY c.semester_id, c.course_id, c.department, c.number, c.title, c.hours
+        GROUP BY c.semester_id, c.course_id, c.department, c.number, c.title
     ) courses_with_professors
     GROUP BY semester_id
 ) semesters;

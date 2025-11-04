@@ -1,7 +1,7 @@
 //libraries
 import React from "react";
 import { useState, useEffect } from "react";
-import Landing from "./components/Landing";
+import Landing from "./pages/Landing";
 import Navbar from "./components/Navbar";
 //hooks
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
@@ -11,6 +11,8 @@ import Home from "./pages/Home";
 import SearchResults from "./pages/SearchResults";
 import Planner from "./pages/Planner"
 import ComparePage from "./pages/Compare";
+import CourseDetails from "./pages/CourseDetails";
+import DashboardRedirect from "./pages/DashboardRedirect";
 import { SearchContextProvider } from "./context/search";
 
 const App = () => {
@@ -68,9 +70,10 @@ const App = () => {
                 <div className = "pages min-h-screen">
                     <SearchContextProvider>
                         <Routes>
+                            {/* Legacy /dashboard route - redirects to new course details page */}
                             <Route 
                                 path = "/dashboard"
-                                element = {<SearchResults />}
+                                element = {<DashboardRedirect />}
                             />
                             <Route 
                                 path = "/"
@@ -83,6 +86,10 @@ const App = () => {
                             <Route 
                                 path = "/compare"
                                 element = {<ComparePage />}
+                            />
+                            <Route 
+                                path = "/course/:courseId"
+                                element = {<CourseDetails />}
                             />
                         </Routes>
                     </SearchContextProvider>
