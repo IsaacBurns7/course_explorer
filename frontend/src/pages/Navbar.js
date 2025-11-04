@@ -1,20 +1,40 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Home, Calendar, Sun, Moon } from 'lucide-react';
-//import { useTheme } from '../context/theme';
-import AutoCompleteSearch from './Search';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Home, Calendar } from 'lucide-react';
+import AutoCompleteSearch from './Search.js';
 
 const Navbar = () => {
-  //const { isDarkMode, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+  const [showButtonText, setShowButtonText] = useState(true);
+  const navRef = useRef(null);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (navRef.current) {
+        const container = navRef.current;
+        const isOverflowing = container.scrollWidth > container.clientWidth;
+        setShowButtonText(!isOverflowing);
+      }
+    };
+
+    // Check on mount and resize
+    checkOverflow();
+    window.addEventListener('resize', checkOverflow);
+    
+    // Also check after a short delay to ensure content is loaded
+    setTimeout(checkOverflow, 100);
+
+    return () => window.removeEventListener('resize', checkOverflow);
+  }, []);
 
   return (
-    <nav className="bg-maroon border-b border-dark-border shadow-lg fixed top-0 left-0 right-0 z-30 backdrop-blur-sm bg-opacity-95">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8" style={{ maxWidth: '100rem' }}>
-        <div className="flex items-center justify-between h-16">
+    <nav className="bg-dark-card border-b border-dark-border shadow-lg sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
+      <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4">
+        <div ref={navRef} className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
           <Link 
             to="/" 
-            className="flex items-center space-x-3 group transition-transform duration-200 hover:scale-105"
+            className="flex items-center space-x-3 group transition-all duration-200 rounded-full px-2 py-2 flex-shrink-0"
           >
             <svg className="h-12 w-12 transition-colors duration-200 group-hover:[&_g]:fill-maroon" viewBox="0 0 540 662" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
               <defs>
@@ -44,49 +64,38 @@ const Navbar = () => {
               </g>
             </svg>
             <div className="hidden sm:flex flex-col whitespace-nowrap">
-              <span className="text-xl font-bold text-beige-light group-hover:text-yellow-400 transition-colors">
-                Aggie Course Explorer
+              <span className="text-2xl font-bold text-beige-light group-hover:text-maroon transition-colors">
+                Course Explorer
               </span>
-              <span className="text-xs text-beige-dark">
+              <span className="text-sm text-beige-dark group-hover:text-beige-dark/70 transition-colors">
                 ACE your future
               </span>
             </div>
           </Link>
 
           {/* Left - Navigation Links */}
-          <div className="flex items-center flex-grow sm:flex-1 justify-center sm:pr-32 w-[70%] sm:w-auto">
+          <div className="flex items-center space-x-1 sm:space-x-3 flex-1 ml-2 sm:ml-4">
             <Link
               to="/"
-              className="lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-dark-select hover:text-beige-light transition-all duration-200"
+              className="flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-full text-beige-light hover:bg-maroon hover:text-beige-light transition-all duration-200"
             >
-              <Home className="h-4 w-4" />
-              <span className="hidden xl:inline font-medium">Home</span>
+              <Home className="h-5 w-5" />
+              {showButtonText && <span className="hidden md:inline font-medium text-lg">Home</span>}
             </Link>
             
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 max-w-xs">
               <AutoCompleteSearch navbarMode={true} />
             </div>
           </div>
 
-          {/* Right - Theme Toggle & Planner Button */}
-          <div className="flex items-center space-x-2">
-            {/*
-            <button
-              onClick={toggleTheme}
-              className="lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-maroon hover:text-beige-light transition-all duration-200"
-              aria-label="Toggle theme"
-            >
-              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            */}
-            <Link
-              to="/planner"
-              className="lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-dark-select hover:text-beige-light transition-all duration-200"
-            >
-              <Calendar className="h-4 w-4" />
-              <span className="hidden xl:inline font-medium">Planner</span>
-            </Link>
-          </div>
+          {/* Right - Planner Button */}
+          <Link
+            to="/planner"
+            className="flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-full text-beige-light hover:bg-maroon hover:text-beige-light transition-all duration-200 flex-shrink-0"
+          >
+            <Calendar className="h-5 w-5" />
+            {showButtonText && <span className="hidden md:inline font-medium text-lg">Planner</span>}
+          </Link>
         </div>
       </div>
     </nav>

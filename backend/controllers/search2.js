@@ -36,7 +36,8 @@ const getProfessorDataForCourse = async(req, res) => {
                         'totalStudents', p.totalStudents,
                         'wouldTakeAgain', p.wouldTakeAgain,
                         'totalRatings', SUM(pr.frequency),
-                        'averageRating', SUM(pr.value * pr.frequency) * 1.0 / NULLIF(SUM(pr.frequency), 0)
+                        'averageRating', SUM(pr.value * pr.frequency) * 1.0 / NULLIF(SUM(pr.frequency), 0),
+                        'rmpLink', p.rmpLink
                     ),
                     'courses', (
                         SELECT JSON_AGG(course_id) 
@@ -54,6 +55,7 @@ const getProfessorDataForCourse = async(req, res) => {
         `;
         // console.log(sql3);
         const result3 = await client.query(sql3, [courseId]);
+
         if (!result3.rows.length) {
             return res.status(404).json({ error: `No professors found for course with ID ${courseId}.` });
         }
@@ -109,6 +111,7 @@ const getCourseData = async (req, res) => {
             return acc;
         }, {}) || {};
 
+       
         return res.json(courses);
     } catch (error) {
         console.error("Error in search controller: getCourseData");
