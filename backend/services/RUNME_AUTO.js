@@ -221,12 +221,13 @@ async function main() {
     // Choose file mode
     // ---------------------------
     let data = {};
-
+    let mode = 1
     if (filePath && fs.existsSync(filePath)) {
     try {
         const raw = fs.readFileSync(filePath, 'utf8');
         data = JSON.parse(raw);
         console.log(`Loaded existing data from ${filePath}`);
+        mode = 2;
     } catch (err) {
         console.error("Error reading existing file:", err);
         process.exit(1);
@@ -276,7 +277,10 @@ async function main() {
     // Merge with existing if applicable
 
     // Clean up semester keys and save
-    data = changeSem(data);
+    data = await changeSem(data);
+    console.log("----------------------------------------------------------")
+    console.log("Getting Prereqs:")
+    data = await populateClasses.getPrereq(data);
 
     const outFileName = `data_${semName}${year}.json`;
     fs.writeFile(outFileName, JSON.stringify(data, null, 2), 'utf8', (err) => {

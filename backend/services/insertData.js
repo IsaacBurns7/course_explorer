@@ -1,4 +1,4 @@
-const courseInfo = require('./data_Spring2026.json');
+const courseInfo = require('./data_Spring2026_Prereq.json');
 const { Pool} = require('pg');
 require('dotenv').config({path: '../.env'});
 /**
@@ -11,7 +11,7 @@ function generateCourseSQL(courseId, courseObj) {
   // 1. Courses Table
   // ---------------------------
   const c = courseObj.info;
-  
+/*  
   sqlStatements.push({
     table: "course_explorer.courses",
     text: `INSERT INTO course_explorer.courses 
@@ -44,7 +44,7 @@ function generateCourseSQL(courseId, courseObj) {
       values: [courseId, attr]
     });
   }
-  */
+  
   // ---------------------------
   // 3. Professors
   // ---------------------------
@@ -58,7 +58,7 @@ function generateCourseSQL(courseId, courseObj) {
       values: [courseId, profId]
     });
   }
-
+*/
   // ---------------------------
   // 4. Sections & related tables
   // ---------------------------
@@ -75,6 +75,7 @@ function generateCourseSQL(courseId, courseObj) {
       let year = semesterKey.split("_")[1];
       let term = semesterKey.split("_")[0];
       // Sections table
+      /*
       sqlStatements.push({
         table: "course_explorer.courses_sections",
         text: `INSERT INTO course_explorer.courses_sections
@@ -109,22 +110,20 @@ function generateCourseSQL(courseId, courseObj) {
         ]
       });
 
-     
+     */
       // Section Times
       if (sec.times) {
         for (const [day, [start, end]] of Object.entries(sec.times)) {
           sqlStatements.push({
             table: "course_explorer.courses_section_times",
             text: `INSERT INTO course_explorer.courses_section_times (course_id, semester_id, section_id, day, start_time, end_time)
-                   VALUES ($1,$2,$3,$4,$5,$6)
-                   ON CONFLICT (course_id, semester_id, section_id, day) DO UPDATE SET
-                     start_time = EXCLUDED.start_time,
-                     end_time = EXCLUDED.end_time;`,
+                   VALUES ($1,$2,$3,$4,$5,$6);`,
             values: [courseId, semId, sec.section, day, start, end]
           });
         }
       }
 
+      /*
       // Section Attributes
       for (const attr of sec.attributes || []) {
         sqlStatements.push({
@@ -136,7 +135,7 @@ function generateCourseSQL(courseId, courseObj) {
           values: [courseId, semId, sec.section, attr]
         });
       }
-      
+      */
     }
   }
 
@@ -165,6 +164,7 @@ console.log(`Generated ${allSQLStatements.length} SQL statements.`);
     await pool.connect();
     console.log("DB Connection established successfully.");
 
+    await pool.query("DELETE FROM course_explorer.courses_section_times;")
     let count = 1;
     for (const stmt of allSQLStatements) {
       process.stdout.write(`\r(${count}/${allSQLStatements.length}) Inserting into ${stmt.table}...`);
