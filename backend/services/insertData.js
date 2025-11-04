@@ -114,6 +114,7 @@ function generateCourseSQL(courseId, courseObj) {
       // Section Times
       if (sec.times) {
         for (const [day, [start, end]] of Object.entries(sec.times)) {
+          if (start == null) continue;
           sqlStatements.push({
             table: "course_explorer.courses_section_times",
             text: `INSERT INTO course_explorer.courses_section_times (course_id, semester_id, section_id, day, start_time, end_time)
