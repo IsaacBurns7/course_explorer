@@ -113,14 +113,20 @@ function generateCourseSQL(courseId, courseObj) {
      */
       // Section Times
       if (sec.times) {
-        for (const [day, [start, end]] of Object.entries(sec.times)) {
-          if (start == null) continue;
-          sqlStatements.push({
-            table: "course_explorer.courses_section_times",
-            text: `INSERT INTO course_explorer.courses_section_times (course_id, semester_id, section_id, day, start_time, end_time)
-                   VALUES ($1,$2,$3,$4,$5,$6);`,
-            values: [courseId, semId, sec.section, day, start, end]
-          });
+        
+        for (const [day, times] of Object.entries(sec.times)) {
+          for (let i = 0; i < times.length; i += 2) {
+            const start = times[i];
+            const end = times[i + 1];
+            if (!start || !end) continue;
+            sqlStatements.push({
+              table: "course_explorer.courses_section_times",
+              text: `INSERT INTO course_explorer.courses_section_times (course_id, semester_id, section_id, day, start_time, end_time)
+                    VALUES ($1,$2,$3,$4,$5,$6)
+                    ON CONFLICT (course_id, semester_id, section_id, day, start_time) DO NOTHING;`,
+              values: [courseId, semId, sec.section, day, start, end]
+            });
+          }
         }
       }
 
