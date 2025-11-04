@@ -536,4 +536,4 @@ async function getPrereq(courseData) {
   console.log("✅ data_Spring2026_Prereq.json written successfully!");
 }
 
-module.exports = { gatherData }
+module.exports = { gatherData, getPrereq }
