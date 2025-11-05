@@ -77,3 +77,16 @@ Genetic algorithm
 OPTION 4
 
 Simulated Annealing
+
+
+Scheduler should support the following: 
+- CRNs
+Filtering by GPA / Rating
+- Put more emphasis on GPA or Rating
+- More emphasis on certain class
+- Fix a professor
+- Fix a class 
+- Fix a section
+
+In the future
+- Location

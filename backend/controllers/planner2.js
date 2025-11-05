@@ -175,8 +175,46 @@ function parseTime(str) {
 /*
 interface: {
     currentSchedule: {
-
+        day: any;
+        start: any;
+        end: any;
+    }[],
+    scheduleOfAddedClass: {
+        day: string,
+        start: string,
+        end: string
     }
+}
+*/
+function checkMinSpread(currentSchedule, scheduleOfAddedClass, min_spread){
+    
+}
+
+/*
+interface: {
+    currentSchedule: {
+        day: any;
+        start: any;
+        end: any;
+    }[],
+    scheduleOfAddedClass: {
+        day: string,
+        start: string,
+        end: string
+    }
+}
+*/
+function checkMaxSpread(currentSchedule, scheduleOfAddedClass, max_spread){
+    
+}
+
+/*
+interface: {
+    currentSchedule: {
+        day: any;
+        start: any;
+        end: any;
+    }[]
     scheduleOfAddedClass: {
         day: string,
         start: string,
@@ -204,19 +242,59 @@ function checkOverlap(currentSchedule, scheduleOfAddedClass){
 
 /*
 if we merge intervals, we can check overlap in O(n log n) for n intervals
+
+req.body: { 
+    courses: String[],
+    semester: String,
+    min_rating: Number,
+    min_gpa: Number,
+
+    BELOW WILL BE SUPPORTED AFTER scheduler page is made 
+    course_weights: {
+        "CSCE_120": {
+            total_weight: Number,
+            rating_weight: Number,
+            gpa_weight: Number -- total weight must equal rating + gpa weights
+        } 
+    }
+    fixed_professors: [
+        "CSCE_120": Number[] -> professor ids 
+    ],
+    spread: {
+        min: Number,
+        max: Number   
+    },
+    breaks: [
+        {
+            day: String, ('M' | 'T' | 'W' | 'R' | 'F')
+            start: String,
+            end: String
+        }
+    ]
+}
+
+Design
+- Canva / Figma / Notebook diagram for design of page so it looks nice :) 
+Functionality
+- Weekly calendar component that displays returned schedule 
+- Logical connection to planner (up to design)
+- Search settings similiar to search page, which support the following
+    - Attaching an arbitrary weight to a class' rating, between 0 and 1
+    - Attaching an arbitrary weight to a class' gpa, between 0 and 1
+    - Attaching an arbitrary weight to a class, between 1 and 100 
 */
 const getOptimalSchedule = async (req, res) => {
     const client = await pool.connect();
     try { 
         // console.log(req.body);
-        const courses = req.body.courses;
-        const semester = req.body.semester;
+        const { courses, semester, min_rating, min_gpa, fixed_professors, spread } = req.body;
+        // const professors = req.body.professors;
         const sqlFilePath = path.join(__dirname, "./sql/getOptimalSchedule.sql");
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         // console.log(sql);
-        // console.log("Params: ", [courses, semester]);
-        const queryResult = await client.query(sql, [courses, semester]);
-        // console.log(queryResult.rows);
+        console.log("Params: ", [courses, semester, min_rating, min_gpa, fixed_professors]);
+        const queryResult = await client.query(sql, [courses, semester, min_gpa, min_rating, fixed_professors]);
+        console.log(queryResult.rows);
         
         const courseProfessorSectionPairs = queryResult.rows.map((pair) => {
             let raw = pair.schedule;
@@ -253,6 +331,15 @@ const getOptimalSchedule = async (req, res) => {
             coursesMap[courseId].push(pair);
         }
 
+        //double check this courses map has at least one entry for each course
+
+        for(const course of courses){
+            const pairs = coursesMap[course] || [];
+            if(pairs.length == 0){
+                return res.status(400).json({error: `For course ${course}, no valid sections found`});
+            }
+        }
+
         // console.log(coursesMap);
         let dp = new Map();
         dp.set(0n, {score: 0.0, schedule: []});
@@ -265,12 +352,20 @@ const getOptimalSchedule = async (req, res) => {
             console.log("Iterating through", course);
             for(const [mask, {score, schedule: currentSchedule}] of dp.entries()){
                 const scheduleRaw = generateSchedule(mask); //not needed?
-                for(const {professor_id, section_id, schedule, professor_score} of pairs){
+                for(const {professor_id, section_id, scheduleOfAddedClass, professor_score} of pairs){
                     const section_score = parseFloat(professor_score);
-                    const section_mask = generateMask(schedule);
+                    const section_mask = generateMask(scheduleOfAddedClass);
                     //schedule has sectionTimes 
                     // console.log("Must compare:", currentSchedule, schedule);
-                    if(((section_mask & mask) === 0n) && !checkOverlap(schedule, scheduleRaw)){
+                    if(((section_mask & mask) === 0n) && !checkOverlap(scheduleOfAddedClass, scheduleRaw)){
+                        if(spread?.min){
+                            const pass = checkMinSpread(scheduleOfAddedClass, scheduleRaw, spread.min);
+                            if(!pass) continue;
+                         }
+                        if(spread?.max){
+                            const pass = checkMaxSpread(scheduleOfAddedClass, scheduleRaw, spread.max);
+                            if(!pass) continue;
+                        }
                         const new_mask = mask | section_mask; 
                         const new_score = score + section_score;
 
@@ -278,7 +373,7 @@ const getOptimalSchedule = async (req, res) => {
                             const new_entry = {
                                 score: new_score,
                                 schedule: [...currentSchedule, {
-                                    course_id: course, professor_id, section_id, schedule
+                                    course_id: course, professor_id, section_id, schedule: scheduleOfAddedClass
                                 }]
                             };
                            new_dp.set(new_mask, new_entry);
