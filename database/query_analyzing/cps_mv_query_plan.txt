@@ -1,0 +1,34 @@
+                                                      QUERY PLAN                                                      
+----------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=6019.32..39311418.19 rows=8057 width=116)
+   Group Key: cp.professor_id, cp.course_id
+   ->  Merge Left Join  (cost=6019.32..6278.09 rows=24866 width=42)
+         Merge Cond: ((cp.professor_id = pr.professor_id) AND (cp.course_id = pr.course_id))
+         ->  Sort  (cost=5224.59..5286.75 rows=24866 width=32)
+               Sort Key: cp.professor_id, cp.course_id
+               ->  Hash Right Join  (cost=756.65..3409.13 rows=24866 width=32)
+                     Hash Cond: ((cs.course_id = cp.course_id) AND (cs.professor_id = cp.professor_id))
+                     ->  Seq Scan on courses_sections cs  (cost=0.00..2207.53 rows=84753 width=32)
+                     ->  Hash  (cost=383.66..383.66 rows=24866 width=12)
+                           ->  Seq Scan on courses_professors cp  (cost=0.00..383.66 rows=24866 width=12)
+         ->  Sort  (cost=794.73..818.79 rows=9621 width=23)
+               Sort Key: pr.professor_id, pr.course_id
+               ->  Seq Scan on professor_ratings pr  (cost=0.00..158.21 rows=9621 width=23)
+   SubPlan 1
+     ->  Aggregate  (cost=18.95..18.96 rows=1 width=32)
+           ->  Index Scan using professor_ratings_pkey on professor_ratings pr2  (cost=0.29..18.91 rows=5 width=10)
+                 Index Cond: (professor_id = cp.professor_id)
+   SubPlan 2
+     ->  Aggregate  (cost=2420.10..2420.11 rows=1 width=32)
+           ->  Seq Scan on courses_sections cs2  (cost=0.00..2419.41 rows=16 width=20)
+                 Filter: (cp.professor_id = professor_id)
+   SubPlan 3
+     ->  Aggregate  (cost=2420.10..2420.11 rows=1 width=32)
+           ->  Seq Scan on courses_sections cs2_1  (cost=0.00..2419.41 rows=16 width=20)
+                 Filter: (cp.professor_id = professor_id)
+   SubPlan 4
+     ->  Aggregate  (cost=18.95..18.96 rows=1 width=32)
+           ->  Index Scan using professor_ratings_pkey on professor_ratings pr2_1  (cost=0.29..18.91 rows=5 width=10)
+                 Index Cond: (professor_id = cp.professor_id)
+(30 rows)
+
