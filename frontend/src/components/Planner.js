@@ -248,20 +248,26 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                 key={semester.name}
                 className="bg-dark-card rounded-lg overflow-hidden shadow-lg border border-dark-border"
               >
-                <button
-                  onClick={() => toggleSemesterCollapse(semester.name)}
+                {/* Semester header (changed from button to div) */}
+                <div
                   className={`w-full text-left p-4 font-bold text-gray-100 transition-colors duration-200 ${
                     isCollapsed ? "bg-dark-semester-closed" : "bg-dark-semester"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
+                    {/* Main collapse/expand button - clicki semester name */}
+                    <button
+                      onClick={() => toggleSemesterCollapse(semester.name)}
+                      className="flex-1 min-w-0 text-left"
+                    >
                       <div className="text-base sm:text-lg">{semester.name}</div>
                       {isPassed && <div className="text-xs sm:text-sm text-gray-400 mt-1">(Already Taken)</div>}
                       {!isCollapsed && <div className="text-sm text-gray-300 mt-1">{semesterTotal} credit hours</div>}
-                    </div>
+                    </button>
 
+                    {/* Action buttons - all siblings to avoid nested button HTML error */}
                     <div className="flex items-center gap-2 flex-shrink-0">
+                      {/* Delete semester button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
@@ -287,6 +293,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                         </svg>
                       </button>
 
+                      {/* Add class to semester button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
@@ -312,20 +319,26 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                         </svg>
                       </button>
 
-                      <svg
-                        className={`w-5 h-5 transition-transform duration-200 ${isCollapsed ? "rotate-0" : "rotate-90"}`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
+                      {/* Collapse/expand arrow button */}
+                      <button
+                        onClick={() => toggleSemesterCollapse(semester.name)}
+                        className="p-0"
                       >
-                        <path
-                          fillRule="evenodd"
-                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                        <svg
+                          className={`w-5 h-5 transition-transform duration-200 ${isCollapsed ? "rotate-0" : "rotate-90"}`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
                     </div>
                   </div>
-                </button>
+                </div>
 
                 {!isCollapsed && (
                   <div className="divide-y divide-dark-border">
@@ -539,14 +552,16 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                         className={`border-t-2 border-dark-accent ${isCollapsed ? "bg-dark-semester-closed" : "bg-dark-semester"}`}
                       >
                         <td colSpan={5} className="p-0">
-                          <button
-                            onClick={() => toggleSemesterCollapse(semester.name)}
+                          <div
                             className="w-full text-left p-3 font-bold text-gray-100 text-base hover:bg-dark-hover transition-colors duration-200 flex items-center justify-between"
                           >
-                            <span className="flex justify-between w-full">
+                            <button
+                              onClick={() => toggleSemesterCollapse(semester.name)}
+                              className="flex justify-between flex-1"
+                            >
                               <span>{semester.name}</span>
                               {isPassed && <span className="text-gray-400 mr-5">(Already Taken)</span>}
-                            </span>
+                            </button>
 
                             <span className="ml-auto flex gap-x-4">
                               <button
@@ -598,21 +613,27 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                                   <path d="M5 12h14" />
                                 </svg>
                               </button>
+
+                              <button
+                                onClick={() => toggleSemesterCollapse(semester.name)}
+                                className="p-0"
+                              >
+                                <svg
+                                  className={`w-5 h-5 transition-transform duration-200 ml-5 ${
+                                    isCollapsed ? "rotate-0" : "rotate-90"
+                                  }`}
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </button>
                             </span>
-                            <svg
-                              className={`w-5 h-5 transition-transform duration-200 ml-5 ${
-                                isCollapsed ? "rotate-0" : "rotate-90"
-                              }`}
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </button>
+                          </div>
                         </td>
                       </tr>
 
