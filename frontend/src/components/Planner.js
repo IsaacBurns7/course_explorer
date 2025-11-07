@@ -7,6 +7,7 @@ import MoveClassModal from "./modals/move"
 import AddClassModal from "./modals/add"
 import ClearConfirmModal from "./modals/clear"
 import Alert from "./ui/alert"
+import ScheduleFinder from "./ScheduleFinder"
 
 import "../styles/tailwind.css"
 
@@ -236,6 +237,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
         </div>
       </div>
 
+      {/* MOBILE VIEW - Card layout for small screens */}
       <div className="block md:hidden">
         <div className="space-y-4">
           {sortedSemesters.map((semester) => {
@@ -526,7 +528,9 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
           </div>
         </div>
       </div>
+      {/* END MOBILE VIEW */}
 
+      {/* DESKTOP VIEW - Table layout for medium and larger screens */}
       <div className="hidden md:block">
         <div className="bg-dark-card rounded-lg overflow-hidden shadow-lg border border-dark-border">
           <div className="overflow-x-auto">
@@ -548,13 +552,16 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
 
                   return (
                     <React.Fragment key={semester.name}>
+                      {/* Semester header row - table view */}
                       <tr
                         className={`border-t-2 border-dark-accent ${isCollapsed ? "bg-dark-semester-closed" : "bg-dark-semester"}`}
                       >
                         <td colSpan={5} className="p-0">
+                          {/* Using div instead of button wrapper to avoid nested button errors */}
                           <div
                             className="w-full text-left p-3 font-bold text-gray-100 text-base hover:bg-dark-hover transition-colors duration-200 flex items-center justify-between"
                           >
+                            {/* Main collapse/expand button - clicking semester name toggles */}
                             <button
                               onClick={() => toggleSemesterCollapse(semester.name)}
                               className="flex justify-between flex-1"
@@ -563,7 +570,9 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                               {isPassed && <span className="text-gray-400 mr-5">(Already Taken)</span>}
                             </button>
 
+                            {/* Action buttons - all siblings to avoid nested button HTML error */}
                             <span className="ml-auto flex gap-x-4">
+                              {/* Delete semester button */}
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -589,6 +598,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                                 </svg>
                               </button>
 
+                              {/* Add class to semester button */}
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -614,6 +624,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                                 </svg>
                               </button>
 
+                              {/* Collapse/expand arrow button */}
                               <button
                                 onClick={() => toggleSemesterCollapse(semester.name)}
                                 className="p-0"
@@ -834,6 +845,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
           </div>
         </div>
       </div>
+      {/* END DESKTOP VIEW */}
 
       <div className="flex justify-end py-4">
         <button
@@ -862,6 +874,11 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
           </svg>
           <span>Clear Planner</span>
         </button>
+      </div>
+
+      {/* Schedule Finder Section */}
+      <div className="mt-12">
+        <ScheduleFinder planner={planner} />
       </div>
 
       {/* Modals */}
