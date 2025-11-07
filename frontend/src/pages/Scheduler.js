@@ -1,24 +1,23 @@
-import React, { useState } from 'react';
+"use client"
 
-const Scheduler = () => {
-    const { plannerData } = usePlannerStore();
-    const [schedules, setSchedules] = useState([]);
-    const [semester, setSemester] = useState("Spring 2026"); 
-    const [courseWeights, setCourseWeights] = useState({});
-    const [fixedProfessors, setFixedProfessors] = useState({});
-    const [selectedSchedule, setSelectedSchedule] = useState(0);
-    const [loading, setLoading] = useState(false);
+import { useState } from "react"
+import ClassSelector from "../components/scheduler/class-selector"
+import Scheduler from "../components/scheduler/scheduler"
 
-    const handleWeightChange = (course, field, value) => {
+export default function Home() {
+  const [selectedClasses, setSelectedClasses] = useState(null)
 
-    };
+  const handleClassesSelected = (classes) => {
+    setSelectedClasses(classes)
+  }
 
-    const handleProfToggle = (course, profId) => {
+  const handleBack = () => {
+    setSelectedClasses(null)
+  }
 
-    };
+  if (!selectedClasses) {
+    return <ClassSelector onClassesSelected={handleClassesSelected} />
+  }
 
-    const getOptimalSchedule = async () => {
-
-    };
+  return <Scheduler selectedClasses={selectedClasses} onBack={handleBack} />
 }
-export default Scheduler;
