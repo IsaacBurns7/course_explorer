@@ -8,13 +8,6 @@ FUTURE
 
 -- ARRAY['CSCE_314', 'CSCE_221', 'CSCE_312'] is $1
 -- 'Spring 2026' is $2
-
-/*
-$1 -> courses: String[]
-$2 -> semester: String
-$3 -> min_rating: Number
-$4 -> min_gpa: Number
-*/
 WITH validCourseProfessorSectionPairs AS (
     SELECT cp.course_id, cp.professor_id, cs.section_id, cps.professor_score::numeric,
         ARRAY_AGG((cst.day, cst.start_time, cst.end_time)) AS schedule
@@ -23,14 +16,6 @@ WITH validCourseProfessorSectionPairs AS (
             SELECT * 
             FROM course_explorer.courses_professors
             WHERE course_id = ANY($1)
-                AND (
-                    CASE 
-                        WHEN $5 ? course_id THEN professor_id = ANY(
-                            SELECT jsonb_array_elements_text($5->course_id)::INTEGER
-                        )
-                        ELSE TRUE
-                    END
-                )
         ) cp
     JOIN 
         (
@@ -50,11 +35,9 @@ WITH validCourseProfessorSectionPairs AS (
             AND cst.section_id = cs.section_id
             AND cst.semester_id = cs.semester_id
     JOIN (
-            SELECT professor_id, professor_score, average_gpa, average_rating
+            SELECT professor_id, professor_score
             FROM course_explorer.courses_professors_scores 
             WHERE course_id = ANY($1)
-                AND (average_gpa >= $3 OR $3 IS NULL)
-                AND (average_rating >= $4 OR $4 IS NULL)
         ) cps -- course prof score  
         ON cp.professor_id = cps.professor_id
     GROUP BY cp.course_id, cp.professor_id, cs.section_id, cps.professor_score
