@@ -135,6 +135,7 @@ function getTimeForMaskBit(bitNumber){
 
 function generateMask(sectionTimes){
     let mask = 0n;
+    //console.log(sectionTimes)
     for(const {day, start, end} of sectionTimes){
         const bit = BigInt(getMaskBitForTime(day, start, end));
         mask |= (1n << bit);
@@ -294,8 +295,8 @@ const getOptimalSchedule = async (req, res) => {
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         // console.log(sql);
         // console.log("Params: ", [courses, semester]);
-        const queryResult = await client.query(sql, [courses, semester]);
-        console.log(queryResult.rows)
+        const queryResult = await client.query(sql, [courses, semester, null, null, null]);
+        //console.log(queryResult.rows)
         const courseProfessorSectionPairs = queryResult.rows.map((pair) => {
             let raw = pair.schedule;
             // console.log("Raw: ", raw);
@@ -317,7 +318,7 @@ const getOptimalSchedule = async (req, res) => {
                 end: end.replace(/[\\"\[\]]/g, '').trim()
             }));
             pair.schedule = items;
-            console.log("Unraw: ", pair);
+            //console.log("Unraw: ", pair);
             return pair;
         });
         const coursesMap = {};
@@ -336,6 +337,7 @@ const getOptimalSchedule = async (req, res) => {
         for(const course of courses){
             const pairs = coursesMap[course] || [];
             if(pairs.length == 0){
+                //console.log("AWJREOIAWJROIAWJOIRJ")
                 return res.status(400).json({error: `For course ${course}, no valid sections found`});
             }
         }
@@ -349,16 +351,19 @@ const getOptimalSchedule = async (req, res) => {
         for(const course of courses){
             let new_dp = new Map();
             const pairs = coursesMap[course];
-            console.log("Iterating through", course);
+            //console.log("Iterating through", course);
             for(const [mask, {score, schedule: currentSchedule}] of dp.entries()){
                 const scheduleRaw = generateSchedule(mask); //not needed?
-                console.log(pairs)
-                for(const {professor_id, section_id, schedule, professor_score} of pairs){
+                //console.log(pairs)
+                for(const {course_id, professor_id, section_id, professor_score, schedule: scheduleOfAddedClass} of pairs){
+
+                    //console.log(scheduleOfAddedClass)
                     const section_score = parseFloat(professor_score);
                     const section_mask = generateMask(scheduleOfAddedClass);
                     //schedule has sectionTimes 
                     // console.log("Must compare:", currentSchedule, schedule);
                     if(((section_mask & mask) === 0n) && !checkOverlap(scheduleOfAddedClass, scheduleRaw)){
+                        /*
                         if(spread?.min){
                             const pass = checkMinSpread(scheduleOfAddedClass, scheduleRaw, spread.min);
                             if(!pass) continue;
@@ -367,8 +372,12 @@ const getOptimalSchedule = async (req, res) => {
                             const pass = checkMaxSpread(scheduleOfAddedClass, scheduleRaw, spread.max);
                             if(!pass) continue;
                         }
+                        */
                         const new_mask = mask | section_mask; 
                         const new_score = score + section_score;
+                        //console.log(new_mask, mask, section_mask);
+
+
 
                         if(!new_dp.get(new_mask) || new_score > new_dp.get(new_mask)){
                             const new_entry = {
@@ -378,10 +387,15 @@ const getOptimalSchedule = async (req, res) => {
                                 }]
                             };
                            new_dp.set(new_mask, new_entry);
+
+                           //console.log("HELLO!")
+                           //console.log(new_entry)
                         }
                     }
                 }
-            } 
+            }
+            
+            //console.log(new_dp)
             dp = new Map(
                 [...new_dp.entries()]
                 .sort((a,b) => b[1].score - a[1].score)
@@ -415,6 +429,8 @@ const getOptimalSchedule = async (req, res) => {
             ]
         }
         */
+
+        //console.log(topSchedules[0])
         return res.status(200).json({ schedules: topSchedules});
     } catch (err) {
         console.error("Planner error:", err);
