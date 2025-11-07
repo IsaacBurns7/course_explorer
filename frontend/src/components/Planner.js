@@ -7,6 +7,7 @@ import MoveClassModal from "./modals/move"
 import AddClassModal from "./modals/add"
 import ClearConfirmModal from "./modals/clear"
 import Alert from "./ui/alert"
+import ScheduleFinder from "./ScheduleFinder"
 
 import "../styles/tailwind.css"
 
@@ -873,6 +874,11 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
           </svg>
           <span>Clear Planner</span>
         </button>
+      </div>
+
+      {/* Schedule Finder Section */}
+      <div className="mt-12">
+        <ScheduleFinder planner={planner} />
       </div>
 
       {/* Modals */}

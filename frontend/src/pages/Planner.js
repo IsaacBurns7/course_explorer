@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PlannerDisplay from "../components/Planner";
+import ScheduleFinder from "../components/ScheduleFinder";
 import UploadPlannerModal from "../components/modals/upload";
 
 export default function Planner() {

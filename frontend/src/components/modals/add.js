@@ -77,8 +77,8 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
       return
     }
 
-    const courseAlreadyExists = semesters.some((semester) =>
-      semester.courses.some(
+    const courseAlreadyExists = semesters && Array.isArray(semesters) && semesters.some((semester) =>
+      semester.courses && semester.courses.some(
         (course) =>
           course.department === selectedCourse.department &&
           course.number === selectedCourse.number
