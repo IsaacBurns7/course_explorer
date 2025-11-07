@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Calendar, Sun, Moon } from 'lucide-react';
+import { Home, Calendar, Sun, Moon, Notebook } from 'lucide-react';
 //import { useTheme } from '../context/theme';
 import AutoCompleteSearch from './Search';
 
@@ -70,21 +70,20 @@ const Navbar = () => {
 
           {/* Right - Theme Toggle & Planner Button */}
           <div className="flex items-center space-x-2">
-            {/*
-            <button
-              onClick={toggleTheme}
-              className="lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-maroon hover:text-beige-light transition-all duration-200"
-              aria-label="Toggle theme"
-            >
-              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
-            */}
             <Link
               to="/planner"
               className="lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-dark-select hover:text-beige-light transition-all duration-200"
             >
               <Calendar className="h-4 w-4" />
               <span className="hidden xl:inline font-medium">Planner</span>
+            </Link>
+
+            <Link
+              to="/scheduler"
+              className = "lm-bright flex items-center space-x-2 px-3 py-2 rounded-full text-beige-light hover:bg-dark-select hover:text-beige-light transition-all duration-200"
+            >
+              <Notebook className="h-4 w-4" />
+              <span className="hidden xl:inline font-medium">Scheduler</span>
             </Link>
           </div>
         </div>

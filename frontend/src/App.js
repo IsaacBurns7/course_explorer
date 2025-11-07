@@ -14,6 +14,7 @@ import ComparePage from "./pages/Compare";
 import CourseDetails from "./pages/CourseDetails";
 import DashboardRedirect from "./pages/DashboardRedirect";
 import { SearchContextProvider } from "./context/search";
+import Scheduler from "./pages/Scheduler"
 
 const App = () => {
    //const [professors, setProfessors] = useState([]);
@@ -91,6 +92,10 @@ const App = () => {
                                 path = "/course/:courseId"
                                 element = {<CourseDetails />}
                             />
+                            <Route
+                                path = "/scheduler"
+                                element = {<Scheduler />}
+                            ></Route>
                         </Routes>
                     </SearchContextProvider>
                 </div>

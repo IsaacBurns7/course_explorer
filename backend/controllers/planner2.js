@@ -287,15 +287,15 @@ const getOptimalSchedule = async (req, res) => {
     const client = await pool.connect();
     try { 
         // console.log(req.body);
-        const { courses, semester, min_rating, min_gpa, fixed_professors, spread } = req.body;
-        // const professors = req.body.professors;
+
+        const courses = req.body.courses;
+        const semester = req.body.semester;
         const sqlFilePath = path.join(__dirname, "./sql/getOptimalSchedule.sql");
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         // console.log(sql);
-        console.log("Params: ", [courses, semester, min_rating, min_gpa, fixed_professors]);
-        const queryResult = await client.query(sql, [courses, semester, min_gpa, min_rating, fixed_professors]);
-        console.log(queryResult.rows);
-        
+        // console.log("Params: ", [courses, semester]);
+        const queryResult = await client.query(sql, [courses, semester]);
+        console.log(queryResult.rows)
         const courseProfessorSectionPairs = queryResult.rows.map((pair) => {
             let raw = pair.schedule;
             // console.log("Raw: ", raw);
@@ -352,7 +352,8 @@ const getOptimalSchedule = async (req, res) => {
             console.log("Iterating through", course);
             for(const [mask, {score, schedule: currentSchedule}] of dp.entries()){
                 const scheduleRaw = generateSchedule(mask); //not needed?
-                for(const {professor_id, section_id, scheduleOfAddedClass, professor_score} of pairs){
+                console.log(pairs)
+                for(const {professor_id, section_id, schedule, professor_score} of pairs){
                     const section_score = parseFloat(professor_score);
                     const section_mask = generateMask(scheduleOfAddedClass);
                     //schedule has sectionTimes 
