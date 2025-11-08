@@ -82,11 +82,50 @@ Simulated Annealing
 Scheduler should support the following: 
 - CRNs
 Filtering by GPA / Rating
-- Put more emphasis on GPA or Rating
-- More emphasis on certain class
-- Fix a professor
+- Put more emphasis on GPA or Rating for a class 
+- More emphasis on certain class 
+- Fix a professor DONE 
 - Fix a class 
 - Fix a section
+- min rating DONE 
+- min gpa DONE 
 
 In the future
 - Location
+
+Say a user wants classes only after 9am 
+Find a way to penalize a class that starts at 845am less than a class that starts at 800am
+
+preference of no classes after 7pm - 0.5x 
+preference of no classes on friday - 0.5x
+
+rank preferences
+1. no 8ams 
+2. no fridays 
+
+preferences rating 
+1 - 5
+1 -> .1 
+2 -> .25 
+3 -> .5 
+4 -> .75
+5 -> .90
+
+100% -> top score 
+top score 
+
+score = (sum over classes) (total weight of course * percentage of course weight allocated to rating * rating)
+score = (sum over classes) (total weight of course * percentage of course weight allocated to gpa * gpa)
+
+ADVANCED SETTINGS 
+course 1 - total weight - % of weight allocated to rating 
+course 2 - total weight 
+course 3 - total weight 
+
+DEFAULT SETTINGS 
+importance of class 1 - 5
+1 -> 1 
+2 -> 5 
+3 -> 7 
+4 -> 10 
+5 -> 25
