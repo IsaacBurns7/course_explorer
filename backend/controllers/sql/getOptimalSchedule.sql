@@ -62,27 +62,29 @@ WITH validCourseProfessorSectionPairs AS (
         -- Compute the dynamic weighted score
         COALESCE(
             (
-                COALESCE((($6 -> cp.course_id ->> 'course_weight')::numeric), 1.0) 
-                *
+                -- COALESCE((($6 -> cp.course_id ->> 'course_weight')::numeric), 1.0) 
+                -- *
                 (
-                    COALESCE((($6 -> cp.course_id ->> 'gpa_weight')::numeric), 0.5) * COALESCE(cps.average_gpa, 0)
+                --     COALESCE((($6 -> cp.course_id ->> 'gpa_weight')::numeric), 0.5) *
+                    COALESCE(cps.average_gpa, 0)
                     +
-                    COALESCE((($6 -> cp.course_id ->> 'rating_weight')::numeric), 0.5) * COALESCE(cps.average_rating, 0)
+                --     COALESCE((($6 -> cp.course_id ->> 'rating_weight')::numeric), 0.5) * 
+                    COALESCE(cps.average_rating, 0)
                 )
-                *
-                COALESCE(, 1.0)
-                *
-                CASE WHEN BOOL_OR(cst.day = 'F')
-                    THEN COALESCE((($7 -> 'no_classes_friday' ->> penalty)::numeric), 1.0)
-                    ELSE 1.0 END
-                *
-                CASE WHEN BOOL_OR(cst.start_time < ($7 -> 'no_classes_before' ->> 'time')::time)
-                    THEN COALESCE((($7 -> 'no_classes_before' ->> penalty)::numeric), 1.0)
-                    ELSE 1.0 END
-                *
-                CASE WHEN BOOL_OR(cst.end_time > ($7 -> 'no_classes_after' ->> 'time')::time)
-                    THEN COALESCE((($7 -> 'no_classes_after' ->> penalty)::numeric), 1.0)
-                    ELSE 1.0 END
+                -- *
+                -- COALESCE(, 1.0)
+                -- *
+                -- CASE WHEN BOOL_OR(cst.day = 'F')
+                --     THEN COALESCE((($7 -> 'no_classes_friday' ->> penalty)::numeric), 1.0)
+                --     ELSE 1.0 END
+                -- *
+                -- CASE WHEN BOOL_OR(cst.start_time < ($7 -> 'no_classes_before' ->> 'time')::time)
+                --     THEN COALESCE((($7 -> 'no_classes_before' ->> penalty)::numeric), 1.0)
+                --     ELSE 1.0 END
+                -- *
+                -- CASE WHEN BOOL_OR(cst.end_time > ($7 -> 'no_classes_after' ->> 'time')::time)
+                --     THEN COALESCE((($7 -> 'no_classes_after' ->> penalty)::numeric), 1.0)
+                --     ELSE 1.0 END
             )
         , 0) AS professor_score
     FROM 
@@ -124,7 +126,7 @@ WITH validCourseProfessorSectionPairs AS (
                 AND (average_rating >= $4 OR $4 IS NULL)
         ) cps -- course prof score  
         ON cp.professor_id = cps.professor_id
-    GROUP BY cp.course_id, cp.professor_id, cs.section_id, cps.professor_score, cs.crn 
+    GROUP BY cp.course_id, cp.professor_id, cs.section_id, cps.professor_score, cs.crn, cps.average_gpa, cps.average_rating
 )
 SELECT * FROM validCourseProfessorSectionPairs;
 

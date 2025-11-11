@@ -12,7 +12,7 @@ const pool = new Pool({
 });
 //running db via neon
 
-console.log("Global setup: Attempting to connect to DB at ", process.env.NEON_DB_URL);
+// console.log("Global setup: Attempting to connect to DB at ", process.env.NEON_DB_URL);
 
 // const pool = new Pool({
 //     connectionString: process.env.NEON_DB_URL,
