@@ -14,10 +14,77 @@ $1 -> courses: String[]
 $2 -> semester: String
 $3 -> min_rating: Number
 $4 -> min_gpa: Number
+$5 -> professor_list: {
+    [courseId]: String -> Integer[] (actual professor ids)
+    }
+    example: {
+        "CSCE_221": [1234, 12345]
+    }
+$6 -> course_weights: {
+        courseId: String -> {
+            "course_weight" -> float,
+            "gpa_percentage" -> float,
+            "rating_percentage" -> float
+        }
+    }
+    Example: {
+    "CSCE_314": { "course_weight": 2.0, "gpa_weight": 0.7, "rating_weight": 0.3 },
+    "CSCE_312": { "course_weight": 1.0, "gpa_weight": 0.5, "rating_weight": 0.5 }
+    }
+$7 -> preferences: {
+        "no_classes_before": {
+            "time" -> <date_time>,
+            "penalty" -> float
+        },
+        "no_classes_after": {
+            "time" -> date_time,
+            "penalty" -> float
+        },
+        "no_classes_friday": {
+            "penalty" -> float
+        }
+    }
+    Example: {
+        "no_classes_before": { "time": "09:00:00", "penalty": 0.8 },
+        "no_classes_after": { "time": "17:00:00", "penalty": 0.7 },
+        "no_classes_on_friday": { "penalty": 0.5 }
+    }
+*/
+
+/*
+friday: search in schedule for cst.day is friday
+no classes before <x>: search in schedule for cst.start_time is before <x>
+no classes after <y>: search in schedule for cst.end_time is after <y>
 */
 WITH validCourseProfessorSectionPairs AS (
-    SELECT cp.course_id, cp.professor_id, cs.section_id, cps.professor_score::numeric,
-        ARRAY_AGG((cst.day, cst.start_time, cst.end_time)) AS schedule
+    SELECT cp.course_id, cp.professor_id, cs.section_id,
+        ARRAY_AGG((cst.day, cst.start_time, cst.end_time)) AS schedule,
+        -- Compute the dynamic weighted score
+        COALESCE(
+            (
+                COALESCE((($6 -> cp.course_id ->> 'course_weight')::numeric), 1.0) 
+                *
+                (
+                    COALESCE((($6 -> cp.course_id ->> 'gpa_weight')::numeric), 0.5) * COALESCE(cps.average_gpa, 0)
+                    +
+                    COALESCE((($6 -> cp.course_id ->> 'rating_weight')::numeric), 0.5) * COALESCE(cps.average_rating, 0)
+                )
+                *
+                COALESCE(, 1.0)
+                *
+                CASE WHEN BOOL_OR(cst.day = 'F')
+                    THEN COALESCE((($7 -> 'no_classes_friday' ->> penalty)::numeric), 1.0)
+                    ELSE 1.0 END
+                *
+                CASE WHEN BOOL_OR(cst.start_time < ($7 -> 'no_classes_before' ->> 'time')::time)
+                    THEN COALESCE((($7 -> 'no_classes_before' ->> penalty)::numeric), 1.0)
+                    ELSE 1.0 END
+                *
+                CASE WHEN BOOL_OR(cst.end_time > ($7 -> 'no_classes_after' ->> 'time')::time)
+                    THEN COALESCE((($7 -> 'no_classes_after' ->> penalty)::numeric), 1.0)
+                    ELSE 1.0 END
+            )
+        , 0) AS professor_score
     FROM 
         (
             SELECT * 
