@@ -40,6 +40,12 @@
 --     }
 -- });
 
+-- one-one 
+-- one-many (course_id -> {professor_id})
+-- professor -> {course_ids}
+-- many-many 
+-- 
+
 DROP TABLE course_explorer.courses CASCADE;
 -- DROP TABLE course_explorer.courses_info CASCADE;
 DROP TABLE course_explorer.courses_professors CASCADE;
@@ -57,7 +63,7 @@ CREATE TABLE course_explorer.courses(
     totalSections numeric,
     totalStudents numeric,
     averageRating numeric,
-    totalRatings numeric
+    totalRatings numeric    
 );
 
 CREATE TABLE course_explorer.courses_professors(

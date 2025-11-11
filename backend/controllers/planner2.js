@@ -247,20 +247,33 @@ if we merge intervals, we can check overlap in O(n log n) for n intervals
 req.body: { 
     courses: String[],
     semester: String,
-    min_rating: Number,
+    min_rating: Number, 
     min_gpa: Number,
-
-    BELOW WILL BE SUPPORTED AFTER scheduler page is made 
+    fixed_professors: [
+        "CSCE_120": Number[] -> professor ids 
+    ],
     course_weights: {
         "CSCE_120": {
             total_weight: Number,
             rating_weight: Number,
             gpa_weight: Number -- total weight must equal rating + gpa weights
         } 
+    },
+    preferences: {
+        "no_classes_before": {
+            "time" -> <date_time>,
+            "penalty" -> float
+        },
+        "no_classes_after": {
+            "time" -> date_time,
+            "penalty" -> float
+        },
+        "no_classes_friday": {
+            "penalty" -> float
+        }
     }
-    fixed_professors: [
-        "CSCE_120": Number[] -> professor ids 
-    ],
+
+    BELOW WILL BE SUPPORTED AFTER scheduler page is made 
     spread: {
         min: Number,
         max: Number   
