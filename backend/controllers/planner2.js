@@ -354,7 +354,7 @@ const getOptimalSchedule = async (req, res) => {
             //console.log("Iterating through", course);
             for(const [mask, {score, schedule: currentSchedule}] of dp.entries()){
                 const scheduleRaw = generateSchedule(mask); //not needed?
-                for(const {professor_id, section_id, schedule: scheduleOfAddedClass, professor_score} of pairs){
+                for(const {professor_id, section_id, schedule: scheduleOfAddedClass, professor_score, crn} of pairs){
                     const section_score = parseFloat(professor_score);
                     const section_mask = generateMask(scheduleOfAddedClass);
                     //schedule has sectionTimes 
@@ -380,7 +380,7 @@ const getOptimalSchedule = async (req, res) => {
                             const new_entry = {
                                 score: new_score,
                                 schedule: [...currentSchedule, {
-                                    course_id: course, professor_id, section_id, schedule: scheduleOfAddedClass
+                                    course_id: course, professor_id, section_id, schedule: scheduleOfAddedClass, crn: crn
                                 }]
                             };
                            new_dp.set(new_mask, new_entry);

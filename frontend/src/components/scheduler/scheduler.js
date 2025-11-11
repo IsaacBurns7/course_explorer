@@ -291,7 +291,8 @@ export default function Scheduler({ selectedClasses, onBack }) {
                         <h4 className="font-semibold text-sm text-gray-900 truncate">
                           {course.course_id.replace("_", " ")}
                         </h4>
-                        <p className="text-xs text-gray-600">Sec {course.section_id}</p>
+                        <p className="text-xs text-gray-600">Section: {course.section_id}</p>
+                        <p className = "text-xs text-gray-600">CRN: {course.crn}</p> 
                       </div>
                     </div>
                   )
