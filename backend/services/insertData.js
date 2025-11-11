@@ -1,5 +1,4 @@
-const courseInfo = require('./data_Spring2026_Prereq.json');
-const { Pool} = require('pg');
+const pool = require("../db.js")
 require('dotenv').config({path: '../.env'});
 /**
  * Generate all SQL insert statements for a single course
@@ -29,11 +28,11 @@ function generateCourseSQL(courseId, courseObj) {
         totalratings = EXCLUDED.totalratings;`,
     values: [courseId, c.department, c.number, c.title, c.description, c.averageGPA, c.totalSections, c.totalStudents, c.averageRating, c.totalRatings]
   });
-
+*/
   // ---------------------------
   // 2. Course Attributes
   // ---------------------------
-  /*
+  
   for (const attr of c.attributes || []) {
     sqlStatements.push({
       table: "course_explorer.courses_attributes",
@@ -58,7 +57,7 @@ function generateCourseSQL(courseId, courseObj) {
       values: [courseId, profId]
     });
   }
-*/
+
   // ---------------------------
   // 4. Sections & related tables
   // ---------------------------
@@ -66,16 +65,12 @@ function generateCourseSQL(courseId, courseObj) {
     for (const sec of sections) {
       const semId = `${semesterKey}`;
       if (semId != "Spring 2026") continue;
-      if (semId == `undefined undefined`) {
-        console.log("UNDEFINED UNDEFINED FOUND!")
-        process.exit(0)
-      }
-      if (sec.section == null) continue;
+      if (sec.section == null || isNaN(sec.section)) continue;
 
       let year = semesterKey.split("_")[1];
       let term = semesterKey.split("_")[0];
       // Sections table
-      /*
+      
       sqlStatements.push({
         table: "course_explorer.courses_sections",
         text: `INSERT INTO course_explorer.courses_sections
@@ -110,7 +105,7 @@ function generateCourseSQL(courseId, courseObj) {
         ]
       });
 
-     */
+     
       // Section Times
       if (sec.times) {
         
@@ -130,7 +125,7 @@ function generateCourseSQL(courseId, courseObj) {
         }
       }
 
-      /*
+      
       // Section Attributes
       for (const attr of sec.attributes || []) {
         sqlStatements.push({
@@ -142,46 +137,43 @@ function generateCourseSQL(courseId, courseObj) {
           values: [courseId, semId, sec.section, attr]
         });
       }
-      */
+      
     }
   }
 
   return sqlStatements;
 }
 
-const allSQLStatements = [];
+async function runAllQueries(courseInfo) {
+  const allSQLStatements = [];
 
-for (const [courseId, courseObj] of Object.entries(courseInfo)) {
-  const statements = generateCourseSQL(courseId, courseObj);
-  allSQLStatements.push(...statements);
+  for (const [courseId, courseObj] of Object.entries(courseInfo)) {
+    const statements = generateCourseSQL(courseId, courseObj);
+    allSQLStatements.push(...statements);
+  }
+
+  console.log(`Generated ${allSQLStatements.length} SQL statements.`);
+
+    const client = await pool.connect();
+    try {
+      console.log("DB Connection established successfully.");
+
+      await pool.query("DELETE FROM course_explorer.courses_section_times;")
+      let count = 1;
+      for (const stmt of allSQLStatements) {
+        console.log(`\r(${count}/${allSQLStatements.length}) Inserting into ${stmt.table}...`);
+        count++;
+        await pool.query(stmt.text, stmt.values);
+      }
+      console.log("✅ All inserts completed!");
+    } catch (err) {
+      console.error("❌ Error inserting:", err);
+      
+    } finally {
+      client.release()
+    }
 }
 
-console.log(`Generated ${allSQLStatements.length} SQL statements.`);
 
-(async () => {
-  const pool = new Pool({
-       connectionString: process.env.NEON_DB_URL,
-       ssl: {
-           require: true
-       }
-  });
-  
 
-  try {
-    await pool.connect();
-    console.log("DB Connection established successfully.");
-
-    await pool.query("DELETE FROM course_explorer.courses_section_times;")
-    let count = 1;
-    for (const stmt of allSQLStatements) {
-      process.stdout.write(`\r(${count}/${allSQLStatements.length}) Inserting into ${stmt.table}...`);
-      count++;
-      await pool.query(stmt.text, stmt.values);
-    }
-    console.log("✅ All inserts completed!");
-  } catch (err) {
-    console.error("❌ Error inserting:", err);
-  } finally {
-
-  }
-})();
+module.exports = {runAllQueries}
