@@ -304,11 +304,36 @@ const getOptimalSchedule = async (req, res) => {
 
         const courses = req.body.courses;
         const semester = req.body.semester;
+        const min_rating = req.body.min_rating | null;
+        const min_gpa = req.body.min_gpa | null;
+        const fixed_professors = req.body.fixed_professors | null;
+        const course_weights = req.body.course_weights | {};
+        for(const course of courses){
+            course_weights[course] = {
+                total_weight: 1,
+                rating_percentage: 0.5,
+                gpa_weight: 0.5
+            }
+        }
+        const preferences = req.body.preferences | {
+            "no_classes_before": {
+                "time": "8:00:00",
+                "penalty": 0.9
+            },
+            "no_classes_after": {
+                "time":"20:00:00",
+                "penalty": 0.9
+            },
+            "no_classes_friday": {
+                "penalty": 0.95
+            }
+        };
+
         const sqlFilePath = path.join(__dirname, "./sql/getOptimalSchedule.sql");
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         // console.log(sql);
         // console.log("Params: ", [courses, semester]);
-        const queryResult = await client.query(sql, [courses, semester, null, null, null]);
+        const queryResult = await client.query(sql, [courses, semester, min_rating, min_gpa, fixed_professors]); // course_weights, preferences]);
         //console.log(queryResult.rows)
         const courseProfessorSectionPairs = queryResult.rows.map((pair) => {
             let raw = pair.schedule;
