@@ -2,7 +2,7 @@ const { Pool } = require('pg');
 const { neon } = require('@neondatabase/serverless');
 
 //this is for running the database locally
-/*
+
 const pool = new Pool({
   host: "localhost",
   user: process.env.DB_USERNAME,
@@ -10,22 +10,21 @@ const pool = new Pool({
   database: process.env.DB_NAME, //process.env.DB_NAME,
   port: process.env.PGPORT || 5432,
 });
-*/
 //running db via neon
 
 console.log("Global setup: Attempting to connect to DB at ", process.env.NEON_DB_URL);
 
-const pool = new Pool({
-    connectionString: process.env.NEON_DB_URL,
-    ssl: process.env.NEON_DB_URL && process.env.NEON_DB_URL.includes('neon.tech') ? {
-        require: true,
-        rejectUnauthorized: false
-    } : false,
-    // Add connection pool settings
-    max: 20, // Maximum number of clients in the pool
-    idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-    connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
-});
+// const pool = new Pool({
+//     connectionString: process.env.NEON_DB_URL,
+//     ssl: process.env.NEON_DB_URL && process.env.NEON_DB_URL.includes('neon.tech') ? {
+//         require: true,
+//         rejectUnauthorized: false
+//     } : false,
+//     // Add connection pool settings
+//     max: 20, // Maximum number of clients in the pool
+//     idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+//     connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+// });
 
 // Handle pool errors to prevent application crashes
 pool.on('error', (err, client) => {

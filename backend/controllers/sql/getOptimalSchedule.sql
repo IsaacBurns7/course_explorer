@@ -16,7 +16,7 @@ $3 -> min_rating: Number
 $4 -> min_gpa: Number
 */
 WITH validCourseProfessorSectionPairs AS (
-    SELECT cp.course_id, cp.professor_id, cs.section_id, cps.professor_score::numeric,
+    SELECT cp.course_id, cp.professor_id, cs.section_id, cps.professor_score::numeric, cs.crn,
         ARRAY_AGG((cst.day, cst.start_time, cst.end_time)) AS schedule
     FROM 
         (
@@ -34,7 +34,7 @@ WITH validCourseProfessorSectionPairs AS (
         ) cp
     JOIN 
         (
-            SELECT course_id, professor_id, semester_id, section_id
+            SELECT course_id, professor_id, semester_id, section_id, crn
             FROM course_explorer.courses_sections cs
             WHERE course_id = ANY($1)
                 AND semester_id = $2
@@ -57,7 +57,7 @@ WITH validCourseProfessorSectionPairs AS (
                 AND (average_rating >= $4 OR $4 IS NULL)
         ) cps -- course prof score  
         ON cp.professor_id = cps.professor_id
-    GROUP BY cp.course_id, cp.professor_id, cs.section_id, cps.professor_score
+    GROUP BY cp.course_id, cp.professor_id, cs.section_id, cps.professor_score, cs.crn 
 )
 SELECT * FROM validCourseProfessorSectionPairs;
 
