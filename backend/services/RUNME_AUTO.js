@@ -2,6 +2,7 @@ const rl = require('readline-sync');
 const fs = require('fs');
 const populateClasses = require('./populateClasses');
 const adjustData = require('./adjustClasses');
+const sql = require('./insertData')
 
 // ---------------------------
 // Parse CLI arguments
@@ -251,7 +252,7 @@ async function main() {
     console.log("Finding missing professors in Galveston, Press Enter to Continue:");
     newData = await adjustData.findMissingProfessors(newData, "Galveston");
 
-    if (mode === '2') {
+    if (mode == 2) {
         console.log("Merging with existing data...");
         data = mergeData(data, newData);
     } else {
@@ -268,7 +269,7 @@ async function main() {
 
     console.log("----------------------------------------------------------");
     console.log("Add Attributes to courses, Press Enter to Continue:");
-    data = await patchAllCourses(data);
+    //data = await patchAllCourses(data);
 
     console.log("----------------------------------------------------------");
     console.log("Adjusting GPA calculations, Press Enter to Continue:");
@@ -290,6 +291,8 @@ async function main() {
         }
         console.log(`${outFileName} written successfully!`);
     });
+
+    await sql.runAllQueries(data);
 }
 
 main();

@@ -471,6 +471,7 @@ async function getPrereq(courseData) {
   const site = { "College Station": 1, Galveston: 2 };
 
   for (const course of Object.keys(courseData)) {
+    if (courseData[course].info.prereqString != null) continue;
     const sections = courseData[course].sections;
     const semesters = Object.keys(sections);
 
@@ -502,7 +503,6 @@ async function getPrereq(courseData) {
     const currentTerm = baseTerm + (site[targetSection.site] || "1");
 
     console.log(`Fetching for ${course}, term ${currentTerm}`);
-
     try {
       const response = await fetch("https://howdyportal.tamu.edu/api/section-prereqs", {
         headers: {
@@ -518,14 +518,15 @@ async function getPrereq(courseData) {
       });
 
       const json = await response.json();
-
+      courseData[course].info.prereqString = ""
       if (json?.P_PRE_REQS_OUT) {
         courseData[course].info.prereqString = json.P_PRE_REQS_OUT;
       } else {
-        console.warn(`No prereq found for ${course}`);
+        console.log(`No prereq found for ${course}`);
       }
     } catch (err) {
       console.error(`Error fetching ${course}:`, err.message);
+      courseData[course].info.prereqString = ""
     }
   }
 
