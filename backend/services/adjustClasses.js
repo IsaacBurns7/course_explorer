@@ -59,14 +59,7 @@ async function addTitleAndDesc(data) {
         data[key].info.title = json.COURSE_TITLE
         data[key].info.description = json.COURSE_DESCRIPTION
     }
-    const jsonData = JSON.stringify(data, null, 2); 
-    require('fs').writeFile('output.json', jsonData, (err) => { // Write the JSON string to a file named 'output.json'
-        if (err) {
-            console.error("Error writing file:", err);
-            return;
-        }
-        console.log("JSON file 'output.json' has been written successfully!");
-    });
+
     return data
 }
 

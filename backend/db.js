@@ -1,7 +1,8 @@
 const { Pool } = require('pg');
 const { neon } = require('@neondatabase/serverless');
-
+require('dotenv').config();
 //this is for running the database locally
+
 
 const pool = new Pool({
   host: "localhost",
