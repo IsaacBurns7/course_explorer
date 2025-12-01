@@ -98,7 +98,7 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
 
     return datasets;
   }, [teachers, validPeriods]);
-
+   if (!allDatasets) return
   // Initialize all datasets as visible
   React.useEffect(() => {
     if (allDatasets.length > 0 && Object.keys(visibleDatasets).length === 0) {
@@ -149,7 +149,10 @@ const GPATrendsChart = ({ teachers, timePeriods }) => {
 
   // Determine button text based on current state
   const visibleCount = Object.values(visibleDatasets).filter(v => v).length;
-  const toggleAllText = visibleCount > allDatasets.length / 2 ? 'Hide All' : 'Show All';
+  let toggleAllText 
+  if (!allDatasets) toggleAllText = "Show All"
+  else toggleAllText = visibleCount > allDatasets.length / 2 ? 'Hide All' : 'Show All';
+  
 
   const options = useMemo(() => {
     // Calculate min and max GPA from all datasets
