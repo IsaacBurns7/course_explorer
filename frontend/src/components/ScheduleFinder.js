@@ -137,6 +137,7 @@ export default function ScheduleFinder({ selectedClasses, planner, onBack }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
+
       if (!response.ok) throw new Error(`HTTP error! ${response.status}`)
       const data = await response.json()
       setSchedules(data.schedules || [])
