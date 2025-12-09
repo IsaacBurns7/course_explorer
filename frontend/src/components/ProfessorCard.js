@@ -10,16 +10,12 @@ import { SearchContext } from "../context/search";
 import LineGraph from "./LineGraph";
 
 export default function ProfessorCard({ professorId, courseId }){
-    // console.log(professorId);
     const { professors } = useContext(SearchContext); //subscribe to only professors[professorId]
     const hiddenRef = useRef(null);
     const arrowIconRef = useRef(null);
 
     const professor = professors[professorId] || {};
-    // console.log(professor);
-    // console.log(professors, professors[professorId]);
     const graphKey = courseId.replace(" ", "") + "_" + professorId;
-    // console.log(courseId + professorId, graphData, graphData[graphKey]);
     const info = professor.info || {}; 
     const department = courseId.split(" ")[0] || "DEPT";
     const courseNumber = courseId.split(" ")[1] || "123";

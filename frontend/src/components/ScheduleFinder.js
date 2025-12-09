@@ -114,13 +114,10 @@ export default function ScheduleFinder({ selectedClasses, planner, onBack }) {
     try {
 
       const storedItem = localStorage.getItem('academicPlanner');
-      console.log(typeof storedItem)
-      console.log(storedItem["Spring 2026"])
       let coursesList = []; 
       
       if (storedItem && JSON.parse(storedItem) && JSON.parse(storedItem)["Spring 2026"]) {
         coursesList = JSON.parse(storedItem)["Spring 2026"].map(x => `${x.department}_${x.number}`)
-        console.log(coursesList)
       }
 
       const payload = {

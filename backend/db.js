@@ -2,7 +2,7 @@ const { Pool } = require('pg');
 const { neon } = require('@neondatabase/serverless');
 require('dotenv').config();
 //this is for running the database locally
-
+/*
 const pool = new Pool({
   host: "localhost",
   user: process.env.DB_USERNAME,
@@ -10,9 +10,9 @@ const pool = new Pool({
   database: process.env.DB_NAME, //process.env.DB_NAME,
   port: process.env.PGPORT || 5432,
 });
-
+*/
 //running db via neon
-/*
+
 console.log("Global setup: Attempting to connect to DB at ", process.env.NEON_DB_URL);
 
 const pool = new Pool({
@@ -26,7 +26,7 @@ const pool = new Pool({
      idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
      connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
  });
-*/
+
 // Handle pool errors to prevent application crashes
 pool.on('error', (err, client) => {
     console.error('Unexpected error on idle client', err);

@@ -240,7 +240,6 @@ const CourseDetails = () => {
   };
   
   const timePeriods = sortTimePeriods(Object.keys(courseData.sections || {}));
-  console.log(info)
   return (
     <div 
       className="min-h-screen bg-background text-beige-light pt-16 relative"
@@ -279,9 +278,7 @@ const CourseDetails = () => {
             Students: {info.totalStudents != null ? info.totalStudents : '?'}
           </div>
           {info.attributes?.map((attr) => {
-            console.log(attributeColors)
             const colorClass = attributeColors[attr] || attributeColors["Defualt"];
-            console.log(colorClass)
             return (
               <div
                 key={attr}

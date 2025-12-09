@@ -58,8 +58,6 @@ const Compare = () => {
     */
 
     if(comparedCards.length > colorMap.keys().length){
-        console.log(comparedCards, barGraphSeries);
-
         const newRandomColor = randomHexColor();
         const recentlyAddedComparedCard = comparedCards[comparedCards.length-1];
         const graphIndex = barGraphSeries.findIndex(series => {
