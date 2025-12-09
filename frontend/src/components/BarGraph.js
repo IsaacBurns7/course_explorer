@@ -12,7 +12,6 @@ import { SearchContext } from "../context/search";
 function BarGraph({graphKey}){
     const { graphData } = useContext(SearchContext);
     const graphInfo = graphData[graphKey] || {};
-    // console.log(graphKey, graphData);
     /*
     data = {graphData[graphKey]} professorName = {name} department = {department} courseNumber = {courseNumber}
     */

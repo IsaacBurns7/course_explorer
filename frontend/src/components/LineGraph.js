@@ -31,7 +31,6 @@ const LineGraph = ({lineGraphKey}) => {
         name: "GPABySemester",
         data: processedData,
     }];
-    // console.log(processedData);
     
 
     const options = {

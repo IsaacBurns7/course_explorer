@@ -9,9 +9,6 @@ function SearchButton({courses}) {
     const resultsRef = useRef(null);
     const navigate = useNavigate();
 
-    // useEffect(() => {
-    //     console.log('State changed:', inputText);
-    // }, [inputText]);
     function findMatches(wordToMatch, array){
         return array.filter(element => {
             const regex = new RegExp(wordToMatch, "gi");
@@ -27,16 +24,13 @@ function SearchButton({courses}) {
 
     function handleSubmit(selectedCourse){
         if(!selectedCourse | selectedCourse === ""){
-            console.log("Cannot submit, no course listed.");
             return;
         }
 
-        // console.log("Selected Course: ", selectedCourse);
         const dept = selectedCourse.split(" ")[0];
         const number = selectedCourse.split(" ")[1];
 
         if(!dept | !number){
-            console.log("Department or Number invalid.")
             return;
         }
 
@@ -88,7 +82,6 @@ function SearchButton({courses}) {
             }
         }
     }, [activeIndex]);
-    console.log(error);
 
     return (
   <form
