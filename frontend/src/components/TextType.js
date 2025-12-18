@@ -41,7 +41,7 @@ const TextType = ({
   };
 
   const getCurrentTextColor = () => {
-    if (textColors.length === 0) return "#ffffff";
+    if (textColors.length === 0) return "linear-gradient(to right, #FACC15, #FDE047)";
     return textColors[currentTextIndex % textColors.length];
   };
 
@@ -167,8 +167,16 @@ const TextType = ({
       className: `inline-block whitespace-pre-wrap tracking-tight ${className}`,
       ...props,
     },
-    <span className="inline text-transparent bg-clip-text">
-      {displayedText}
+    <span
+        className="inline" // Removed 'text-transparent bg-clip-text'
+        style={{
+            // Removed clipping/transparent fill styles
+            backgroundImage: getCurrentTextColor(), // Apply the desired text color directly
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+        }}
+    >
+        {displayedText}
     </span>,
     showCursor && (
       <span

@@ -40,6 +40,12 @@
 --     }
 -- });
 
+-- one-one 
+-- one-many (course_id -> {professor_id})
+-- professor -> {course_ids}
+-- many-many 
+-- 
+
 DROP TABLE course_explorer.courses CASCADE;
 -- DROP TABLE course_explorer.courses_info CASCADE;
 DROP TABLE course_explorer.courses_professors CASCADE;
@@ -57,7 +63,7 @@ CREATE TABLE course_explorer.courses(
     totalSections numeric,
     totalStudents numeric,
     averageRating numeric,
-    totalRatings numeric
+    totalRatings numeric    
 );
 
 CREATE TABLE course_explorer.courses_professors(
@@ -108,6 +114,7 @@ CREATE TABLE course_explorer.courses_section_times(
     PRIMARY KEY(course_id, semester_id, section_id, day)
 );
 
+--is this even used or is this just bloat goat
 CREATE TABLE course_explorer.courses_section_info(
     SWV_CLASS_SEARCH_TERM TEXT,
     SWV_CLASS_SEARCH_CRN TEXT PRIMARY KEY,

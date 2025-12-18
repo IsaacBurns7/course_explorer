@@ -77,8 +77,8 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
       return
     }
 
-    const courseAlreadyExists = semesters.some((semester) =>
-      semester.courses.some(
+    const courseAlreadyExists = semesters && Array.isArray(semesters) && semesters.some((semester) =>
+      semester.courses && semester.courses.some(
         (course) =>
           course.department === selectedCourse.department &&
           course.number === selectedCourse.number
@@ -133,7 +133,7 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
       if (cache.has(courseString)) {
         setSelectedCourse(cache.get(courseString));
       } else {
-        const response = await axios.post("/server/api/planner/class", { class: courseString });
+        const response = await axios.post("/server/api/planner2/class", { class: courseString });
         setSelectedCourse(response.data);
         cache.set(courseString, response.data);
       }

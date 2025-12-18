@@ -31,3 +31,101 @@ given the decision tree, we can try to make this into a 2d dp problem
 dp state = [courseId][timemask]
 State space = O(C * 2^T), where C is the number of courses, and T is the number of discrete time slots 
 Time complexity: O(C * 2^T * S), S is the number of sections
+
+problem, T is 89 for my schedule - astronomically large. we need a new algorithm
+
+OPTION 1
+hash map keyed by mask integers - only store reachable states, which should be larger than 2^T. 
+tractable in practice
+dummy code that probably doesnt work
+dp = {0: 0}  # mask -> best score (start with empty schedule)
+for course in courses:
+    new_dp = {}
+    
+    # try every existing partial schedule
+    for mask, score in dp.items():
+        
+        # try every section of this course
+        for section in course.sections:
+            section_mask = section.time_mask
+            section_score = section.prof_score
+
+            # only add if this section does not conflict
+            if section_mask & mask == 0:
+                new_mask = mask | section_mask
+                new_score = score + section_score
+
+                # keep the best score if multiple ways reach same mask
+                if new_mask not in new_dp or new_score > new_dp[new_mask]:
+                    new_dp[new_mask] = new_score
+
+    # move to the next course
+    dp = new_dp
+for big int, let mask = 0n, n meaning BigInt - convert to string when saving to JSON or DB.
+
+
+OPTION 2
+
+Beam search
+(Exactly the same as previous example, just only take top 50000, rest are DEAD)
+
+
+OPTION 3
+
+Genetic algorithm
+
+OPTION 4
+
+Simulated Annealing
+
+
+Scheduler should support the following: 
+- CRNs
+Filtering by GPA / Rating
+- Put more emphasis on GPA or Rating for a class 
+- More emphasis on certain class 
+- Fix a professor DONE 
+- Fix a class 
+- Fix a section
+- min rating DONE 
+- min gpa DONE 
+
+In the future
+- Location
+
+Say a user wants classes only after 9am 
+Find a way to penalize a class that starts at 845am less than a class that starts at 800am
+
+preference of no classes after 7pm - 0.5x 
+preference of no classes on friday - 0.5x
+
+rank preferences
+1. no 8ams 
+2. no fridays 
+
+preferences rating 
+1 - 5
+1 -> .1 
+2 -> .25 
+3 -> .5 
+4 -> .75
+5 -> .90
+
+100% -> top score 
+top score 
+
+score = (sum over classes) (total weight of course * percentage of course weight allocated to rating * rating)
+score = (sum over classes) (total weight of course * percentage of course weight allocated to gpa * gpa)
+
+ADVANCED SETTINGS 
+course 1 - total weight - % of weight allocated to rating 
+course 2 - total weight 
+course 3 - total weight 
+
+DEFAULT SETTINGS 
+importance of class 1 - 5
+1 -> 1 
+2 -> 5 
+3 -> 7 
+4 -> 10 
+5 -> 25

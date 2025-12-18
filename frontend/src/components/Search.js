@@ -19,11 +19,13 @@ export default function AutoCompleteSearch({navbarMode}) {
   useEffect(() => {
     getAllCourses()
       .then(courseSet => {
-        setCourses(prev => {
-          const newSet = new Set(prev);
-          courseSet.forEach((courseKey) => newSet.add(courseKey));
-          return newSet;
-        });
+        if (courseSet && courseSet.forEach) {
+          setCourses(prev => {
+            const newSet = new Set(prev);
+            courseSet.forEach((courseKey) => newSet.add(courseKey));
+            return newSet;
+          });
+        }
       })
       .catch(err => console.error("Failed to load courses", err));
   }, []);
@@ -41,7 +43,11 @@ export default function AutoCompleteSearch({navbarMode}) {
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside); // Add touch support
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
   }, []);
 
   function findMatches(wordToMatch, array) {
@@ -52,6 +58,11 @@ export default function AutoCompleteSearch({navbarMode}) {
   }
 
   function displayMatches(value) {
+    if (!value.trim()) {
+      setMatches([]);
+      setDropdownOpen(false);
+      return;
+    }
     const matchArray = findMatches(value, Array.from(courses)).slice(0, 10);
     setMatches(matchArray);
     setDropdownOpen(matchArray.length > 0);
@@ -61,24 +72,32 @@ export default function AutoCompleteSearch({navbarMode}) {
     setInputText(courseName);
     setDropdownOpen(false);
     setActiveIndex(-1);
+    navigateToCourse(courseName);
   }
 
-  function handleSubmit(selectedCourse) {
-    if (!selectedCourse || selectedCourse === "") {
+  function navigateToCourse(courseName) {
+    if (!courseName || courseName === "") {
       setError(true);
       return;
     }
 
-    const [dept, number] = selectedCourse.split(" ");
+    const [dept, number] = courseName.split(" ");
     if (!dept || !number) {
       setError(true);
       return;
     }
 
-    navigate({
-      pathname: "dashboard",
-      search: `?dept=${dept}&courseNumber=${number}`,
-    });
+    navigate(`/dashboard?dept=${dept}&courseNumber=${number}`);
+  }
+
+  function handleSubmit(selectedCourse) {
+    const courseToUse = selectedCourse || inputText;
+    if (!courseToUse || courseToUse === "") {
+      setError(true);
+      return;
+    }
+
+    navigateToCourse(courseToUse);
   }
 
   function handleKeyDown(e) {
@@ -121,7 +140,9 @@ export default function AutoCompleteSearch({navbarMode}) {
 
   return (
     <form
-      className= {`mx-auto flex items-center ${navbarMode ? "w-96" : ""} relative`}
+      className={`mx-auto flex items-center justify-center relative gap-2 ${
+        navbarMode ? "w-full" : "w-full max-w-lg px-3 sm:px-0"
+      }`}
       onSubmit={(e) => {
         e.preventDefault();
         handleSubmit(inputText);
@@ -131,8 +152,34 @@ export default function AutoCompleteSearch({navbarMode}) {
       <input
         ref={inputRef}
         type="text"
-        placeholder={`${navbarMode ? "DEPT 123" : "Input Class/Professor Name (Ex: CSCE 120)"}`}
-        className={`pl-4 ${navbarMode ? "py-2" : "py-3 ml-5"} w-96 bg-gray-900 border border-gray-700 text-white rounded-full hover:bg-gray-800 transition duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
+        placeholder={
+          navbarMode
+            ? "DEPT 123"
+            : "Search for a course"
+        }
+        className={`
+          flex-grow
+          ${navbarMode ? "text-sm sm:text-base" : "text-base sm:text-lg"}
+          pr-3 pl-4 py-2
+          rounded-full
+          ${navbarMode 
+            ? "bg-dark-input border-dark-border text-beige-light placeholder-beige-dark/50" 
+            : "bg-white/5 backdrop-blur-md text-gray-200 placeholder-gray-500 border-white/20"
+          }
+          border
+          focus:outline-none
+          focus:ring-2 
+          ${navbarMode 
+            ? "focus:ring-maroon/50 focus:border-maroon" 
+            : "focus:ring-white/30"
+          }
+          transition duration-300
+          ${navbarMode 
+            ? "" 
+            : "shadow-[0_0_25px_rgba(255,255,255,0.05)]"
+          }
+          touch-manipulation
+        `}
         value={inputText}
         onChange={(e) => {
           const value = e.target.value.toUpperCase();
@@ -144,9 +191,32 @@ export default function AutoCompleteSearch({navbarMode}) {
         onKeyDown={handleKeyDown}
       />
 
+      {/* Submit Button - Only show in non-navbar mode */}
+      {!navbarMode && (
+        <button
+          type="submit"
+          className="
+            px-4 sm:px-6 py-2 sm:py-3
+            rounded-xl
+            border border-white/50
+            text-white
+            text-sm sm:text-base
+            font-medium
+            bg-transparent
+            hover:bg-white/10
+            active:bg-white/20
+            transition-all duration-300
+            whitespace-nowrap
+            touch-manipulation
+          "
+        >
+          Search
+        </button>
+      )}
+
       {/* Error Message */}
       {error && (
-        <p className="absolute -bottom-6 left-4 text-red-500 text-sm">
+        <p className="absolute -bottom-6 left-4 text-red-400 text-xs sm:text-sm">
           ⚠️ Please enter a valid course
         </p>
       )}
@@ -155,7 +225,16 @@ export default function AutoCompleteSearch({navbarMode}) {
       {dropdownOpen && matches.length > 0 && (
         <ul
           ref={resultsRef}
-          className="absolute top-full left-0 z-10 w-full bg-background text-white rounded-md mt-2 shadow-lg max-h-60 overflow-y-auto"
+          className={`
+            absolute top-full left-0 z-50 w-full 
+            bg-dark-card backdrop-blur-md 
+            border border-dark-border 
+            text-beige-light 
+            rounded-xl mt-2 
+            shadow-2xl 
+            max-h-56 sm:max-h-64 overflow-y-auto
+            ${navbarMode ? "text-sm sm:text-base" : "text-base sm:text-lg"}
+          `}
         >
           {matches.map((courseName, index) => {
             const regex = new RegExp(`(${inputText})`, "gi");
@@ -163,12 +242,16 @@ export default function AutoCompleteSearch({navbarMode}) {
             return (
               <li
                 key={index}
-                className={`px-4 py-2 cursor-pointer ${
-                  index === activeIndex
-                    ? "bg-blue-400"
-                    : "hover:bg-gray-200 hover:text-black"
-                }`}
+                className={`
+                  px-3 sm:px-4 py-2 sm:py-3 cursor-pointer transition-all
+                  ${index === activeIndex
+                    ? "bg-dark-hover text-beige-light"
+                    : "hover:bg-dark-hover hover:text-beige-light active:bg-dark-select"
+                  }
+                  touch-manipulation
+                `}
                 onMouseEnter={() => setActiveIndex(index)}
+                onTouchStart={() => setActiveIndex(index)}
                 onClick={() => handleSelect(courseName)}
               >
                 {parts.map((string, i) => (
@@ -176,8 +259,10 @@ export default function AutoCompleteSearch({navbarMode}) {
                     key={i}
                     className={
                       regex.test(string)
-                        ? "font-extrabold text-yellow-400"
-                        : "font-normal"
+                        ? "font-semibold text-yellow-400"
+                        : index === activeIndex 
+                        ? "text-beige-light" 
+                        : "text-beige-dark"
                     }
                   >
                     {string}
@@ -188,14 +273,6 @@ export default function AutoCompleteSearch({navbarMode}) {
           })}
         </ul>
       )}
-
-      {/* Search Button */}
-      <button
-        type="submit"
-        className="ml-4 px-6 py-2 border border-purple-500 text-white rounded-full hover:bg-purple-600 transition duration-300"
-      >
-        Search
-      </button>
     </form>
   );
 }
