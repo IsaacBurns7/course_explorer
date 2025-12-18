@@ -7,8 +7,11 @@ node_modules/
 **/access.log.1
 **/secret.txt
 **/*.json
+# **/*.dump
+# **/*dump*sql
 **/*.csr
 **/*.crt
 **/*.key
 **/*.srl
 **/backups/
+*.json

@@ -1,11 +1,15 @@
 "use client"
-import React from "react"
 import { useState, useEffect } from "react"
+import React from "react"
+
 import DeleteConfirmModal from "./modals/delete"
 import MoveClassModal from "./modals/move"
 import AddClassModal from "./modals/add"
-import ClearConfirmModal from './modals/clear'
+import ClearConfirmModal from "./modals/clear"
 import Alert from "./ui/alert"
+import ScheduleFinder from "./ScheduleFinder"
+
+import "../styles/tailwind.css"
 
 export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToLanding }) {
   const [openSemesters, setOpenSemesters] = useState({})
@@ -18,9 +22,8 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
   const [alert, setAlert] = useState({ message: "", type: "info", isVisible: false })
   const [selectedSemester, setSelectedSemester] = useState(null)
   const [showDeleteSemesterConfirm, setShowDeleteSemesterConfirm] = useState(null)
-  const [profSortOption, setProfSortOption] = useState("Name"); // NEW: sorting option
+  const [profSortOption, setProfSortOption] = useState("Name") // NEW: sorting option
 
-  
   // Group semesters by year and sort chronologically
   const plannerData = {}
   const sortedSemesters = []
@@ -72,18 +75,17 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
   }
 
   const sortProfessors = (professors) => {
-    if (!professors) return [];
-    const sorted = [...professors];
+    if (!professors) return []
+    const sorted = [...professors]
     switch (profSortOption) {
       case "GPA":
-        return sorted.sort((a, b) => (b.info.averageGPA ?? 0) - (a.info.averageGPA ?? 0));
+        return sorted.sort((a, b) => (b.info.averageGPA ?? 0) - (a.info.averageGPA ?? 0))
       case "Rating":
-        return sorted.sort((a, b) => (b.info.averageRating ?? 0) - (a.info.averageRating ?? 0));
+        return sorted.sort((a, b) => (b.info.averageRating ?? 0) - (a.info.averageRating ?? 0))
       default: // Name
-        return sorted.sort((a, b) => a.info.name.localeCompare(b.info.name));
+        return sorted.sort((a, b) => a.info.name.localeCompare(b.info.name))
     }
-  };
-
+  }
 
   // Toggle semester collapse in table view
   const toggleSemesterCollapse = (semesterName) => {
@@ -165,7 +167,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
     const semesterOrder = { Spring: 1, Summer: 2, Fall: 3 }
     const currentDate = new Date()
     const currentYear = currentDate.getFullYear()
-    const currentMonth = currentDate.getMonth() // 0-based: Jan = 0, Dec = 11
+    const currentMonth = currentDate.getMonth()
     let currentSemester
     if (currentMonth < 5) currentSemester = "Spring"
     else if (currentMonth < 8) currentSemester = "Summer"
@@ -191,129 +193,141 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
   }
 
   return (
-    <div className="pt-4">
+    <div className="pt-4 px-2 md:px-0">
       {/* Alert Component */}
       <Alert message={alert.message} type={alert.type} isVisible={alert.isVisible} onClose={closeAlert} />
-      {/* View Toggle and Add Button */}
-      <div className="flex items-center justify-between pb-6">
-  <h2 className="text-2xl font-bold text-gray-100">Academic Plan</h2>
 
-  {/* Grouped buttons */}
-  <div className="flex items-center space-x-3">
-<select
-      className="px-4 py-2 bg-dark-input border border-dark-border rounded text-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-gray-200"
-      value={profSortOption}
-      onChange={(e) => setProfSortOption(e.target.value)}
-    >
-      <option value="Name">Sort Professors by Name</option>
-      <option value="GPA">Sort Professors by GPA</option>
-      <option value="Rating">Sort Professors by Rating</option>
-    </select>
-    <button
-      onClick={() => { setSelectedSemester(null); setShowAddModal(true); }}
-      className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-500 transition flex items-center space-x-2"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 5v14" />
-        <path d="M5 12h14" />
-      </svg>
-      <span>Add Class/Semester</span>
-    </button>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-100">Academic Plan</h2>
 
-  
-  </div>
-</div>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+          <select
+            className="px-3 py-2 bg-dark-input border border-dark-border rounded text-gray-200 text-sm focus:outline-none focus:ring-1 focus:ring-gray-200 w-full sm:w-auto"
+            value={profSortOption}
+            onChange={(e) => setProfSortOption(e.target.value)}
+          >
+            <option value="Name">Sort by Name</option>
+            <option value="GPA">Sort by GPA</option>
+            <option value="Rating">Sort by Rating</option>
+          </select>
 
-      <div className="bg-dark-card rounded-lg overflow-hidden shadow-lg border border-dark-border">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm table-fixed">
-            <thead>
-              <tr className="bg-dark-header border-b-2 border-dark-border">
-                <th className="text-left p-3 font-semibold text-gray-100 w-1/12">Course</th>
-                <th className="text-left p-3 font-semibold text-gray-100 w-3/12">Title</th>
-                <th className="text-center p-3 font-semibold text-gray-100 w-1/12">Hr</th>
-                <th className="text-left p-3 font-semibold text-gray-100 w-6/12">Professor</th>
-                <th className="text-center p-3 font-semibold text-gray-100 w-1/12">Actions</th>
-              </tr>
-            </thead>
-            <tbody>   
+          <button
+            onClick={() => {
+              setSelectedSemester(null)
+              setShowAddModal(true)
+            }}
+            className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-500 transition flex items-center justify-center space-x-2 w-full sm:w-auto"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+            <span className="text-sm sm:text-base">Add Class/Semester</span>
+          </button>
+        </div>
+      </div>
 
-              {sortedSemesters.map((semester, semesterIndex) => (
-                <React.Fragment key={semester.name}>
-                  {/* Semester Header Row - Now clickable with arrow */}
-                  <tr
-                    className={`border-t-2 border-dark-accent ${collapsedSemesters[semester.name] ? "bg-dark-semester-closed" : "bg-dark-semester"}`}
-                  >
-                    <td colSpan={5} className="p-0">
+      {/* MOBILE VIEW - Card layout for small screens */}
+      <div className="block md:hidden">
+        <div className="space-y-4">
+          {sortedSemesters.map((semester) => {
+            const semesterTotal = semester.courses.reduce((sum, course) => sum + course.hours, 0)
+            const isPassed = hasSemesterPassed(semester.name)
+            const isCollapsed = collapsedSemesters[semester.name]
+
+            return (
+              <div
+                key={semester.name}
+                className="bg-dark-card rounded-lg overflow-hidden shadow-lg border border-dark-border"
+              >
+                {/* Semester header (changed from button to div) */}
+                <div
+                  className={`w-full text-left p-4 font-bold text-gray-100 transition-colors duration-200 ${
+                    isCollapsed ? "bg-dark-semester-closed" : "bg-dark-semester"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    {/* Main collapse/expand button - clicki semester name */}
+                    <button
+                      onClick={() => toggleSemesterCollapse(semester.name)}
+                      className="flex-1 min-w-0 text-left"
+                    >
+                      <div className="text-base sm:text-lg">{semester.name}</div>
+                      {isPassed && <div className="text-xs sm:text-sm text-gray-400 mt-1">(Already Taken)</div>}
+                      {!isCollapsed && <div className="text-sm text-gray-300 mt-1">{semesterTotal} credit hours</div>}
+                    </button>
+
+                    {/* Action buttons - all siblings to avoid nested button HTML error */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {/* Delete semester button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowDeleteSemesterConfirm(semester.name)
+                        }}
+                        className="text-red-300 hover:text-red-100 transition p-1"
+                        title="Delete Semester"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                          <path d="M3 6h18" />
+                          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                      </button>
+
+                      {/* Add class to semester button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedSemester(semester.name)
+                          setShowAddModal(true)
+                        }}
+                        className="text-green-300 hover:text-green-100 transition p-1"
+                        title="Add Class"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M12 5v14" />
+                          <path d="M5 12h14" />
+                        </svg>
+                      </button>
+
+                      {/* Collapse/expand arrow button */}
                       <button
                         onClick={() => toggleSemesterCollapse(semester.name)}
-                        className="w-full text-left p-3 font-bold text-gray-100 text-base hover:bg-dark-hover transition-colors duration-200 flex items-center justify-between"
+                        className="p-0"
                       >
-                        <span className="flex justify-between w-full">
-                          <span>{semester.name}</span>
-                          {hasSemesterPassed(semester.name) && (
-                            <span className="text-gray-400 mr-5">(Already Taken)</span>
-                          )}
-                        </span>
-
-                        <span className="ml-auto flex gap-x-4">
-                          <button
-                            onClick={(e) => { e.stopPropagation();setShowDeleteSemesterConfirm(semester.name)}}
-                            className="text-red-300 hover:text-red-100 transition text-lg"
-                            title="Delete Semester"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                              <path d="M3 6h18" />
-                              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                            </svg>
-                          </button>
-
-                          <button
-                            onClick={(e) => {e.stopPropagation(); setSelectedSemester(semester.name); setShowAddModal(true);}}
-                            className="text-green-300 hover:text-green-100 transition text-lg"
-                            title="Add Class"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M12 5v14" />
-                              <path d="M5 12h14" />
-                            </svg>
-                          </button>
-                        </span>
                         <svg
-                          className={`w-5 h-5 transition-transform duration-200 ml-5 ${
-                            collapsedSemesters[semester.name] ? "rotate-0" : "rotate-90"
-                          }`}
+                          className={`w-5 h-5 transition-transform duration-200 ${isCollapsed ? "rotate-0" : "rotate-90"}`}
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -324,120 +338,48 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                           />
                         </svg>
                       </button>
-                    </td>
-                  </tr>
-                  {/* Course Rows - Only show if not collapsed */}
-                  {!collapsedSemesters[semester.name] &&
-                    semester.courses.map((course, courseIndex) => {
+                    </div>
+                  </div>
+                </div>
+
+                {!isCollapsed && (
+                  <div className="divide-y divide-dark-border">
+                    {semester.courses.map((course, courseIndex) => {
                       const courseKey = `${semester.name}_${courseIndex}`
                       const selectedProf = getSelectedProfessor(course)
                       const profLabel = selectedProf?.info?.warning
+
                       return (
-                        <tr key={courseIndex} className="border-b border-dark-border hover:bg-dark-hover">
-                          <td className="p-3">
-                            <span className="font-medium text-gray-200">
+                        <div key={courseIndex} className="p-4 hover:bg-dark-hover transition-colors">
+                          <div className="flex items-start justify-between gap-3 mb-3">
+                            <div className="flex-1 min-w-0">
                               <a
                                 href={`/dashboard?dept=${course.department}&courseNumber=${course.number}`}
                                 target="_blank"
-                                className="hover:underline hover:text-blue-400"
+                                className="font-medium text-gray-200 hover:underline hover:text-blue-400 text-base sm:text-lg"
                                 rel="noreferrer"
                               >
                                 {course.department} {course.number}
                               </a>
-                            </span>
-                          </td>
-                          <td className="p-3 text-gray-300">
-                            <a
-                              href={`/dashboard?dept=${course.department}&courseNumber=${course.number}`}
-                              target="_blank"
-                              className="hover:underline hover:text-blue-400"
-                              rel="noreferrer"
-                            >
-                              {course.title}
-                            </a>
-                          </td>
-                          <td className="p-3 text-center text-gray-300">{course.hours}</td>
-                          <td className="p-3">
-                            {hasSemesterPassed(semester.name) ? (
-                              <span className="text-gray-400">Already Taken</span>
-                            ) : course.professors && course.professors.length > 0 ? (
-                              <div className="space-y-2">
-                                {selectedProf ? (
-                                  // Show selected professor with change button
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex-1">
-                                      <div className="font-medium text-gray-200 mb-1">
-                                        <a
-                                          href="/"
-                                          className="hover:underline hover:text-blue-400"
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                        >
-                                          {selectedProf.info.name}
-                                          {"   "}
-                                        </a>
-                                      </div>
-                                      <div className="flex space-x-2">
-                                        <span className="bg-blue-dark text-blue-light px-2 py-1 rounded text-xs">
-                                          GPA: {selectedProf.info.averageGPA}
-                                        </span>
-                                        <span className="bg-yellow-dark text-yellow-light px-2 py-1 rounded text-xs">
-                                          Overall Rating: {selectedProf.info.averageRating}
-                                        </span>
-                                        <span className="bg-green-dark text-green-light px-2 py-1 rounded text-xs">
-                                          Class Rating:{" "}
-                                          {selectedProf.info.courseRating ?? "N/A"}
-                                        </span>
-                                        <span className="bg-purple-dark text-purple-light px-2 py-1 rounded text-xs">
-                                          {selectedProf.info.site ?? "Unknown"}
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <div className="flex flex-col items-end space-y-1 mt-2">
-                                      {typeof profLabel === "string" && profLabel.trim() !== "" && (
-                                        <button
-                                          onClick={() => handleProfessorSelect(semester.name, courseIndex, undefined)}
-                                          className="bg-red-dark text-red-light px-2 py-1 rounded text-xs hover:brightness-110 transition text-right"
-                                        >
-                                          {profLabel}
-                                        </button>
-                                      )}
-                                      <button
-                                        onClick={() => handleProfessorSelect(semester.name, courseIndex, undefined)}
-                                        className="text-blue-400 hover:text-blue-300 underline text-xs"
-                                      >
-                                        Change Professor
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  // Show dropdown for selection
-                                  <select
-                                  className="w-full p-2 border border-dark-border rounded-md text-sm focus:ring-1 focus:ring-gray-200 focus:border-gray-200 bg-dark-input text-gray-200"
-                                  value={course.selectedProf ?? ""}
-                                  onChange={(e) =>
-                                    handleProfessorSelect(semester.name, courseIndex, Number.parseInt(e.target.value))
-                                  }
+                              <div className="text-sm text-gray-300 mt-1 break-words">
+                                <a
+                                  href={`/dashboard?dept=${course.department}&courseNumber=${course.number}`}
+                                  target="_blank"
+                                  className="hover:underline hover:text-blue-400"
+                                  rel="noreferrer"
                                 >
-                                  <option value="">Select Professor</option>
-                                  {sortProfessors(course.professors).map((prof, profIndex) => (
-                                    <option key={profIndex} value={course.professors.indexOf(prof)}>
-                                      {prof.info.name} | GPA: {prof.info.averageGPA} | Rating: {prof.info.averageRating}
-                                    </option>
-                                  ))}
-                                </select>
-                                )}
+                                  {course.title}
+                                </a>
                               </div>
-                            ) : (
-                              <span className="text-gray-400">No professors available</span>
-                            )}
-                          </td>
-                          <td className="p-3 align-middle text-right">
-                            <div className="flex justify-center items-center space-x-2 h-full">
-                              {/* Move Button */}
+                              <div className="text-sm text-gray-400 mt-1">
+                                {course.hours} credit {course.hours === 1 ? "hour" : "hours"}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 flex-shrink-0">
                               <button
                                 onClick={() => setShowMoveModal(courseKey)}
-                                className="text-blue-300 hover:text-blue-100 transition text-lg"
+                                className="text-blue-300 hover:text-blue-100 transition p-1"
                                 title="Move Class"
                               >
                                 <svg
@@ -457,10 +399,9 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                                 </svg>
                               </button>
 
-                              {/* Delete Button */}
                               <button
                                 onClick={() => setShowDeleteConfirm(courseKey)}
-                                className="text-red-300 hover:text-red-100 transition text-lg"
+                                className="text-red-300 hover:text-red-100 transition p-1"
                                 title="Delete Class"
                               >
                                 <svg
@@ -480,78 +421,466 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
                                 </svg>
                               </button>
                             </div>
-                          </td>
-                        </tr>
+                          </div>
+
+                          <div className="mt-3">
+                            {isPassed ? (
+                              <span className="text-sm text-gray-400">Already Taken</span>
+                            ) : course.professors && course.professors.length > 0 ? (
+                              <div className="space-y-2">
+                                {selectedProf ? (
+                                  <div className="space-y-2">
+                                    <div className="font-medium text-gray-200 text-sm sm:text-base">
+                                      <a
+                                        href="/"
+                                        className="hover:underline hover:text-blue-400"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                      >
+                                        {selectedProf.info.name}
+                                      </a>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2">
+                                      <span className="bg-blue-dark text-blue-light px-2 py-1 rounded text-xs">
+                                        GPA: {selectedProf.info.averageGPA}
+                                      </span>
+                                      <span className="bg-yellow-dark text-yellow-light px-2 py-1 rounded text-xs">
+                                        Overall Rating: {selectedProf.info.averageRating}
+                                      </span>
+                                      <span className="bg-green-dark text-green-light px-2 py-1 rounded text-xs">
+                                        Class Rating: {selectedProf.info.classRating ?? "N/A"}
+                                      </span>
+                                      <span className="bg-purple-dark text-purple-light px-2 py-1 rounded text-xs">
+                                        {selectedProf.info.site ?? "Unknown"}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row gap-2">
+                                      {typeof profLabel === "string" && profLabel.trim() !== "" && (
+                                        <button
+                                          onClick={() => handleProfessorSelect(semester.name, courseIndex, undefined)}
+                                          className="bg-red-dark text-red-light px-3 py-1.5 rounded text-xs hover:brightness-110 transition"
+                                        >
+                                          {profLabel}
+                                        </button>
+                                      )}
+                                      <button
+                                        onClick={() => handleProfessorSelect(semester.name, courseIndex, undefined)}
+                                        className="text-blue-400 hover:text-blue-300 underline text-xs text-left"
+                                      >
+                                        Change Professor
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <select
+                                    className="w-full p-2 border border-dark-border rounded-md text-sm focus:ring-1 focus:ring-gray-200 focus:border-gray-200 bg-dark-input text-gray-200"
+                                    value={course.selectedProf ?? ""}
+                                    onChange={(e) =>
+                                      handleProfessorSelect(semester.name, courseIndex, Number.parseInt(e.target.value))
+                                    }
+                                  >
+                                    <option value="">Select Professor</option>
+                                    {sortProfessors(course.professors).map((prof, profIndex) => (
+                                      <option key={profIndex} value={course.professors.indexOf(prof)}>
+                                        {prof.info.name} | GPA: {prof.info.averageGPA} | Rating:{" "}
+                                        {prof.info.averageRating}
+                                      </option>
+                                    ))}
+                                  </select>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-sm text-gray-400">No professors available</span>
+                            )}
+                          </div>
+                        </div>
                       )
                     })}
-                  {/* Semester Total Row - Only show if not collapsed */}
-                  {!collapsedSemesters[semester.name] && (
-  <>
-   <tr className="bg-dark-header border-b-2 border-dark-accent">
-  <td className="p-3 font-semibold text-gray-100" colSpan={2}>
-    Total Credit Hours:
-  </td>
 
-  <td className="p-3 text-center font-semibold text-gray-100">
-    {semester.courses.reduce((sum, course) => sum + course.hours, 0)}
-  </td>
+                    <div className="bg-dark-header p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="font-semibold text-gray-100">Total: {semesterTotal} credit hours</div>
+                        {semesterTotal > 19 && !isPassed && (
+                          <div className="bg-yellow-900 text-yellow-200 px-3 py-1.5 rounded text-xs">
+                            Exceeds 19 hour limit - advisor approval may be required
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
 
-  <td className="p-3 text-left text-yellow-200 text-xs" colSpan={2}>
-  {semester.courses.reduce((sum, course) => sum + course.hours, 0) > 19 && (
-    <span className="bg-yellow-900 px-3 py-1 rounded">
-      This semester exceeds the typical 19 credit hour limit. Advisor approval may be required.
-    </span>
-  )}
-</td>
-
-</tr>
-    
-  </>
-)}
-                </React.Fragment>
-              ))}
-              {/* Grand Total Row */}
-              <tr className="bg-dark-header">
-                <td className="p-4 font-bold text-gray-100 text-lg" colSpan={2}>
-                  Total Program Credit Hours:
-                </td>
-                <td className="p-4 text-center font-bold text-gray-100 text-lg">
-                  {sortedSemesters.reduce(
-                    (total, semester) => total + semester.courses.reduce((sum, course) => sum + course.hours, 0),
-                    0,
-                  )}
-                </td>
-                <td colSpan={2}></td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="bg-dark-header rounded-lg p-4 mt-4 shadow-lg border border-dark-border">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="font-bold text-gray-100 text-base sm:text-lg">Total Program Credit Hours:</div>
+            <div className="font-bold text-gray-100 text-xl sm:text-2xl">
+              {sortedSemesters.reduce(
+                (total, semester) => total + semester.courses.reduce((sum, course) => sum + course.hours, 0),
+                0,
+              )}
+            </div>
+          </div>
         </div>
       </div>
+      {/* END MOBILE VIEW */}
+
+      {/* DESKTOP VIEW - Table layout for medium and larger screens */}
+      <div className="hidden md:block">
+        <div className="bg-dark-card rounded-lg overflow-hidden shadow-lg border border-dark-border">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm table-fixed">
+              <thead>
+                <tr className="bg-dark-header border-b-2 border-dark-border">
+                  <th className="text-left p-3 font-semibold text-gray-100 w-1/12">Course</th>
+                  <th className="text-left p-3 font-semibold text-gray-100 w-3/12">Title</th>
+                  <th className="text-center p-3 font-semibold text-gray-100 w-1/12">Hr</th>
+                  <th className="text-left p-3 font-semibold text-gray-100 w-6/12">Professor</th>
+                  <th className="text-center p-3 font-semibold text-gray-100 w-1/12">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedSemesters.map((semester) => {
+                  const semesterTotal = semester.courses.reduce((sum, course) => sum + course.hours, 0)
+                  const isPassed = hasSemesterPassed(semester.name)
+                  const isCollapsed = collapsedSemesters[semester.name]
+
+                  return (
+                    <React.Fragment key={semester.name}>
+                      {/* Semester header row - table view */}
+                      <tr
+                        className={`border-t-2 border-dark-accent ${isCollapsed ? "bg-dark-semester-closed" : "bg-dark-semester"}`}
+                      >
+                        <td colSpan={5} className="p-0">
+                          {/* Using div instead of button wrapper to avoid nested button errors */}
+                          <div
+                            className="w-full text-left p-3 font-bold text-gray-100 text-base hover:bg-dark-hover transition-colors duration-200 flex items-center justify-between"
+                          >
+                            {/* Main collapse/expand button - clicking semester name toggles */}
+                            <button
+                              onClick={() => toggleSemesterCollapse(semester.name)}
+                              className="flex justify-between flex-1"
+                            >
+                              <span>{semester.name}</span>
+                              {isPassed && <span className="text-gray-400 mr-5">(Already Taken)</span>}
+                            </button>
+
+                            {/* Action buttons - all siblings to avoid nested button HTML error */}
+                            <span className="ml-auto flex gap-x-4">
+                              {/* Delete semester button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setShowDeleteSemesterConfirm(semester.name)
+                                }}
+                                className="text-red-300 hover:text-red-100 transition text-lg"
+                                title="Delete Semester"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="20"
+                                  height="20"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                  <path d="M3 6h18" />
+                                  <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                </svg>
+                              </button>
+
+                              {/* Add class to semester button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setSelectedSemester(semester.name)
+                                  setShowAddModal(true)
+                                }}
+                                className="text-green-300 hover:text-green-100 transition text-lg"
+                                title="Add Class"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="20"
+                                  height="20"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M12 5v14" />
+                                  <path d="M5 12h14" />
+                                </svg>
+                              </button>
+
+                              {/* Collapse/expand arrow button */}
+                              <button
+                                onClick={() => toggleSemesterCollapse(semester.name)}
+                                className="p-0"
+                              >
+                                <svg
+                                  className={`w-5 h-5 transition-transform duration-200 ml-5 ${
+                                    isCollapsed ? "rotate-0" : "rotate-90"
+                                  }`}
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </button>
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {!isCollapsed &&
+                        semester.courses.map((course, courseIndex) => {
+                          const courseKey = `${semester.name}_${courseIndex}`
+                          const selectedProf = getSelectedProfessor(course)
+                          const profLabel = selectedProf?.info?.warning
+
+                          return (
+                            <tr key={courseIndex} className="border-b border-dark-border hover:bg-dark-hover">
+                              <td className="p-3">
+                                <span className="font-medium text-gray-200">
+                                  <a
+                                    href={`/dashboard?dept=${course.department}&courseNumber=${course.number}`}
+                                    target="_blank"
+                                    className="hover:underline hover:text-blue-400"
+                                    rel="noreferrer"
+                                  >
+                                    {course.department} {course.number}
+                                  </a>
+                                </span>
+                              </td>
+                              <td className="p-3 text-gray-300">
+                                <a
+                                  href={`/dashboard?dept=${course.department}&courseNumber=${course.number}`}
+                                  target="_blank"
+                                  className="hover:underline hover:text-blue-400"
+                                  rel="noreferrer"
+                                >
+                                  {course.title}
+                                </a>
+                              </td>
+                              <td className="p-3 text-center text-gray-300">{course.hours}</td>
+                              <td className="p-3">
+                                {isPassed ? (
+                                  <span className="text-gray-400">Already Taken</span>
+                                ) : course.professors && course.professors.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {selectedProf ? (
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex-1">
+                                          <div className="font-medium text-gray-200 mb-1">
+                                            <a
+                                              href="/"
+                                              className="hover:underline hover:text-blue-400"
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                            >
+                                              {selectedProf.info.name}
+                                            </a>
+                                          </div>
+                                          <div className="flex space-x-2">
+                                            <span className="bg-blue-dark text-blue-light px-2 py-1 rounded text-xs">
+                                              GPA: {selectedProf.info.averageGPA}
+                                            </span>
+                                            <span className="bg-yellow-dark text-yellow-light px-2 py-1 rounded text-xs">
+                                              Overall Rating: {selectedProf.info.averageRating}
+                                            </span>
+                                            <span className="bg-green-dark text-green-light px-2 py-1 rounded text-xs">
+                                              Class Rating: {selectedProf.info.classRating ?? "N/A"}
+                                            </span>
+                                            <span className="bg-purple-dark text-purple-light px-2 py-1 rounded text-xs">
+                                              {selectedProf.info.site ?? "Unknown"}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <div className="flex flex-col items-end space-y-1 mt-2">
+                                          {typeof profLabel === "string" && profLabel.trim() !== "" && (
+                                            <button
+                                              onClick={() =>
+                                                handleProfessorSelect(semester.name, courseIndex, undefined)
+                                              }
+                                              className="bg-red-dark text-red-light px-2 py-1 rounded text-xs hover:brightness-110 transition text-right"
+                                            >
+                                              {profLabel}
+                                            </button>
+                                          )}
+                                          <button
+                                            onClick={() => handleProfessorSelect(semester.name, courseIndex, undefined)}
+                                            className="text-blue-400 hover:text-blue-300 underline text-xs"
+                                          >
+                                            Change Professor
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <select
+                                        className="w-full p-2 border border-dark-border rounded-md text-sm focus:ring-1 focus:ring-gray-200 focus:border-dark-border bg-dark-input text-gray-200"
+                                        value={course.selectedProf ?? ""}
+                                        onChange={(e) =>
+                                          handleProfessorSelect(
+                                            semester.name,
+                                            courseIndex,
+                                            Number.parseInt(e.target.value),
+                                          )
+                                        }
+                                      >
+                                        <option value="">Select Professor</option>
+                                        {sortProfessors(course.professors).map((prof, profIndex) => (
+                                          <option key={profIndex} value={course.professors.indexOf(prof)}>
+                                            {prof.info.name} | GPA: {prof.info.averageGPA} | Rating:{" "}
+                                            {prof.info.averageRating}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-400">No professors available</span>
+                                )}
+                              </td>
+                              <td className="p-3 align-middle text-right">
+                                <div className="flex justify-center items-center space-x-2 h-full">
+                                  <button
+                                    onClick={() => setShowMoveModal(courseKey)}
+                                    className="text-blue-300 hover:text-blue-100 transition text-lg"
+                                    title="Move Class"
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="20"
+                                      height="20"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <path d="M18 8L22 12L18 16" />
+                                      <path d="M2 12H22" />
+                                      <path d="M6 8L2 12L6 16" />
+                                    </svg>
+                                  </button>
+
+                                  <button
+                                    onClick={() => setShowDeleteConfirm(courseKey)}
+                                    className="text-red-300 hover:text-red-100 transition text-lg"
+                                    title="Delete Class"
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="20"
+                                      height="20"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                      <path d="M3 6h18" />
+                                      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        })}
+
+                      {!isCollapsed && (
+                        <tr className="bg-dark-header border-b-2 border-dark-accent">
+                          <td className="p-3 font-semibold text-gray-100" colSpan={2}>
+                            Total Credit Hours:
+                          </td>
+                          <td className="p-3 text-center font-semibold text-gray-100">{semesterTotal}</td>
+                          <td className="p-3 text-left text-yellow-200 text-xs" colSpan={2}>
+                            {semesterTotal > 19 && !isPassed && (
+                              <span className="bg-yellow-900 px-3 py-1 rounded">
+                                This semester exceeds the typical 19 credit hour limit. Advisor approval may be
+                                required.
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  )
+                })}
+
+                <tr className="bg-dark-header">
+                  <td className="p-4 font-bold text-gray-100 text-lg" colSpan={2}>
+                    Total Program Credit Hours:
+                  </td>
+                  <td className="p-4 text-center font-bold text-gray-100 text-lg">
+                    {sortedSemesters.reduce(
+                      (total, semester) => total + semester.courses.reduce((sum, course) => sum + course.hours, 0),
+                      0,
+                    )}
+                  </td>
+                  <td colSpan={2}></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {/* END DESKTOP VIEW */}
+
       <div className="flex justify-end py-4">
-  <button
-    onClick={() => { setSelectedSemester(null); setShowClearModal(true); }}
-    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition flex items-center space-x-2 shadow-md"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="3 6 5 6 21 6" />
-      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-      <path d="M10 11v6" />
-      <path d="M14 11v6" />
-      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-    </svg>
-    <span>Clear Planner</span>
-  </button>
-</div>
+        <button
+          onClick={() => {
+            setSelectedSemester(null)
+            setShowClearModal(true)
+          }}
+          className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition flex items-center justify-center space-x-2 shadow-md"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6" />
+            <path d="M14 11v6" />
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+          </svg>
+          <span>Clear Planner</span>
+        </button>
+      </div>
+
+      {/* Schedule Finder Section */}
+      <div className="mt-12">
+        <ScheduleFinder planner={planner} />
+      </div>
+
       {/* Modals */}
       <DeleteConfirmModal
         isOpen={!!showDeleteConfirm}
@@ -566,17 +895,16 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
       />
 
       <DeleteConfirmModal
-  isOpen={showDeleteSemesterConfirm}
-  onClose={() => setShowDeleteSemesterConfirm(null)}
-  onConfirm={() => handleDeleteSemester(showDeleteSemesterConfirm)}
-  courseName={showDeleteSemesterConfirm}
-  semesterCourses={
-    showDeleteSemesterConfirm
-      ? planner[showDeleteSemesterConfirm]?.map(c => `${c.department} ${c.number}`) ?? []
-      : []
-  }
-/>
-
+        isOpen={showDeleteSemesterConfirm}
+        onClose={() => setShowDeleteSemesterConfirm(null)}
+        onConfirm={() => handleDeleteSemester(showDeleteSemesterConfirm)}
+        courseName={showDeleteSemesterConfirm}
+        semesterCourses={
+          showDeleteSemesterConfirm
+            ? (planner[showDeleteSemesterConfirm]?.map((c) => `${c.department} ${c.number}`) ?? [])
+            : []
+        }
+      />
 
       <MoveClassModal
         isOpen={showMoveModal}
@@ -601,10 +929,11 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
         showAlert={showAlert}
         currentSemester={selectedSemester}
       />
+
       <ClearConfirmModal
-          isOpen={showClearModal}
-          onClose={() => setShowClearModal(false)}
-          onConfirm={() => handleBackToLanding()}
+        isOpen={showClearModal}
+        onClose={() => setShowClearModal(false)}
+        onConfirm={() => handleBackToLanding()}
       />
     </div>
   )

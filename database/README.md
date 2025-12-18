@@ -1,9 +1,14 @@
-To create local db install postgres then do
+To generate a local database
 
-psql postgres - connect to postgres database (the default)
-CREATE DATABASE mydb;
+Install postgresql - below is a sample way to do it using brew, use whatever installer you wish (or official postgresql website)
 
-exit psql - should be \q 
+brew install postgresql
+brew services start postgresql
 
-psql -d mydb - connect to new database you just made
-\i dump.sql - to restore database
+the command below will log you into the local postgres database
+psql postgres
+
+the command below will restore the database with no 
+\i local_dump_no_roles.sql 
+
+congratulations you have now made the local database and can now connect to it <:

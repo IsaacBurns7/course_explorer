@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useContext } from "react";
 import axios from "axios";
 import Chart from "react-apexcharts"; 
+//trying this chart library b/c prev one blurry:                       
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 import BarGraph from "./BarGraph";
 import { SearchContext } from "../context/search";
@@ -56,8 +58,6 @@ const Compare = () => {
     */
 
     if(comparedCards.length > colorMap.keys().length){
-        console.log(comparedCards, barGraphSeries);
-
         const newRandomColor = randomHexColor();
         const recentlyAddedComparedCard = comparedCards[comparedCards.length-1];
         const graphIndex = barGraphSeries.findIndex(series => {
@@ -328,6 +328,8 @@ const Compare = () => {
             <div className = "header">
                 header options
             </div>
+
+            {/* CHART */}
             <div className = "chart-wrapper bg-black flex items-center">
                 <div className = "chart-container flex-1">
                     {barGraph && 
@@ -337,12 +339,13 @@ const Compare = () => {
                         series = {barGraphSeries}
                         height = {350}
                     />}
-                    {lineGraph && <Chart 
+                    {/* APEXCHARTS - BLURRY
+                    lineGraph && <Chart 
                         type = "line"
                         options = {lineGraphOptions}
                         series = {lineGraphSeries}
                         height = {350}
-                    />}
+                    />*/}
                 </div>
                 <div className = "chart-toggle flex flex-col gap-1">
                     <button onClick = {() => {

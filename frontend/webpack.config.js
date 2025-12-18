@@ -27,7 +27,7 @@ module.exports = {
         liveReload: true,
     },
     resolve: {
-        extensions: [".js", ".jsx", ".json", ".css", ".png"]
+        extensions: [".js", ".jsx", ".json", ".css", ".png", ".jpg"]
     },
     module: {
         rules: [
@@ -49,6 +49,10 @@ module.exports = {
                         }
                     }, 
                     "postcss-loader"]
+            },
+            {
+                test: /\.(png|jpg|jpeg|gif|svg)$/i,
+                type: 'asset/resource'
             }
         ]
     }

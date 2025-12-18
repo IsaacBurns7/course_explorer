@@ -7,8 +7,16 @@ module.exports = {
     "./src/components/Wave.js",
     "./public/index.html"
   ],
+  safelist: [
+    {
+      pattern: /text-\[\d+px\]/,  // allows text-[1px], text-[10px], etc.
+    },
+  ],
   theme: {
     extend: {
+      fontSize: {
+        '2xs': '0.625rem', // 10px
+      },
       colors: {
         // Dark theme colors for #1B1111 background
         "dark-card": "#141414",     

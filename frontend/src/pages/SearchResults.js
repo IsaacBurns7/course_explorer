@@ -23,6 +23,11 @@ import { useSearchData } from "../hooks/useSearchData";
 // import { useProfessorsInfo } from "../hooks/useProfessorsInfo";
 // import { useGraphData } from "../hooks/useGraphData";
 
+/**
+ * @deprecated This component is being phased out. 
+ * Use CourseDetails component at /course/:courseId instead.
+ * The /dashboard route now redirects to the new design.
+ */
 const SearchResults = () => {
     const [searchParams, setSearchParams] = useSearchParams(); 
     const department = searchParams.get("dept");
@@ -38,7 +43,7 @@ const SearchResults = () => {
     //     if(cards === null) return;
     //     const updateCardToProfessorInfo = (prevMap) => {
     //         const map = new Map(prevMap);
-    //         // console.log(cards, course
+
     //         for(const card of cards){
     //             if(map.has(card)) continue;
     //             const professorId = card.split("_")[1];
@@ -101,11 +106,7 @@ function linkifyCourseCodes(description) {
     const info = currentCourse.info || {};
     const {title: courseTitle = "Placeholder title", 
         description: courseDescription = "Placeholder description"} 
-    = info; 
-    // console.log(courses);
-    // console.log(professors);
-    // console.log(cards);
-    // console.log(graphData);
+    = info;
 
     return (
         <div className = "search-results pt-20 bg-gray-600">
@@ -123,7 +124,6 @@ function linkifyCourseCodes(description) {
                         const number = card.split("_")[1];
                         const courseId = dept + " " + number;
                         const professorId = card.split("_")[2];
-                        // console.log(card, professorId);
                         if(professorId === "info"){
                             return;
                         }
@@ -138,7 +138,6 @@ function linkifyCourseCodes(description) {
                                 return;
                             }
                         }
-                        // console.log(courses[`${dept} ${number}`]);
                         return <ProfessorCard 
                             key = {`${courseId}_${professorId}`}
                             professorId = {professorId}

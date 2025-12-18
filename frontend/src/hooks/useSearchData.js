@@ -26,7 +26,6 @@ export function useSearchData(searchQuery){
                 setCourses(courses.data);
                 setProfessors(professors.data);
                 setSemesters(lineGraphData.data.semesters); //this is for alignment
-                console.log(lineGraphData.data);
                
             } catch(error){
                 // setError(error);

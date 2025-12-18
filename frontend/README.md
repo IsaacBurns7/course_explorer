@@ -1,4 +1,4 @@
-To run this folder you need to do
+to run the frontend
 
-npm install 
-npm run start
+npm install
+npm run start 

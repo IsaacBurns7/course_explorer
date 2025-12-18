@@ -21,11 +21,8 @@ function handleSortByName(cards, setCards, professors, ascending, e){
         const professor2Info = professor2.info;
         const name1 = professor1Info.name;
         const name2 = professor2Info.name;
-        // console.log(name1, name2);
-        // console.log(ascending ? name1.localeCompare(name2) : name2.localeCompare(name1));
         return ascending ? name1.localeCompare(name2) : name2.localeCompare(name1);
     });
-    // console.log(cards, newCards);
     setCards(newCards);
 }
 
@@ -60,7 +57,6 @@ function handleSortByRating(cards, setCards, professors, ascending, e){
         return;
     }
     const newCards = [...cards].sort((card1, card2) => {
-        console.log(newCards);
         const professorId1 = card1.split("_")[2];
         const professorId2 = card2.split("_")[2];
         // if(professorId1 === "info" || professorId2 === "info") return -1;

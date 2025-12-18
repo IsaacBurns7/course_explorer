@@ -13,7 +13,6 @@ function SearchOptions (){
     const { professorFilters, setProfessorFilters } = useContext(SearchContext);
 
     function selectAllSemesters(){
-        console.log("Selecting all semesters");
     }
     
     const handleGPAChange = (e) => {
