@@ -12,12 +12,19 @@ const Navbar = () => {
     const [user, setUser] = useState(null);
     const [courses, setCourses] = useState(new Set());
 
-    useEffect(() => {
-      fetch(`${API}/auth/me`, { credentials: "include" })
-        .then(r => r.json())
-        .then(d => setUser(d.user || null))
-        .catch(() => setUser(null));
-    }, []);
+    const refreshMe = async () => {
+    try{
+      const r = await fetch(`${API}/auth/me`, { credentials: "include" });
+      const d = await r.json();
+      setUser(d.user || null);
+    } catch {
+      setUser(null);
+    }
+    };
+
+    useEffect(() =>{
+      refreshMe();
+    }, [location.key]);
 
     async function handleLogout() {
       await fetch(`${API}/auth/logout`, {
