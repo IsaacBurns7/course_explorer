@@ -7,7 +7,7 @@ async function findOrCreateUserFromGoogle(profile) {
     const picture = profile.photos?.[0]?.value || null;
 
     const existing = await pool.query(
-        "SELECT id, email, name FROM course_explorer.users WHERE google_id = $1",
+        "SELECT id, email, name, picture FROM course_explorer.users WHERE google_id = $1",
         [googleId]
     );
 
