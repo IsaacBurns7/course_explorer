@@ -43,6 +43,7 @@ router.get(
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .redirect(process.env.CLIENT_ORIGIN || "http://localhost:3000");
+    
   }
 );
 
@@ -56,9 +57,9 @@ router.get("/me", (req, res) => {
     const token = req.cookies?.token;
     if (!token) return res.json({ user: null });
     const user = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({ user });
+    return res.json({ user });
   } catch {
-    res.json({ user: null });
+    return res.json({ user: null });
   }
 });
 

@@ -14,8 +14,10 @@ const Navbar = () => {
 
     const refreshMe = async () => {
     try{
+      console.log("Attempting to refresh user info...");
       const r = await fetch(`${API}/auth/me`, { credentials: "include" });
       const d = await r.json();
+      console.log(d)
       setUser(d.user || null);
     } catch {
       setUser(null);
