@@ -16,22 +16,11 @@ const pool = new Pool({
 console.log("Global setup: Attempting to connect to DB at ", process.env.NEON_DB_URL);
 
 const pool = new Pool({
-    connectionString: process.env.NEON_DB_URL,
-    ssl: process.env.NEON_DB_URL && process.env.NEON_DB_URL.includes('neon.tech') ? {
-        require: true,
-        rejectUnauthorized: false
-     } : false,
-    // Add connection pool settings
-     max: 20, // Maximum number of clients in the pool
-     idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-     connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
+     connectionString: process.env.NEON_DB_URL,
+    ssl: {
+        require: true
+    }
  });
-
-// Handle pool errors to prevent application crashes
-pool.on('error', (err, client) => {
-    console.error('Unexpected error on idle client', err);
-    // Don't exit the process, just log the error
-});
 
 pool.connect()
  .then(() => {

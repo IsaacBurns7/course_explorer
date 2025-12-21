@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Calendar, Notebook, Menu, X } from 'lucide-react';
 import AutoCompleteSearch from './Search';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import SearchButton from "./SearchButton";
+import AutoCompleteSearch from "./Search";
+import { getAllCourses } from "../hooks/useAllCourses";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -11,6 +17,49 @@ const Navbar = () => {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
+
+
+    const API = "http://localhost:4000";
+    const [user, setUser] = useState(null);
+    const [courses, setCourses] = useState(new Set());
+
+    const refreshMe = async () => {
+    try{
+      console.log("Attempting to refresh user info...");
+      const r = await fetch(`${API}/auth/me`, { credentials: "include" });
+      const d = await r.json();
+      console.log(d)
+      setUser(d.user || null);
+    } catch {
+      setUser(null);
+    }
+    };
+
+    useEffect(() =>{
+      refreshMe();
+    }, [location.key]);
+
+    async function handleLogout() {
+      await fetch(`${API}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+      setUser(null);
+    }
+
+    useEffect(() => {
+        getAllCourses()
+          .then(courseSet => {
+            setCourses(prev => {
+              const newSet = prev;
+              courseSet.forEach((courseKey) => {
+                newSet.add(courseKey);
+              })
+              return newSet;
+            });
+          })
+          .catch(err => console.error("Failed to load courses", err));
+      }, []);
 
   return (
     <>
@@ -91,6 +140,28 @@ const Navbar = () => {
                 <Notebook className="h-4 w-4" />
                 <span className="hidden xl:inline font-medium">Scheduler</span>
               </Link>
+                      {user ? (
+            <div className="flex items-center gap-3">
+              {user.picture && (
+                <img
+                  src={user.picture}
+                  alt={user.name || "User"}
+                  className="w-8 h-8 rounded-full border border-gray-700"
+                />
+              )}
+              <span className="text-sm text-gray-200">
+                {user.name || user.email || "Signed in"}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="ml-4 px-6 py-2 border border-purple-500 text-white rounded-full hover:bg-purple-600 transition duration-300"
+              >
+                Logout
+              </button>
+              </div>
+            ) : (
+              <LoginButton authUrl={`${API}/auth/google`} />
+            )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -146,6 +217,6 @@ const Navbar = () => {
       )}
     </>
   );
-};
+};}
 
 export default Navbar;
