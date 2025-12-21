@@ -7,7 +7,7 @@ async function findOrCreateUserFromGoogle(profile) {
     const picture = profile.photos?.[0]?.value || null;
 
     const existing = await pool.query(
-        "SELECT id, email, name FROM users WHERE google_id = $1",
+        "SELECT id, email, name FROM course_explorer.users WHERE google_id = $1",
         [googleId]
     );
 
@@ -16,7 +16,7 @@ async function findOrCreateUserFromGoogle(profile) {
     }
 
     const inserted = await pool.query(
-        `INSERT INTO users (google_id, email, name, picture)
+        `INSERT INTO course_explorer.users (google_id, email, name, picture)
         VALUES ($1, $2, $3, $4)
         RETURNING id, email, name`,
         [googleId, email, name, picture]
