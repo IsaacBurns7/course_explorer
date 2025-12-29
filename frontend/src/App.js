@@ -3,6 +3,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Landing from "./pages/Landing";
 import Navbar from "./components/Navbar";
+import { UserProvider } from './context/user';
 //hooks
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 
@@ -67,6 +68,7 @@ const App = () => {
     return (
         <div className = "App bg-background text-white h-screen relative ">
             <BrowserRouter>
+            <UserProvider>
             <Navbar />
                 <div className = "pages min-h-screen">
                     <SearchContextProvider>
@@ -99,6 +101,7 @@ const App = () => {
                         </Routes>
                     </SearchContextProvider>
                 </div>
+            </UserProvider>
             </BrowserRouter>
         </div>
     );

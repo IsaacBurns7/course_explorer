@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Calendar, Notebook, Menu, X, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import AutoCompleteSearch from './Search';
-import axios from "axios";
-import SearchButton from "./SearchButton";
-import { getAllCourses } from "../hooks/useAllCourses";
 import LoginButton from './LoginButton';
+import { useUser } from '../context/user';
+import { getAllCourses } from "../hooks/useAllCourses";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -13,6 +12,11 @@ const Navbar = () => {
   const [isClosing, setIsClosing] = useState(false);
   const location = useLocation();
   const dropdownRef = useRef(null);
+
+  // Use the global user context
+  const { user, refreshUser, logout } = useUser();
+  const API = "http://localhost:4000";
+  const [courses, setCourses] = useState(new Set());
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -36,35 +40,16 @@ const Navbar = () => {
     setTimeout(() => {
       setProfileDropdownOpen(false);
       setIsClosing(false);
-    }, 200); // Match animation duration
+    }, 200);
   };
 
-  const API = "http://localhost:4000";
-  const [user, setUser] = useState(null);
-  const [courses, setCourses] = useState(new Set());
-
-  const refreshMe = async () => {
-    try{
-      console.log("Attempting to refresh user info...");
-      const r = await fetch(`${API}/auth/me`, { credentials: "include" });
-      const d = await r.json();
-      console.log(d)
-      setUser(d.user || null);
-    } catch {
-      setUser(null);
-    }
-  };
-
-  useEffect(() =>{
-    refreshMe();
+  // Refresh user on route change
+  useEffect(() => {
+    refreshUser();
   }, [location.key]);
 
   async function handleLogout() {
-    await fetch(`${API}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    setUser(null);
+    await logout();
     setProfileDropdownOpen(false);
   }
 

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import PlannerDisplay from "../components/Planner";
 import ScheduleFinder from "../components/ScheduleFinder";
 import UploadPlannerModal from "../components/modals/upload";
+import axios from "axios";
 
 export default function Planner() {
   const [currentView, setCurrentView] = useState("landing");
@@ -13,22 +14,49 @@ export default function Planner() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedPlanner = localStorage.getItem("academicPlanner");
-      if (savedPlanner && savedPlanner !== "{}") {
-        const parsedPlanner = JSON.parse(savedPlanner);
-        setPlanner(parsedPlanner);
-        setCurrentView("planner");
+    const loadPlanner = async () => {
+      try {
+        if (typeof window === "undefined") return;
+
+        // Cookies are sent automatically with requests
+        const res = await axios.get("/server/auth/getPlanner", {
+          withCredentials: true,
+        });
+
+        if (res.data && Object.keys(res.data).length > 0) {
+          setPlanner(res.data);
+          setCurrentView("planner");
+        }
+      } catch (err) {
+        console.error("Failed to load planner:", err);
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    loadPlanner();
   }, []);
 
-  useEffect(() => {
-    if (!loading && typeof window !== "undefined") {
-      localStorage.setItem("academicPlanner", JSON.stringify(planner));
+
+useEffect(() => {
+  if (loading || typeof window === "undefined") return;
+
+  const timeout = setTimeout(async () => {
+    try {
+      await axios.post(
+        "/server/auth/savePlanner",
+        planner, // Send planner directly
+        { withCredentials: true }
+      );
+      console.log("Planner saved");
+    } catch (err) {
+      console.error("Failed to save planner:", err);
     }
-  }, [planner, loading]);
+  }, 500); // debounce
+
+  return () => clearTimeout(timeout);
+}, [planner, loading]);
+
 
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center" />;
