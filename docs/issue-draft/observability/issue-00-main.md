@@ -2,70 +2,58 @@
 
 For this issue, you'll be implementing logging for this project. It is a very large project, so expect
 this issue to be rather difficult and timely, but it will be well worth it. Any project that grows past 
-a tiny demo requires logging and observability for many reasons, but chiefly among them are.
-## 1. Resilience - When Shit Hits the Fan
+a tiny demo requires logging and observability for many reasons(like literally several dozen), but chiefly among them are: 
 
+## 1. Resilience - When Shit Hits the Fan
 **The Problem:**
 - Production errors happen at 2 AM when you're asleep
 - Users report "something broke" but can't describe what
 - Errors occur sporadically - you can't reproduce them
 - Multiple things break simultaneously - which one caused the cascade?
-
 **What Logging Gives You:**
-- **Root Cause Identification**: Trace backwards from error to find the originating issue
-- **Timeline Reconstruction**: See exactly what happened and in what order
-- **User Impact Assessment**: Know which users were affected and how many
-- **Pattern Detection**: Identify if this is a one-off or a systemic issue
-- **Alert Triggering**: Get notified of critical issues before users complain
-
+- *Root Cause Identification*: Trace backwards from error to find the originating issue
+- *Timeline Reconstruction*: See exactly what happened and in what order
+- *User Impact Assessment*: Know which users were affected and how many
+- *Pattern Detection*: Identify if this is a one-off or a systemic issue
+- *Alert Triggering*: Get notified of critical issues before users complain
 **Without Logging:**
 You're flying blind. You know something broke, but not what, why, or how to fix it.
-
 **With Logging:**
 You have a complete timeline: "User 12345 requested schedule generation for 6 courses at 2:47 AM. Database query took 15 seconds (normally 200ms). Connection pool was exhausted. Root cause: database migration ran during peak hours."
 
 ## 2. Debugging - When You Break Shit
-
 **The Problem:**
 - Code works on your machine, fails in production
 - Bug only happens with specific data you don't have locally
 - Race conditions appear under load but not in development
 - New feature broke something unrelated - but what?
-
 **What Logging Gives You:**
-- **Request Tracing**: Follow a single user request through the entire application
-- **State Inspection**: See variable values and data flow at each step
-- **Conditional Path Tracking**: Understand which code paths were taken and why
-- **Performance Bottlenecks**: Identify slow functions, queries, or operations
-- **Integration Points**: See exactly what data was sent/received from external APIs
-
+- *Request Tracing*: Follow a single user request through the entire application
+- *State Inspection*: See variable values and data flow at each step
+- *Conditional Path Tracking*: Understand which code paths were taken and why
+- *Performance Bottlenecks*: Identify slow functions, queries, or operations
+- *Integration Points*: See exactly what data was sent/received from external APIs
 **Without Logging:**
 You add `console.log` statements, redeploy, wait for bug to happen again, repeat 10 times.
-
 **With Logging:**
 You search logs for the failing request ID, see the exact data that caused the failure, identify the bug in 5 minutes.
 
 ## 3. Performance Optimization - Know What's Actually Slow
-
 **The Problem:**
 - Users complain app is "slow" but you don't know which part
 - You optimize the wrong thing (gut feeling, not data)
 - Performance regressions slip into production unnoticed
 - Don't know if optimizations actually helped
-
 **What Logging Gives You:**
-- **Operation Timing**: Measure how long each operation takes (database queries, API calls, algorithms)
-- **Bottleneck Identification**: Find the actual slow parts (not guessed)
-- **Performance Baselines**: Establish "normal" performance to detect regressions
-- **Optimization Verification**: Measure before/after to prove optimizations work
-- **Resource Utilization**: See when memory, CPU, or connections are maxed out
-
+- *Operation Timing*: Measure how long each operation takes (database queries, API calls, algorithms)
+- *Bottleneck Identification*: Find the actual slow parts (not guessed)
+- *Performance Baselines*: Establish "normal" performance to detect regressions
+- *Optimization Verification*: Measure before/after to prove optimizations work
+- *Resource Utilization*: See when memory, CPU, or connections are maxed out
 **Without Logging:**
 "Schedule generation feels slow. Maybe we should optimize the database? Or the algorithm? Not sure."
-
 **With Logging:**
 "Schedule generation p95 is 8 seconds. Logs show beam search takes 200ms, but database query takes 7.8 seconds. Need to add index on `courses_sections.course_id`."
-
 
 Below is a general outline of the requirements for the logging implementation. However, as far 
 as strategy and scope and implementation go, that is up to the team lead and their developers. 

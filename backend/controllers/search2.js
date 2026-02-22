@@ -106,12 +106,13 @@ const getCourseData = async (req, res) => {
             WHERE course_id = $1
         `; //this is in notes of database
         const result = await client.query(sql5, [courseId]);
+        //result, based on postgres has some invariants
+        //-> rows, rows can be full of undefineds 
         const courses = result.rows.reduce((acc, row) => {
             acc[courseId] = row.course_data;
             return acc;
         }, {}) || {};
-
-       
+        //edge case 1: result.rows is empty, or result doesn't have attribute rows        
         return res.json(courses);
     } catch (error) {
         console.error("Error in search controller: getCourseData");
