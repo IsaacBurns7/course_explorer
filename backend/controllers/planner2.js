@@ -386,6 +386,7 @@ const getOptimalSchedule = async (req, res) => {
 
         //take top 200 entries ?
         //mask -> schedule
+        //optimalschedulealgorithmBeam -> function, pass whatever it needs, 
         for(const course of courses){
             let new_dp = new Map();
             const pairs = coursesMap[course];

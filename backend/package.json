@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha './test/planner2.test.js' --recursive",
+    "test": "mocha",
     "start": "node server.js"
   },
   "type": "commonjs",
