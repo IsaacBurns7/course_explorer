@@ -30,10 +30,33 @@ const getSemestersForCourse = async(req:Request, res:Response) => {
 //         z.string()
 //     ),
 // });
+
 const ProfessorDataForCourseInputSchema = z.object({department: z.string(), courseNumber: z.string()});
-const ProfessorDataForCourseDBRowSchema = z.object({});
-const ProfessorDataForCourseDBRowsSchema = z.array(ProfessorDataForCourseDBRowSchema);
-type ProfessorDataForCourseDB_T = z.infer<typeof ProfessorDataForCourseDBRowsSchema>;
+// const ProfessorDataForCourseDBInfoSchema = z.object({
+//   tags: z.array(z.string()).nullable(), 
+//   name: z.string(),
+//   averageGPA: z.number().nullable(),
+//   difficulty: z.number().nullable(),
+//   totalSections: z.number(),
+//   totalStudents: z.number(),
+//   wouldTakeAgain: z.number().nullable(),
+//   totalRatings: z.number().nullable(),
+//   averageRating: z.number().nullable(),
+//   rmpLink: z.string().nullable()
+// });
+
+// const ProfessorDataForCourseDBDataSchema = z.object({
+//   info: ProfessorDataForCourseDBInfoSchema,
+//   courses: z.array(z.number()).nullable(),
+//   ratings: z.record(z.any())
+// });
+
+// export const ProfessorDataForCourseDBRowSchema= z.object({
+//   professorid: z.number(),
+//   professor_data: ProfessorDataForCourseDBDataSchema 
+// });
+// const ProfessorDataForCourseDBRowsSchema = z.array(ProfessorDataForCourseDBRowSchema);
+// type ProfessorDataForCourseDB_T = z.infer<typeof ProfessorDataForCourseDBRowsSchema>;
 
 const getProfessorDataForCourse = async(req:Request, res:Response) => {
     const parsed = ProfessorDataForCourseInputSchema.safeParse(req.query);
@@ -46,13 +69,14 @@ const getProfessorDataForCourse = async(req:Request, res:Response) => {
 
     const client = await pool.connect();
     try{
-        const sqlFilePath = path.join(__dirname, '/sql/getProfessorDataForCourse.sql');;
+        const sqlFilePath = path.join(__dirname, '../../sql/getProfessorDataForCourse.sql');;
         const sql:String = fs.readFileSync(sqlFilePath, 'utf-8');
         const result = await client.query(sql, [courseId]);
 
         const parsed: z.SafeParseReturnType<unknown, ProfessorDataForCourseDB_T> =
             ProfessorDataForCourseDBRowsSchema.safeParse(result.rows);
         if (!parsed.success) {
+            console.dir(result.error.format(), { depth: null })
             throw new Error("DB contract violated: " + parsed.error.message);
         }
 

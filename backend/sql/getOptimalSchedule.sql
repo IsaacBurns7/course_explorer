@@ -1,3 +1,4 @@
+/* @name OptimalSchedule */
 /*
 Find ideal schedule given [courseId], find optimal professors and sections based on criteria (max function)
 FUTURE 
