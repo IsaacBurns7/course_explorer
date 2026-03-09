@@ -1,3 +1,4 @@
+/* @name BestClasses */
 SELECT 
 (
     jsonb_object_agg(

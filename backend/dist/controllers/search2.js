@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProfessorDataForCourseDBRowSchema = void 0;
 const zod_1 = require("zod");
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
@@ -33,6 +34,28 @@ const getSemestersForCourse = async (req, res) => {
 //     ),
 // });
 const ProfessorDataForCourseInputSchema = zod_1.z.object({ department: zod_1.z.string(), courseNumber: zod_1.z.string() });
+const ProfessorDataForCourseDBInfoSchema = zod_1.z.object({
+    tags: zod_1.z.array(zod_1.z.string()).nullable(),
+    name: zod_1.z.string(),
+    averageGPA: zod_1.z.number().nullable(),
+    difficulty: zod_1.z.number().nullable(),
+    totalSections: zod_1.z.number(),
+    totalStudents: zod_1.z.number(),
+    wouldTakeAgain: zod_1.z.number().nullable(),
+    totalRatings: zod_1.z.number().nullable(),
+    averageRating: zod_1.z.number().nullable(),
+    rmpLink: zod_1.z.string().nullable()
+});
+const ProfessorDataForCourseDBDataSchema = zod_1.z.object({
+    info: ProfessorDataForCourseDBInfoSchema,
+    courses: zod_1.z.array(zod_1.z.number()).nullable(),
+    ratings: zod_1.z.record(zod_1.z.any())
+});
+exports.ProfessorDataForCourseDBRowSchema = zod_1.z.object({
+    professorid: zod_1.z.number(),
+    professor_data: ProfessorDataForCourseDBDataSchema
+});
+const ProfessorDataForCourseDBRowsSchema = zod_1.z.array(exports.ProfessorDataForCourseDBRowSchema);
 const getProfessorDataForCourse = async (req, res) => {
     const parsed = ProfessorDataForCourseInputSchema.safeParse(req.query);
     if (!parsed.success) {
@@ -42,12 +65,14 @@ const getProfessorDataForCourse = async (req, res) => {
     const courseId = `${department}_${courseNumber}`;
     const client = await pool.connect();
     try {
-        const sqlFilePath = path_1.default.join(__dirname, '/sql/getBestClasses.sql');
+        const sqlFilePath = path_1.default.join(__dirname, '../../sql/getProfessorDataForCourse.sql');
         ;
         const sql = fs_1.default.readFileSync(sqlFilePath, 'utf-8');
         const result = await client.query(sql, [courseId]);
-        if (!result.rows.length) {
-            return res.status(404).json({ error: `No professors found for course with ID ${courseId}.` });
+        const parsed = ProfessorDataForCourseDBRowsSchema.safeParse(result.rows);
+        if (!parsed.success) {
+            console.log(parsed.error.message);
+            throw new Error("DB contract violated: " + parsed.error.message);
         }
         const professors = result.rows.reduce((acc, row) => {
             acc[row.professorid] = row.professor_data;

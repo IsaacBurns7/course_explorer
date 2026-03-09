@@ -1,8 +1,12 @@
+/* @name ProfessorDataForCourse */
 SELECT 
     p.id AS professorid,
     json_build_object(
         'info', json_build_object(
-            'tags', JSON_AGG(pt.tag),
+            'tags', COALESCE(
+                JSON_AGG(pt.tag) FILTER (WHERE pt.tag IS NOT NULL),
+                '[]'
+            ),
             'name', p.name,
             'averageGPA', p.averageGPA,
             'difficulty', p.difficulty,

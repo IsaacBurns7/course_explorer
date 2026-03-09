@@ -1,3 +1,4 @@
+/* @name ClassInfo */
 WITH professor_data AS (
   SELECT
     cs.course_id,
