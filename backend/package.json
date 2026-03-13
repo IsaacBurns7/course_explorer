@@ -14,6 +14,7 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
     "@pgtyped/runtime": "^2.4.2",
+    "cookie-parser": "^1.4.7",
     "axios": "^1.9.0",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
@@ -28,6 +29,8 @@
     "puppeteer": "^24.11.2",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-adblocker": "^2.13.6",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "readline-sync": "^1.4.10",
     "supertest": "^7.1.4"
   },
