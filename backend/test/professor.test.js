@@ -1,38 +1,41 @@
+const dotenv = require('dotenv');
+dotenv.config({ path: "../.env" });
+
 const request = require('supertest');
 const { expect } = require('chai');
-const assert = require('chai').assert;
-const app = require('../server'); 
+const app = require('../server');
+const pool = require('../db');
 
-describe("Professor API", () => {
-    it("should return 400 if missing professorID", async () => {
-        const res = await request(app).get("/api/professorTEST/professorInfo");
-        expect(res.status).to.equal(400);
-        expect(res.body).to.have.property("error");
-    });
+describe('Professor API (integration)', () => {
+	before(async () => {
+		// Mirror the health/db sanity check style used in search2.test.js,
+		// but await it so failures surface deterministically.
+		const client = await pool.connect();
+		try {
+			const healthServer = await request(app).get('/api/health/level1');
+			expect(healthServer.status).to.equal(200);
+			expect(healthServer.body).to.have.property('STATUS');
 
-    it('GET /professorInfo?<params> should return professor Info', async () => {
-        const res = await request(app).get(`/api/professorTEST/professorInfo?professorID=100615`);
-        try{
-            // console.log(Object.keys(res.body).length);
-            expect(res.status).to.equal(200);
-            expect(res.body).to.be.an("object");
-            expect(Object.keys(res.body).length).to.be.greaterThan(0);
-        }catch(error){
-            console.log("Test failed. Response was: ", res.status, res.body);
-            throw error;
-        }
-    });
-    //this is literally just not used
-    // it('GET /professorByName/:name should return professor by name', async () => {
-    //     const res = await request(app).get(`/api/professorTEST/professorByName/'John M. Moore'`);
-    //     try{
-    //         // console.log(Object.keys(res.body).length);
-    //         expect(res.status).to.equal(200);
-    //         expect(res.body).to.be.an("object");
-    //         expect(Object.keys(res.body).length).to.be.greaterThan(0);
-    //     }catch(error){
-    //         console.log("Test failed. Response was: ", res.status, res.body);
-    //         throw error;
-    //     }
-    // });
-}); 
+			const healthDB = await client.query('SELECT 1');
+			expect(healthDB.rows).to.be.an('array');
+		} finally {
+			client.release();
+		}
+	});
+
+	it('GET /api/professors/getAll returns array of professor names', async () => {
+		const res = await request(app).get('/api/professors/getAll');
+		try {
+			expect(res.status).to.equal(200);
+			expect(res.body).to.be.an('array');
+
+			// Be resilient to empty DBs, but validate shape when populated.
+			if (res.body.length > 0) {
+				expect(res.body[0]).to.be.a('string');
+			}
+		} catch (error) {
+			console.log('Test failed. Response was: ', res.status, res.body);
+			throw error;
+		}
+	});
+});

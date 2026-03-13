@@ -1,0 +1,330 @@
+diff --git a/ARCHIVE/backend/planner.js b/ARCHIVE/backend/planner.js
+index d9641f6..ae38c4a 100644
+--- a/ARCHIVE/backend/planner.js
++++ b/ARCHIVE/backend/planner.js
+@@ -2,11 +2,18 @@ const {parseDegreePlanPDF, parseDegreePlanText} = require('../services/parseData
+ const Course = require('../models/course');
+ const Professor = require('../models/professor');
+ 
++/*
++NOTES 9/26/2025
++  a lot of these functions are NOT related to controllers. 
++  They are data handling functions. not inherently wrong, but ensure they are tightly coupled, and if overlap arises between 
++  other controllers, add to services.
++
++*/
++
+ const getSiteByProfessor = (course, professorName) => {
+   for (const [semester, sections] of course.sections) {
+     for (const section of sections) {
+       if (section.prof === professorName && section.site != "") {
+-        console.log("Prof Found for " + section.site)
+         return section.site;
+       }
+     }
+@@ -68,7 +75,9 @@ const getBestClassesText = async(req, res) => {
+   return getBestClasses(parsed, req, res)
+ }
+ 
+-
++/*
++  given courseData -> parsed[sem]
++*/
+ const getBestClasses = async (parsed, req, res) => {
+     console.time("Total");
+     const courseCodes = Object.values(parsed).flat().map(course => `${course.department}_${course.number}`);
+@@ -144,18 +153,12 @@ const getClassInfo = async (req, res) => {
+         }
+         if (hours != "N/A") break
+     }
+-   const professors = (await Professor.find({ "_id": { $in: course.professors } }))
+-  .map(p => {
+-    const obj = p.toObject(); 
+-    obj.info.site = getSiteByProfessor(course, obj.info.name);
+-    return obj;
+-  });
++    const professors = await Professor.find({ "_id": { $in: course.professors } });
+ 
+     if (!professors || professors.length === 0) {
+         return res.status(404).json({ error: `No professors found for ${courseData.department} ${courseData.number}` });
+     }
+ 
+-
+     professors.sort((a, b) => (b.info.averageGPA + b.info.averageRating) - (a.info.averageGPA + a.info.averageRating));
+ 
+     return res.status(200).json({department: courseData[0], number: courseData[1], title: course.info.title, hours: hours, info: course, professors: professors})
+diff --git a/backend/README.md b/backend/README.md
+index f78dc26..392d863 100644
+--- a/backend/README.md
++++ b/backend/README.md
+@@ -1,19 +1,7 @@
+-To run backend
++to run the backend
+ 
+ npm install
+ node server.js
+ 
+-you will need local db or neon db
+-for neon db - look at backend general 
+-
+-for local db(recommended)
+-look at database/README.md to create local db
+-
+-CREATE .env file
+-
+-EXAMPLE
+-
+-PORT=4000 
+-DB_USERNAME=isaac - whatever your user is called. find by running \du in psql
+-DB_PASSWORD=<redacted> - should be blank
+-NEON_DB_URL=<redacted> - for neon db
++Pgtyped
++npx tsc > tsc_out.txt 2>&1 
+\ No newline at end of file
+diff --git a/backend/package.json b/backend/package.json
+index 00a8c9f..3a7e24a 100644
+--- a/backend/package.json
++++ b/backend/package.json
+@@ -3,7 +3,7 @@
+   "version": "1.0.0",
+   "main": "server.js",
+   "scripts": {
+-    "test": "./node_modules/.bin/mocha './test/planner2.test.js' --recursive",
++    "test": "mocha",
+     "start": "node server.js"
+   },
+   "type": "commonjs",
+@@ -13,28 +13,32 @@
+   "description": "",
+   "dependencies": {
+     "@neondatabase/serverless": "^1.0.1",
++    "@pgtyped/runtime": "^2.4.2",
+     "axios": "^1.9.0",
+     "cheerio": "^1.0.0",
+-    "cookie-parser": "^1.4.7",
+     "cors": "^2.8.5",
+-    "dotenv": "^16.5.0",
++    "dotenv": "^16.6.1",
+     "express": "^5.1.0",
+     "js-yaml": "^4.1.1",
+     "mongoose": "^8.15.1",
+     "node-fetch": "^2.7.0",
+     "nodemon": "^3.1.10",
+-    "passport": "^0.7.0",
+-    "passport-google-oauth20": "^2.0.0",
+     "pdf2json": "^3.1.6",
+     "pg": "^8.16.3",
+     "puppeteer": "^24.11.2",
+     "puppeteer-extra": "^3.3.6",
+     "puppeteer-extra-plugin-adblocker": "^2.13.6",
++    "readline-sync": "^1.4.10",
+     "supertest": "^7.1.4"
+   },
+   "devDependencies": {
++    "@pgtyped/cli": "^2.4.3",
++    "@tsconfig/node24": "^24.0.4",
++    "@types/cors": "^2.8.19",
++    "@types/express": "^5.0.6",
+     "chai": "^6.0.1",
+     "mocha": "^11.7.2",
+-    "puppeteer-core": "^24.11.2"
++    "puppeteer-core": "^24.11.2",
++    "typescript": "^5.9.3"
+   }
+ }
+diff --git a/backend/test/professor.test.js b/backend/test/professor.test.js
+index dfddb98..5288f1b 100644
+--- a/backend/test/professor.test.js
++++ b/backend/test/professor.test.js
+@@ -1,38 +1,41 @@
++const dotenv = require('dotenv');
++dotenv.config({ path: "../.env" });
++
+ const request = require('supertest');
+ const { expect } = require('chai');
+-const assert = require('chai').assert;
+ const app = require('../server');
++const pool = require('../db');
++
++describe('Professor API (integration)', () => {
++	before(async () => {
++		// Mirror the health/db sanity check style used in search2.test.js,
++		// but await it so failures surface deterministically.
++		const client = await pool.connect();
++		try {
++			const healthServer = await request(app).get('/api/health/level1');
++			expect(healthServer.status).to.equal(200);
++			expect(healthServer.body).to.have.property('STATUS');
+ 
+-describe("Professor API", () => {
+-    it("should return 400 if missing professorID", async () => {
+-        const res = await request(app).get("/api/professorTEST/professorInfo");
+-        expect(res.status).to.equal(400);
+-        expect(res.body).to.have.property("error");
++			const healthDB = await client.query('SELECT 1');
++			expect(healthDB.rows).to.be.an('array');
++		} finally {
++			client.release();
++		}
+ 	});
+ 
+-    it('GET /professorInfo?<params> should return professor Info', async () => {
+-        const res = await request(app).get(`/api/professorTEST/professorInfo?professorID=100615`);
++	it('GET /api/professors/getAll returns array of professor names', async () => {
++		const res = await request(app).get('/api/professors/getAll');
+ 		try {
+-            // console.log(Object.keys(res.body).length);
+ 			expect(res.status).to.equal(200);
+-            expect(res.body).to.be.an("object");
+-            expect(Object.keys(res.body).length).to.be.greaterThan(0);
++			expect(res.body).to.be.an('array');
++
++			// Be resilient to empty DBs, but validate shape when populated.
++			if (res.body.length > 0) {
++				expect(res.body[0]).to.be.a('string');
++			}
+ 		} catch (error) {
+-            console.log("Test failed. Response was: ", res.status, res.body);
++			console.log('Test failed. Response was: ', res.status, res.body);
+ 			throw error;
+ 		}
+ 	});
+-    //this is literally just not used
+-    // it('GET /professorByName/:name should return professor by name', async () => {
+-    //     const res = await request(app).get(`/api/professorTEST/professorByName/'John M. Moore'`);
+-    //     try{
+-    //         // console.log(Object.keys(res.body).length);
+-    //         expect(res.status).to.equal(200);
+-    //         expect(res.body).to.be.an("object");
+-    //         expect(Object.keys(res.body).length).to.be.greaterThan(0);
+-    //     }catch(error){
+-    //         console.log("Test failed. Response was: ", res.status, res.body);
+-    //         throw error;
+-    //     }
+-    // });
+ });
+\ No newline at end of file
+diff --git a/frontend/src/components/Navbar.js b/frontend/src/components/Navbar.js
+index ef731a3..df051b4 100644
+--- a/frontend/src/components/Navbar.js
++++ b/frontend/src/components/Navbar.js
+@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
+ import { Link, useLocation } from 'react-router-dom';
+ import { Home, Calendar, Notebook, Menu, X } from 'lucide-react';
+ import AutoCompleteSearch from './Search';
+-import axios from "axios";
+-import SearchButton from "./SearchButton";
+-import { getAllCourses } from "../hooks/useAllCourses";
+-import LoginButton from './LoginButton';
++
+ const Navbar = () => {
+   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+   const location = useLocation();
+@@ -15,49 +12,6 @@ const Navbar = () => {
+     setMobileMenuOpen(false);
+   }, [location]);
+ 
+-
+-    const API = "http://localhost:4000";
+-    const [user, setUser] = useState(null);
+-    const [courses, setCourses] = useState(new Set());
+-
+-    const refreshMe = async () => {
+-    try{
+-      console.log("Attempting to refresh user info...");
+-      const r = await fetch(`${API}/auth/me`, { credentials: "include" });
+-      const d = await r.json();
+-      console.log(d)
+-      setUser(d.user || null);
+-    } catch {
+-      setUser(null);
+-    }
+-    };
+-
+-    useEffect(() =>{
+-      refreshMe();
+-    }, [location.key]);
+-
+-    async function handleLogout() {
+-      await fetch(`${API}/auth/logout`, {
+-        method: "POST",
+-        credentials: "include",
+-      });
+-      setUser(null);
+-    }
+-
+-    useEffect(() => {
+-        getAllCourses()
+-          .then(courseSet => {
+-            setCourses(prev => {
+-              const newSet = prev;
+-              courseSet.forEach((courseKey) => {
+-                newSet.add(courseKey);
+-              })
+-              return newSet;
+-            });
+-          })
+-          .catch(err => console.error("Failed to load courses", err));
+-      }, []);
+-
+   return (
+     <>
+       <nav className="bg-maroon border-b border-dark-border shadow-lg fixed top-0 left-0 right-0 z-30 backdrop-blur-sm bg-opacity-95">
+@@ -137,28 +91,6 @@ const Navbar = () => {
+                 <Notebook className="h-4 w-4" />
+                 <span className="hidden xl:inline font-medium">Scheduler</span>
+               </Link>
+-              {user ? (
+-              <div className="flex items-center gap-3">
+-                {user.picture && (
+-                  <img
+-                    src={user.picture}
+-                    alt={user.name || "User"}
+-                    className="w-8 h-8 rounded-full border border-gray-700"
+-                  />
+-                )}
+-                <span className="text-sm text-gray-200">
+-                  {user.name || user.email || "Signed in"}
+-                </span>
+-                <button
+-                  onClick={handleLogout}
+-                  className="ml-4 px-6 py-2 border border-purple-500 text-white rounded-full hover:bg-purple-600 transition duration-300"
+-                >
+-                  Logout
+-                </button>
+-                </div>
+-              ) : (
+-                <LoginButton authUrl={`${API}/auth/google`} />
+-              )}
+             </div>
+ 
+             {/* Mobile Menu Button */}
+@@ -209,28 +141,6 @@ const Navbar = () => {
+               <Notebook className="h-5 w-5" />
+               <span className="font-medium">Scheduler</span>
+             </Link>
+-              {user ? (
+-              <div className="flex items-center gap-3 px-4">
+-                {user.picture && (
+-                  <img
+-                    src={user.picture}
+-                    alt={user.name || "User"}
+-                    className="w-8 h-8 rounded-full border border-gray-700"
+-                  />
+-                )}
+-                <span className="text-sm text-gray-200">
+-                  {user.name || user.email || "Signed in"}
+-                </span>
+-                <button
+-                  onClick={handleLogout}
+-                  className="ml-4 px-6 py-2 border border-purple-500 text-white rounded-full hover:bg-purple-600 transition duration-300"
+-                >
+-                  Logout
+-                </button>
+-                </div>
+-              ) : (
+-                <LoginButton authUrl={`${API}/auth/google`} />
+-              )}
+           </div>
+         </div>
+       )}

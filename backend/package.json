@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha './test/planner2.test.js' --recursive",
+    "test": "mocha",
     "start": "node server.js"
   },
   "type": "commonjs",
@@ -13,28 +13,32 @@
   "description": "",
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
+    "@pgtyped/runtime": "^2.4.2",
     "axios": "^1.9.0",
     "cheerio": "^1.0.0",
-    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
+    "dotenv": "^16.6.1",
     "express": "^5.1.0",
     "js-yaml": "^4.1.1",
     "mongoose": "^8.15.1",
     "node-fetch": "^2.7.0",
     "nodemon": "^3.1.10",
-    "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0",
     "pdf2json": "^3.1.6",
     "pg": "^8.16.3",
     "puppeteer": "^24.11.2",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-adblocker": "^2.13.6",
+    "readline-sync": "^1.4.10",
     "supertest": "^7.1.4"
   },
   "devDependencies": {
+    "@pgtyped/cli": "^2.4.3",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "chai": "^6.0.1",
     "mocha": "^11.7.2",
-    "puppeteer-core": "^24.11.2"
+    "puppeteer-core": "^24.11.2",
+    "typescript": "^5.9.3"
   }
 }
