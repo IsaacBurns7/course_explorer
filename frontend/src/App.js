@@ -12,6 +12,7 @@ import SearchResults from "./pages/SearchResults";
 import Planner from "./pages/Planner"
 import ComparePage from "./pages/Compare";
 import { SearchContextProvider } from "./context/search";
+import PrereqDiagram from "./components/Diagram/PrereqDiagram";
 
 const App = () => {
    //const [professors, setProfessors] = useState([]);
@@ -83,6 +84,10 @@ const App = () => {
                             <Route 
                                 path = "/compare"
                                 element = {<ComparePage />}
+                            />
+                            <Route 
+                                path = "/Diagram"
+                                element = {<PrereqDiagram course="CSCE_120"/>}
                             />
                         </Routes>
                     </SearchContextProvider>
