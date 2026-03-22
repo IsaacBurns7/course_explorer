@@ -304,18 +304,18 @@ const getOptimalSchedule = async (req, res) => {
 
         const courses = req.body.courses;
         const semester = req.body.semester;
-        const min_rating = req.body.min_rating | null;
-        const min_gpa = req.body.min_gpa | null;
-        const fixed_professors = req.body.fixed_professors | null;
-        const course_weights = req.body.course_weights | {};
-        for(const course of courses){
+        const min_rating = req.body.min_rating || null;
+        const min_gpa = req.body.min_gpa || null;
+        const fixed_professors = req.body.fixed_professors || null;
+        const course_weights = req.body.course_weights || {};
+       for(const course of courses){
             course_weights[course] = {
                 total_weight: 1,
                 rating_percentage: 0.5,
                 gpa_weight: 0.5
             }
-        }
-        const preferences = req.body.preferences | {
+        } 
+        const preferences = req.body.preferences || {
             "no_classes_before": {
                 "time": "8:00:00",
                 "penalty": 0.9
@@ -327,7 +327,7 @@ const getOptimalSchedule = async (req, res) => {
             "no_classes_friday": {
                 "penalty": 0.95
             }
-        };
+        }; 
 
         const sqlFilePath = path.join(__dirname, "./sql/getOptimalSchedule.sql");
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
@@ -414,7 +414,7 @@ const getOptimalSchedule = async (req, res) => {
 
 
 
-                        if(!new_dp.get(new_mask) || new_score > new_dp.get(new_mask)){
+                        if(!new_dp.get(new_mask) || new_score > new_dp.get(new_mask).score){
                             const new_entry = {
                                 score: new_score,
                                 schedule: [...currentSchedule, {
