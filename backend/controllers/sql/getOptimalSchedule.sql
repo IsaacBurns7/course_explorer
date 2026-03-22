@@ -92,8 +92,8 @@ WITH validCourseProfessorSectionPairs AS (
             SELECT * 
             FROM course_explorer.courses_professors
             WHERE course_id = ANY($1)
-                AND (
-                    CASE 
+                AND ( 
+                    CASE
                         WHEN $5 ? course_id THEN professor_id = ANY(
                             SELECT jsonb_array_elements_text($5->course_id)::INTEGER
                         )
