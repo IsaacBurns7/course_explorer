@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { parsePrereqs } from "./diagram_parser";
-import { evaluateTree } from "./evaluateTree";
 import { RenderNode } from "./RenderNode";
 import type { Node, RootNode } from "./types";
 
@@ -15,42 +13,33 @@ import type { Node, RootNode } from "./types";
  */
 export default function PrereqDiagram({ course }: { course: string }) {
   const [root, setRoot] = useState<Node | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
-      /*TODO: CREATE A VALID FETCH POINT FOR THE JSONs*/
-      const prereqJson = await fetch("/data_Spring2026_Prereq_test.json").then(
-        (r) => r.json()
-      );
-      /*{"taken": [...], "enrolled": [...]}*/
-      const takenJson = await fetch("/coursesTaken.json").then((r) => r.json());
-
-      const prereqs = prereqJson[course].info.prereqs;
-
-      const parsedTree = parsePrereqs(prereqs);
-      const evaluated = evaluateTree(
-        parsedTree,
-        takenJson.taken,
-        takenJson.enrolled
-      );
-      const childrenToUse =
-        evaluated.type === "and" ? evaluated.children : [evaluated];
-
-      const rootWrapped: RootNode = {
-        type: "root",
-        id: "root-" + (evaluated.id ?? "0"),
-        courseName: course.replace("_", " "),
-        status: evaluated.status,
-        children: childrenToUse,
-      };
-
-      setRoot(rootWrapped);
+      try {
+        /* Fetch the evaluated tree from the backend */
+        const res = await fetch(`/server/api/prereqs/${course}`);
+        
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || "Could not fetch prerequisite tree from backend");
+        }
+        
+        const rootWrapped: RootNode = await res.json();
+        
+        setRoot(rootWrapped);
+      } catch (err: any) {
+        console.error("PrereqDiagram error:", err);
+        setError(err.message || "An unknown error occurred loading the diagram.");
+      }
     }
 
     load();
-  }, []);
+  }, [course]);
 
-  if (!root) return <div>Loading...</div>;
+  if (error) return <div className="p-8 text-red-500 font-bold bg-red-50 border border-red-200 rounded-md">Error: {error}</div>;
+  if (!root) return <div className="p-8 animate-pulse text-gray-500 italic">Preparing Diagram...</div>;
 
   return (
     <div className="p-8">
@@ -58,3 +47,4 @@ export default function PrereqDiagram({ course }: { course: string }) {
     </div>
   );
 }
+
