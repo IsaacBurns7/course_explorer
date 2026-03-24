@@ -100,7 +100,12 @@ const App = () => {
 
                             <Route
                                 path = "/Diagram"
-                                element = {<PrereqDiagram course="CSCE_120"/>}
+                                element={
+                                    <div className="flex flex-col">
+                                        <div style={{ height: "70px" }} />
+                                        <PrereqDiagram course="CSCE_120" />
+                                    </div>
+                                }
                             ></Route>
                             
                         </Routes>
