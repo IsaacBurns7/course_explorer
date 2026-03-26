@@ -119,13 +119,13 @@ WITH validCourseProfessorSectionPairs AS (
             AND cst.section_id = cs.section_id
             AND cst.semester_id = cs.semester_id
     JOIN (
-            SELECT professor_id, professor_score, average_gpa, average_rating
-            FROM course_explorer.courses_professors_scores 
+            SELECT course_id, professor_id, professor_score, average_gpa, average_rating
+            FROM course_explorer.courses_professors_scores
             WHERE course_id = ANY($1)
                 AND (average_gpa >= $3 OR $3 IS NULL)
                 AND (average_rating >= $4 OR $4 IS NULL)
-        ) cps -- course prof score  
-        ON cp.professor_id = cps.professor_id
+        ) cps -- course prof score
+        ON cp.professor_id = cps.professor_id AND cps.course_id = cp.course_id
     GROUP BY cp.course_id, cp.professor_id, cs.section_id, cps.professor_score, cs.crn, cps.average_gpa, cps.average_rating
 )
 SELECT * FROM validCourseProfessorSectionPairs;
