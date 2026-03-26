@@ -133,6 +133,11 @@ function getTimeForMaskBit(bitNumber){
 }
 //key -> time 
 
+/**
+ * Generates a bitmask representing the time slots occupied by a section.
+ * @param {{day: string, start: string, end: string}[]} sectionTimes - Array of time slot objects.
+ * @returns {bigint} Bitmask where each set bit represents an occupied time slot.
+ */
 function generateMask(sectionTimes){
     let mask = 0n;
     //console.log(sectionTimes)
@@ -152,6 +157,11 @@ interface: {
     }
 }
 */
+/**
+ * Converts a time bitmask back into an array of schedule time slot objects.
+ * @param {bigint} timeMask - Bitmask representing occupied time slots.
+ * @returns {{day: string, start: string, end: string}[]} Array of time slot objects.
+ */
 function generateSchedule(timeMask){
     const schedule = [];
     for(let i = 0;i<counter;i++){
@@ -165,6 +175,11 @@ function generateSchedule(timeMask){
     return schedule;
 }
 
+/**
+ * Parses a 12-hour time string into minutes since midnight.
+ * @param {string} str - Time string like "11:30 AM" or "02:20 PM".
+ * @returns {number} Minutes since midnight.
+ */
 function parseTime(str) {
     const [time, meridian] = str.split(' ');
     let [hour, minute] = time.split(':').map(Number);
@@ -223,6 +238,12 @@ interface: {
     }
 }
 */
+/**
+ * Checks whether two sets of time slots overlap on the same day.
+ * @param {{day: string, start: string, end: string}[]} currentSchedule - Existing schedule slots.
+ * @param {{day: string, start: string, end: string}[]} scheduleOfAddedClass - New section's slots.
+ * @returns {boolean} True if any slot in scheduleOfAddedClass overlaps with currentSchedule.
+ */
 function checkOverlap(currentSchedule, scheduleOfAddedClass){
     for(const {day, start, end} of scheduleOfAddedClass){
         const startMinutes = parseTime(start);
@@ -297,9 +318,77 @@ Functionality
     - Attaching an arbitrary weight to a class' gpa, between 0 and 1
     - Attaching an arbitrary weight to a class, between 1 and 100 
 */
+
+/**
+ * Runs bitmask DP over pre-parsed course sections to find the top non-conflicting schedules.
+ * @param {Object<string, {professor_id: string, section_id: number, schedule: {day: string, start: string, end: string}[], professor_score: number|string, crn: string}[]>} coursesMap - Map of course_id to array of section options.
+ * @param {string[]} courses - Ordered list of course IDs to schedule.
+ * @returns {{total_score: number, schedule: {course_id: string, professor_id: string, section_id: number, schedule: {day: string, start: string, end: string}[], crn: string}[]}[]} Top 100 schedules sorted by score descending.
+ */
+function findOptimalSchedules(coursesMap, courses) {
+    let dp = new Map();
+    dp.set(0n, {score: 0.0, schedule: []});
+
+    for(const course of courses){
+        let new_dp = new Map();
+        const pairs = coursesMap[course];
+        for(const [mask, {score, schedule: currentSchedule}] of dp.entries()){
+            const scheduleRaw = generateSchedule(mask);
+            for(const {professor_id, section_id, schedule: scheduleOfAddedClass, professor_score, crn} of pairs){
+                const section_score = parseFloat(professor_score);
+                const section_mask = generateMask(scheduleOfAddedClass);
+                if(((section_mask & mask) === 0n) && !checkOverlap(scheduleOfAddedClass, scheduleRaw)){
+                    const new_mask = mask | section_mask;
+                    const new_score = score + section_score;
+
+                    if(!new_dp.get(new_mask) || new_score > new_dp.get(new_mask).score){
+                        const new_entry = {
+                            score: new_score,
+                            schedule: [...currentSchedule, {
+                                course_id: course, professor_id, section_id, schedule: scheduleOfAddedClass, crn: crn
+                            }]
+                        };
+                        new_dp.set(new_mask, new_entry);
+                    }
+                }
+            }
+        }
+
+        dp = new Map(
+            [...new_dp.entries()]
+            .sort((a,b) => b[1].score - a[1].score)
+            .slice(0,200)
+        );
+    }
+
+    return [...dp.values()]
+        .sort((a, b) => b.score - a.score)
+        .slice(0,100)
+        .map(entry => ({
+            total_score: entry.score,
+            schedule: entry.schedule
+        }));
+}
+
+/**
+ * Clears the module-level bitmask lookup tables. Used for test isolation.
+ */
+function resetMaskState() {
+    timeToMaskBit.clear();
+    maskBitToTime.clear();
+    counter = 0;
+}
+
+/**
+ * Express route handler. Queries DB for course sections, then runs bitmask DP to find
+ * top non-conflicting schedules ranked by professor score.
+ *
+ * @param {import('express').Request} req - req.body: { courses: string[], semester: string, min_rating?: number, min_gpa?: number, fixed_professors?: any }
+ * @param {import('express').Response} res - Responds with { schedules: { total_score: number, schedule: {...}[] }[] }
+ */
 const getOptimalSchedule = async (req, res) => {
     const client = await pool.connect();
-    try { 
+    try {
         // console.log(req.body);
 
         const courses = req.body.courses;
@@ -380,90 +469,7 @@ const getOptimalSchedule = async (req, res) => {
             }
         }
 
-        // console.log(coursesMap);
-        let dp = new Map();
-        dp.set(0n, {score: 0.0, schedule: []});
-
-        //take top 200 entries ?
-        //mask -> schedule
-        for(const course of courses){
-            let new_dp = new Map();
-            const pairs = coursesMap[course];
-            //console.log("Iterating through", course);
-            for(const [mask, {score, schedule: currentSchedule}] of dp.entries()){
-                const scheduleRaw = generateSchedule(mask); //not needed?
-                for(const {professor_id, section_id, schedule: scheduleOfAddedClass, professor_score, crn} of pairs){
-                    const section_score = parseFloat(professor_score);
-                    const section_mask = generateMask(scheduleOfAddedClass);
-                    //schedule has sectionTimes 
-                    // console.log("Must compare:", currentSchedule, schedule);
-                    if(((section_mask & mask) === 0n) && !checkOverlap(scheduleOfAddedClass, scheduleRaw)){
-                        /*
-                        if(spread?.min){
-                            const pass = checkMinSpread(scheduleOfAddedClass, scheduleRaw, spread.min);
-                            if(!pass) continue;
-                         }
-                        if(spread?.max){
-                            const pass = checkMaxSpread(scheduleOfAddedClass, scheduleRaw, spread.max);
-                            if(!pass) continue;
-                        }
-                        */
-                        const new_mask = mask | section_mask; 
-                        const new_score = score + section_score;
-                        //console.log(new_mask, mask, section_mask);
-
-
-
-                        if(!new_dp.get(new_mask) || new_score > new_dp.get(new_mask)){
-                            const new_entry = {
-                                score: new_score,
-                                schedule: [...currentSchedule, {
-                                    course_id: course, professor_id, section_id, schedule: scheduleOfAddedClass, crn: crn
-                                }]
-                            };
-                           new_dp.set(new_mask, new_entry);
-
-                           //console.log("HELLO!")
-                           //console.log(new_entry)
-                        }
-                    }
-                }
-            }
-            
-            //console.log(new_dp)
-            dp = new Map(
-                [...new_dp.entries()]
-                .sort((a,b) => b[1].score - a[1].score)
-                .slice(0,200)
-            );
-        }
-
-        const topSchedules = [...dp.values()]
-        .sort((a, b) => b.score - a.score)
-        .slice(0,100)
-        .map(entry => ({
-            total_score: entry.score,
-            schedule: entry.schedule
-        }));
-
-        // console.log(dp);
-        /*
-        interface: {
-            schedules: [
-                {
-                    total_score: int,
-                    schedule: [
-                        {
-                            course_id: string,
-                            professor_id: string,
-                            section_id: int,
-                            schedule: [{ day: string, start: string, end: string}], start: "02:20 PM"
-                        }
-                    ]
-                }   
-            ]
-        }
-        */
+        const topSchedules = findOptimalSchedules(coursesMap, courses);
 
         //console.log(topSchedules[0])
         return res.status(200).json({ schedules: topSchedules});
@@ -475,4 +481,8 @@ const getOptimalSchedule = async (req, res) => {
     }
 }
 
-module.exports = { getBestClassesPDF, getBestClassesText, getClassInfo, getOptimalSchedule };
+module.exports = {
+    getBestClassesPDF, getBestClassesText, getClassInfo, getOptimalSchedule,
+    parseTime, checkOverlap, generateMask, generateSchedule,
+    getMaskBitForTime, getTimeForMaskBit, findOptimalSchedules, resetMaskState
+};
