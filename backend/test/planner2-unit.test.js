@@ -201,3 +201,200 @@ describe('planner2 — pure unit tests (no DB)', () => {
         });
     });
 });
+
+describe('findOptimalSchedules — end-to-end with realistic data', () => {
+
+    beforeEach(() => resetMaskState());
+
+    // Manually verified: 3 courses × 3 sections each, 2 conflict pairs
+    //
+    // CSCE_314:  sec1 T,R 9-10:30 (4.0) | sec2 T,R 2-3:30 (3.5) | sec3 MWF 10-11 (3.0)
+    // CSCE_221:  sec4 MWF 9-10   (3.5) | sec5 T,R 11-12:30 (4.0) | sec6 T,R 9-10:30 (2.5) ← conflicts sec1
+    // CSCE_312:  sec7 MWF 11-12  (3.0) | sec8 T,R 2-3:30 (3.5) ← conflicts sec2 | sec9 MWF 2-3 (4.5)
+    //
+    // 27 total combos − 6 invalid = 21 valid
+    // Optimal: sec1(4.0) + sec5(4.0) + sec9(4.5) = 12.5
+    it('selects globally optimal across 3 TAMU-style courses with conflicting sections', () => {
+        const secs314 = [
+            { professor_id: 'pA', section_id: 1, crn: '1001', professor_score: '4.0',
+              schedule: [{ day: 'T', start: '09:00 AM', end: '10:30 AM' },
+                         { day: 'R', start: '09:00 AM', end: '10:30 AM' }] },
+            { professor_id: 'pB', section_id: 2, crn: '1002', professor_score: '3.5',
+              schedule: [{ day: 'T', start: '02:00 PM', end: '03:30 PM' },
+                         { day: 'R', start: '02:00 PM', end: '03:30 PM' }] },
+            { professor_id: 'pC', section_id: 3, crn: '1003', professor_score: '3.0',
+              schedule: [{ day: 'M', start: '10:00 AM', end: '11:00 AM' },
+                         { day: 'W', start: '10:00 AM', end: '11:00 AM' },
+                         { day: 'F', start: '10:00 AM', end: '11:00 AM' }] },
+        ];
+        const secs221 = [
+            { professor_id: 'pD', section_id: 4, crn: '2001', professor_score: '3.5',
+              schedule: [{ day: 'M', start: '09:00 AM', end: '10:00 AM' },
+                         { day: 'W', start: '09:00 AM', end: '10:00 AM' },
+                         { day: 'F', start: '09:00 AM', end: '10:00 AM' }] },
+            { professor_id: 'pE', section_id: 5, crn: '2002', professor_score: '4.0',
+              schedule: [{ day: 'T', start: '11:00 AM', end: '12:30 PM' },
+                         { day: 'R', start: '11:00 AM', end: '12:30 PM' }] },
+            { professor_id: 'pF', section_id: 6, crn: '2003', professor_score: '2.5',
+              // same time as sec1 — every combo with sec1 is invalid
+              schedule: [{ day: 'T', start: '09:00 AM', end: '10:30 AM' },
+                         { day: 'R', start: '09:00 AM', end: '10:30 AM' }] },
+        ];
+        const secs312 = [
+            { professor_id: 'pG', section_id: 7, crn: '3001', professor_score: '3.0',
+              schedule: [{ day: 'M', start: '11:00 AM', end: '12:00 PM' },
+                         { day: 'W', start: '11:00 AM', end: '12:00 PM' },
+                         { day: 'F', start: '11:00 AM', end: '12:00 PM' }] },
+            { professor_id: 'pH', section_id: 8, crn: '3002', professor_score: '3.5',
+              // same time as sec2 — every combo with sec2 is invalid
+              schedule: [{ day: 'T', start: '02:00 PM', end: '03:30 PM' },
+                         { day: 'R', start: '02:00 PM', end: '03:30 PM' }] },
+            { professor_id: 'pI', section_id: 9, crn: '3003', professor_score: '4.5',
+              schedule: [{ day: 'M', start: '02:00 PM', end: '03:00 PM' },
+                         { day: 'W', start: '02:00 PM', end: '03:00 PM' },
+                         { day: 'F', start: '02:00 PM', end: '03:00 PM' }] },
+        ];
+
+        const coursesMap = { 'CSCE_314': secs314, 'CSCE_221': secs221, 'CSCE_312': secs312 };
+        const results = findOptimalSchedules(coursesMap, ['CSCE_314', 'CSCE_221', 'CSCE_312']);
+
+        expect(results).to.have.lengthOf(21);
+        expect(results[0].total_score).to.equal(12.5);
+        expect(results[0].schedule).to.have.lengthOf(3);
+        const topSecIds = results[0].schedule.map(s => s.section_id);
+        expect(topSecIds).to.include(1);  // CSCE_314 T,R 9am
+        expect(topSecIds).to.include(5);  // CSCE_221 T,R 11am
+        expect(topSecIds).to.include(9);  // CSCE_312 MWF 2pm
+        for (let i = 1; i < results.length; i++) {
+            expect(results[i - 1].total_score).to.be.at.least(results[i].total_score);
+        }
+    });
+
+    // Every section of both courses occupies the exact same T,R 9-10:30 block.
+    // No two-course combo can ever be conflict-free → empty result.
+    it('returns empty array when all section combinations conflict', () => {
+        const conflictSlot = [
+            { day: 'T', start: '09:00 AM', end: '10:30 AM' },
+            { day: 'R', start: '09:00 AM', end: '10:30 AM' },
+        ];
+        const makeSection = (id, score) => ({
+            professor_id: `p${id}`, section_id: id, crn: `${id}000`,
+            professor_score: String(score), schedule: conflictSlot,
+        });
+
+        const coursesMap = {
+            'CHEM_101': [makeSection(1, 3.5), makeSection(2, 4.0), makeSection(3, 3.8)],
+            'CHEM_102': [makeSection(4, 3.5), makeSection(5, 4.0), makeSection(6, 3.8)],
+        };
+
+        const results = findOptimalSchedules(coursesMap, ['CHEM_101', 'CHEM_102']);
+        expect(results).to.be.an('array').that.is.empty;
+    });
+
+    // 5 courses, each pinned to its own weekday — zero cross-course conflicts.
+    // 5 sections per course → 5^5 = 3125 valid combos, top 100 returned.
+    // Optimal is provably the top-scoring section from every course combined.
+    //
+    // Scores per course (all multiples of 0.5, exact in IEEE 754):
+    //   ENGL_101 (M): 5.0, 4.5, 4.0, 3.5, 3.0
+    //   HIST_105 (T): 4.5, 4.0, 3.5, 3.0, 2.5
+    //   ECON_202 (W): 5.5, 5.0, 4.5, 4.0, 3.5
+    //   PHYS_201 (R): 6.0, 5.5, 5.0, 4.5, 4.0
+    //   KINE_198 (F): 5.0, 4.5, 4.0, 3.5, 3.0
+    // Optimal total: 5.0+4.5+5.5+6.0+5.0 = 26.0
+    it('returns 100 results and correct optimal when no cross-course conflicts exist', () => {
+        const courseIds = ['ENGL_101', 'HIST_105', 'ECON_202', 'PHYS_201', 'KINE_198'];
+        const days      = ['M',        'T',        'W',        'R',        'F'];
+        const topScores = [5.0,        4.5,        5.5,        6.0,        5.0];
+        const slotTimes = [
+            { start: '08:00 AM', end: '09:00 AM' },
+            { start: '09:00 AM', end: '10:00 AM' },
+            { start: '10:00 AM', end: '11:00 AM' },
+            { start: '11:00 AM', end: '12:00 PM' },
+            { start: '01:00 PM', end: '02:00 PM' },
+        ];
+
+        const coursesMap = {};
+        courseIds.forEach((id, ci) => {
+            coursesMap[id] = slotTimes.map((slot, si) => ({
+                professor_id: `p${ci}_${si}`,
+                section_id:   ci * 10 + si,
+                crn:          `${ci}${si}00`,
+                professor_score: String(topScores[ci] - si * 0.5),
+                schedule: [{ day: days[ci], start: slot.start, end: slot.end }],
+            }));
+        });
+
+        const results = findOptimalSchedules(coursesMap, courseIds);
+
+        expect(results).to.have.lengthOf(100);
+        expect(results[0].total_score).to.equal(26.0);
+        expect(results[0].schedule).to.have.lengthOf(5);
+        // Every result must cover all 5 courses
+        for (const r of results) {
+            const ids = new Set(r.schedule.map(s => s.course_id));
+            expect(ids.size).to.equal(5);
+        }
+        for (let i = 1; i < results.length; i++) {
+            expect(results[i - 1].total_score).to.be.at.least(results[i].total_score);
+        }
+    });
+
+    // All 4 section combos are conflict-free (each on a different weekday) and
+    // share the same total score (3.0 + 2.0 = 5.0). All 4 must be returned.
+    it('returns all combinations when every valid schedule has an identical total score', () => {
+        const coursesMap = {
+            'ARTS_101': [
+                { professor_id: 'p1', section_id: 1, crn: '101', professor_score: '3.0',
+                  schedule: [{ day: 'M', start: '09:00 AM', end: '10:00 AM' }] },
+                { professor_id: 'p2', section_id: 2, crn: '102', professor_score: '3.0',
+                  schedule: [{ day: 'T', start: '09:00 AM', end: '10:00 AM' }] },
+            ],
+            'ARTS_102': [
+                { professor_id: 'p3', section_id: 3, crn: '103', professor_score: '2.0',
+                  schedule: [{ day: 'W', start: '09:00 AM', end: '10:00 AM' }] },
+                { professor_id: 'p4', section_id: 4, crn: '104', professor_score: '2.0',
+                  schedule: [{ day: 'R', start: '09:00 AM', end: '10:00 AM' }] },
+            ],
+        };
+
+        const results = findOptimalSchedules(coursesMap, ['ARTS_101', 'ARTS_102']);
+
+        expect(results).to.have.lengthOf(4);
+        for (const r of results) {
+            expect(r.total_score).to.equal(5.0);
+            expect(r.schedule).to.have.lengthOf(2);
+        }
+    });
+
+    // Degenerate case: one section per course, no choices to make.
+    // Sections: CSCE_101 MWF 9-10 (4.0), CSCE_102 T,R 11-12:30 (4.5), CSCE_103 MWF 2-3 (3.5)
+    // No conflicts. Exactly one result. Total = 4.0+4.5+3.5 = 12.0.
+    it('returns exactly one schedule when each course has a single section', () => {
+        const coursesMap = {
+            'CSCE_101': [{
+                professor_id: 'pX', section_id: 11, crn: '9001', professor_score: '4.0',
+                schedule: [{ day: 'M', start: '09:00 AM', end: '10:00 AM' },
+                           { day: 'W', start: '09:00 AM', end: '10:00 AM' },
+                           { day: 'F', start: '09:00 AM', end: '10:00 AM' }],
+            }],
+            'CSCE_102': [{
+                professor_id: 'pY', section_id: 12, crn: '9002', professor_score: '4.5',
+                schedule: [{ day: 'T', start: '11:00 AM', end: '12:30 PM' },
+                           { day: 'R', start: '11:00 AM', end: '12:30 PM' }],
+            }],
+            'CSCE_103': [{
+                professor_id: 'pZ', section_id: 13, crn: '9003', professor_score: '3.5',
+                schedule: [{ day: 'M', start: '02:00 PM', end: '03:00 PM' },
+                           { day: 'W', start: '02:00 PM', end: '03:00 PM' }],
+            }],
+        };
+
+        const results = findOptimalSchedules(coursesMap, ['CSCE_101', 'CSCE_102', 'CSCE_103']);
+
+        expect(results).to.have.lengthOf(1);
+        expect(results[0].total_score).to.equal(12.0);
+        expect(results[0].schedule).to.have.lengthOf(3);
+        expect(results[0].schedule.map(s => s.section_id)).to.deep.equal([11, 12, 13]);
+    });
+});
