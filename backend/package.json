@@ -4,6 +4,7 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha",
+    "test:unit": "mocha test/planner2-unit.test.js",
     "start": "node server.js"
   },
   "type": "commonjs",
