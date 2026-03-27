@@ -364,10 +364,12 @@ const getOptimalSchedule = async (req, res) => {
         const fixed_professors = req.body.fixed_professors || null;
         const course_weights = req.body.course_weights || {};
         for(const course of courses){
-            course_weights[course] = {
-                total_weight: 1,
-                rating_percentage: 0.5,
-                gpa_weight: 0.5
+            if(!course_weights[course]) {
+                course_weights[course] = {
+                    total_weight: 1,
+                    rating_weight: 0.5,
+                    gpa_weight: 0.5
+                }
             }
         }
         const preferences = req.body.preferences || {
@@ -388,7 +390,7 @@ const getOptimalSchedule = async (req, res) => {
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         // console.log(sql);
         // console.log("Params: ", [courses, semester]);
-        const queryResult = await client.query(sql, [courses, semester, min_rating, min_gpa, fixed_professors]); // course_weights, preferences]);
+        const queryResult = await client.query(sql, [courses, semester, min_rating, min_gpa, fixed_professors, JSON.stringify(course_weights), JSON.stringify(preferences)]);
         //console.log(queryResult.rows)
         const courseProfessorSectionPairs = queryResult.rows.map((pair) => {
             let raw = pair.schedule;
