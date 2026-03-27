@@ -1,4 +1,3 @@
-/* @name OptimalSchedule */
 /*
 Find ideal schedule given [courseId], find optimal professors and sections based on criteria (max function)
 FUTURE 
@@ -63,29 +62,27 @@ WITH validCourseProfessorSectionPairs AS (
         -- Compute the dynamic weighted score
         COALESCE(
             (
-                -- COALESCE((($6 -> cp.course_id ->> 'course_weight')::numeric), 1.0) 
-                -- *
+                COALESCE((($6::jsonb -> cp.course_id ->> 'total_weight')::numeric), 1.0)
+                *
                 (
-                --     COALESCE((($6 -> cp.course_id ->> 'gpa_weight')::numeric), 0.5) *
+                    COALESCE((($6::jsonb -> cp.course_id ->> 'gpa_weight')::numeric), 0.5) *
                     COALESCE(cps.average_gpa, 0)
                     +
-                --     COALESCE((($6 -> cp.course_id ->> 'rating_weight')::numeric), 0.5) * 
+                    COALESCE((($6::jsonb -> cp.course_id ->> 'rating_weight')::numeric), 0.5) *
                     COALESCE(cps.average_rating, 0)
                 )
-                -- *
-                -- COALESCE(, 1.0)
-                -- *
-                -- CASE WHEN BOOL_OR(cst.day = 'F')
-                --     THEN COALESCE((($7 -> 'no_classes_friday' ->> penalty)::numeric), 1.0)
-                --     ELSE 1.0 END
-                -- *
-                -- CASE WHEN BOOL_OR(cst.start_time < ($7 -> 'no_classes_before' ->> 'time')::time)
-                --     THEN COALESCE((($7 -> 'no_classes_before' ->> penalty)::numeric), 1.0)
-                --     ELSE 1.0 END
-                -- *
-                -- CASE WHEN BOOL_OR(cst.end_time > ($7 -> 'no_classes_after' ->> 'time')::time)
-                --     THEN COALESCE((($7 -> 'no_classes_after' ->> penalty)::numeric), 1.0)
-                --     ELSE 1.0 END
+                *
+                CASE WHEN BOOL_OR(cst.day = 'F')
+                    THEN COALESCE((($7::jsonb -> 'no_classes_friday' ->> 'penalty')::numeric), 1.0)
+                    ELSE 1.0 END
+                *
+                CASE WHEN BOOL_OR(to_timestamp(cst.start_time, 'HH:MI AM')::time < ($7::jsonb -> 'no_classes_before' ->> 'time')::time)
+                    THEN COALESCE((($7::jsonb -> 'no_classes_before' ->> 'penalty')::numeric), 1.0)
+                    ELSE 1.0 END
+                *
+                CASE WHEN BOOL_OR(to_timestamp(cst.end_time, 'HH:MI AM')::time > ($7::jsonb -> 'no_classes_after' ->> 'time')::time)
+                    THEN COALESCE((($7::jsonb -> 'no_classes_after' ->> 'penalty')::numeric), 1.0)
+                    ELSE 1.0 END
             )
         , 0) AS professor_score
     FROM 
@@ -120,13 +117,13 @@ WITH validCourseProfessorSectionPairs AS (
             AND cst.section_id = cs.section_id
             AND cst.semester_id = cs.semester_id
     JOIN (
-            SELECT professor_id, professor_score, average_gpa, average_rating
-            FROM course_explorer.courses_professors_scores 
+            SELECT course_id, professor_id, professor_score, average_gpa, average_rating
+            FROM course_explorer.courses_professors_scores
             WHERE course_id = ANY($1)
                 AND (average_gpa >= $3 OR $3 IS NULL)
                 AND (average_rating >= $4 OR $4 IS NULL)
-        ) cps -- course prof score  
-        ON cp.professor_id = cps.professor_id
+        ) cps -- course prof score
+        ON cp.professor_id = cps.professor_id AND cps.course_id = cp.course_id
     GROUP BY cp.course_id, cp.professor_id, cs.section_id, cps.professor_score, cs.crn, cps.average_gpa, cps.average_rating
 )
 SELECT * FROM validCourseProfessorSectionPairs;
