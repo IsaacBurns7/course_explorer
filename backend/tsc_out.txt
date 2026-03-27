@@ -1,0 +1,12 @@
+src/controllers/search2.ts(82,48): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/controllers/search2.ts(82,53): error TS7006: Parameter 'row' implicitly has an 'any' type.
+src/controllers/search2.ts(115,30): error TS7006: Parameter 'req' implicitly has an 'any' type.
+src/controllers/search2.ts(115,35): error TS7006: Parameter 'res' implicitly has an 'any' type.
+src/controllers/search2.ts(133,45): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/controllers/search2.ts(133,50): error TS7006: Parameter 'row' implicitly has an 'any' type.
+src/controllers/search2.ts(178,28): error TS7006: Parameter 'req' implicitly has an 'any' type.
+src/controllers/search2.ts(178,33): error TS7006: Parameter 'res' implicitly has an 'any' type.
+src/controllers/search2.ts(217,47): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/controllers/search2.ts(217,52): error TS7006: Parameter 'row' implicitly has an 'any' type.
+src/controllers/search2.ts(271,32): error TS7006: Parameter 'req' implicitly has an 'any' type.
+src/controllers/search2.ts(271,37): error TS7006: Parameter 'res' implicitly has an 'any' type.
