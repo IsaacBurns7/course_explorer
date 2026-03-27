@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+#update personal env
 CONN_STR = os.getenv("NEON_DB_URL")
 
 from pathlib import Path
