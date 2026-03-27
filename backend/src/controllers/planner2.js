@@ -1,8 +1,14 @@
-const pool = require("../db.js");
 const fs = require('fs');
 const path = require('path');
 const {parseDegreePlanPDF, parseDegreePlanText} = require('../services/parseData');
 const { KeyObject } = require("crypto");
+
+// Lazy-load pool so requiring this module doesn't trigger a DB connection
+let _pool = null;
+function getPool() {
+    if (!_pool) _pool = require("../db.js");
+    return _pool;
+}
 
 const getBestClassesPDF = async(req, res) => {
   const parsed = await parseDegreePlanPDF(req.body);
@@ -19,7 +25,7 @@ const getBestClassesText = async(req, res) => {
 }
 
 const getBestClasses = async (parsed, req, res) => {
-    const client = await pool.connect();
+    const client = await getPool().connect();
     try {
         const semesterIds = [];
         const courseIds = [];
@@ -58,7 +64,7 @@ return
 }
 */
 const getClassInfo = async (req, res) => {
-    const client = await pool.connect();
+    const client = await getPool().connect();
     try {
         const parsed = req.body.class;
         //console.log("Parsed class:", parsed);
@@ -94,10 +100,16 @@ const getClassInfo = async (req, res) => {
 }
 
 //time -> key
-//1-1 mapping 
-const timeToMaskBit = new Map();
-const maskBitToTime = new Map();
+//1-1 mapping
+let timeToMaskBit = new Map();
+let maskBitToTime = new Map();
 let counter = 0;
+
+function resetMaskState() {
+    timeToMaskBit = new Map();
+    maskBitToTime = new Map();
+    counter = 0;
+}
 
 //note: since hm in js can store objects, probably change this key...
 function getMaskBitForTime(day, start, end){
@@ -297,25 +309,70 @@ Functionality
     - Attaching an arbitrary weight to a class' gpa, between 0 and 1
     - Attaching an arbitrary weight to a class, between 1 and 100 
 */
+function findOptimalSchedules(coursesMap, courses) {
+    let dp = new Map();
+    dp.set(0n, {score: 0.0, schedule: []});
+
+    for(const course of courses){
+        let new_dp = new Map();
+        const pairs = coursesMap[course];
+        for(const [mask, {score, schedule: currentSchedule}] of dp.entries()){
+            const scheduleRaw = generateSchedule(mask);
+            for(const {professor_id, section_id, schedule: scheduleOfAddedClass, professor_score, crn} of pairs){
+                const section_score = parseFloat(professor_score);
+                const section_mask = generateMask(scheduleOfAddedClass);
+                if(((section_mask & mask) === 0n) && !checkOverlap(scheduleOfAddedClass, scheduleRaw)){
+                    const new_mask = mask | section_mask;
+                    const new_score = score + section_score;
+                    if(!new_dp.get(new_mask) || new_score > new_dp.get(new_mask).score){
+                        const new_entry = {
+                            score: new_score,
+                            schedule: [...currentSchedule, {
+                                course_id: course, professor_id, section_id, schedule: scheduleOfAddedClass, crn: crn
+                            }]
+                        };
+                        new_dp.set(new_mask, new_entry);
+                    }
+                }
+            }
+        }
+        dp = new Map(
+            [...new_dp.entries()]
+            .sort((a,b) => b[1].score - a[1].score)
+            .slice(0,200)
+        );
+    }
+
+    return [...dp.values()]
+        .sort((a, b) => b.score - a.score)
+        .slice(0,100)
+        .map(entry => ({
+            total_score: entry.score,
+            schedule: entry.schedule
+        }));
+}
+
 const getOptimalSchedule = async (req, res) => {
-    const client = await pool.connect();
+    const client = await getPool().connect();
     try { 
         // console.log(req.body);
 
         const courses = req.body.courses;
         const semester = req.body.semester;
-        const min_rating = req.body.min_rating | null;
-        const min_gpa = req.body.min_gpa | null;
-        const fixed_professors = req.body.fixed_professors | null;
-        const course_weights = req.body.course_weights | {};
+        const min_rating = req.body.min_rating || null;
+        const min_gpa = req.body.min_gpa || null;
+        const fixed_professors = req.body.fixed_professors || null;
+        const course_weights = req.body.course_weights || {};
         for(const course of courses){
-            course_weights[course] = {
-                total_weight: 1,
-                rating_percentage: 0.5,
-                gpa_weight: 0.5
+            if(!course_weights[course]) {
+                course_weights[course] = {
+                    total_weight: 1,
+                    rating_weight: 0.5,
+                    gpa_weight: 0.5
+                }
             }
         }
-        const preferences = req.body.preferences | {
+        const preferences = req.body.preferences || {
             "no_classes_before": {
                 "time": "8:00:00",
                 "penalty": 0.9
@@ -333,7 +390,7 @@ const getOptimalSchedule = async (req, res) => {
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         // console.log(sql);
         // console.log("Params: ", [courses, semester]);
-        const queryResult = await client.query(sql, [courses, semester, min_rating, min_gpa, fixed_professors]); // course_weights, preferences]);
+        const queryResult = await client.query(sql, [courses, semester, min_rating, min_gpa, fixed_professors, JSON.stringify(course_weights), JSON.stringify(preferences)]);
         //console.log(queryResult.rows)
         const courseProfessorSectionPairs = queryResult.rows.map((pair) => {
             let raw = pair.schedule;
@@ -381,71 +438,7 @@ const getOptimalSchedule = async (req, res) => {
         }
 
         // console.log(coursesMap);
-        let dp = new Map();
-        dp.set(0n, {score: 0.0, schedule: []});
-
-        //take top 200 entries ?
-        //mask -> schedule
-        //optimalschedulealgorithmBeam -> function, pass whatever it needs, 
-        for(const course of courses){
-            let new_dp = new Map();
-            const pairs = coursesMap[course];
-            //console.log("Iterating through", course);
-            for(const [mask, {score, schedule: currentSchedule}] of dp.entries()){
-                const scheduleRaw = generateSchedule(mask); //not needed?
-                for(const {professor_id, section_id, schedule: scheduleOfAddedClass, professor_score, crn} of pairs){
-                    const section_score = parseFloat(professor_score);
-                    const section_mask = generateMask(scheduleOfAddedClass);
-                    //schedule has sectionTimes 
-                    // console.log("Must compare:", currentSchedule, schedule);
-                    if(((section_mask & mask) === 0n) && !checkOverlap(scheduleOfAddedClass, scheduleRaw)){
-                        /*
-                        if(spread?.min){
-                            const pass = checkMinSpread(scheduleOfAddedClass, scheduleRaw, spread.min);
-                            if(!pass) continue;
-                         }
-                        if(spread?.max){
-                            const pass = checkMaxSpread(scheduleOfAddedClass, scheduleRaw, spread.max);
-                            if(!pass) continue;
-                        }
-                        */
-                        const new_mask = mask | section_mask; 
-                        const new_score = score + section_score;
-                        //console.log(new_mask, mask, section_mask);
-
-
-
-                        if(!new_dp.get(new_mask) || new_score > new_dp.get(new_mask)){
-                            const new_entry = {
-                                score: new_score,
-                                schedule: [...currentSchedule, {
-                                    course_id: course, professor_id, section_id, schedule: scheduleOfAddedClass, crn: crn
-                                }]
-                            };
-                           new_dp.set(new_mask, new_entry);
-
-                           //console.log("HELLO!")
-                           //console.log(new_entry)
-                        }
-                    }
-                }
-            }
-            
-            //console.log(new_dp)
-            dp = new Map(
-                [...new_dp.entries()]
-                .sort((a,b) => b[1].score - a[1].score)
-                .slice(0,200)
-            );
-        }
-
-        const topSchedules = [...dp.values()]
-        .sort((a, b) => b.score - a.score)
-        .slice(0,100)
-        .map(entry => ({
-            total_score: entry.score,
-            schedule: entry.schedule
-        }));
+        const topSchedules = findOptimalSchedules(coursesMap, courses);
 
         // console.log(dp);
         /*
@@ -476,4 +469,4 @@ const getOptimalSchedule = async (req, res) => {
     }
 }
 
-module.exports = { getBestClassesPDF, getBestClassesText, getClassInfo, getOptimalSchedule };
+module.exports = { getBestClassesPDF, getBestClassesText, getClassInfo, getOptimalSchedule, findOptimalSchedules, parseTime, checkOverlap, generateMask, generateSchedule, getMaskBitForTime, getTimeForMaskBit, resetMaskState };
