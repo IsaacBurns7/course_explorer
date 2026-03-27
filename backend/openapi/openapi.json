@@ -12,6 +12,150 @@
     }
   ],
   "paths": {
+    "/api/prereqs/{courseId}": {
+      "get": {
+        "summary": "Returns fully evaluated prerequisite tree for a course",
+        "description": "Calculates if prerequisites are met based on preloaded taken/enrolled data and returns a tree structure for the PrereqDiagram component.",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "The course ID (e.g. ECEN_403)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RootNode object containing the evaluated prerequisite tree",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RootNode"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Course not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Course \"ECEN_403\" prerequisites not found."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/prereqs/{courseId}/bucket": {
+      "get": {
+        "summary": "Returns raw prerequisite bucket for a course",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "The course ID (e.g. ECEN_403)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The raw prerequisite structure (bucket)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "bucket": [
+                    "MATH151 C",
+                    "MATH152 C",
+                    "."
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Course not found"
+          }
+        }
+      }
+    },
+    "/api/prereqs/{courseId}/check": {
+      "post": {
+        "summary": "Check if prerequisites are met for a course with custom taken/enrolled data",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "The course ID (e.g. ECEN_403)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taken": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "CSCE121 C",
+                      "MATH151 B"
+                    ]
+                  },
+                  "enrolled": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "MATH152 C ^"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Boolean status indicating if prerequisites are met",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "satisfied": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Course not found"
+          }
+        }
+      }
+    },
     "/api/courses/getAll": {
       "get": {
         "summary": "Returns list of course IDs",
@@ -900,16 +1044,46 @@
                   "professor_id": 64785,
                   "graph_data": {
                     "data": [
-                      ["A", null],
-                      ["B", null],
-                      ["C", null],
-                      ["D", null],
-                      ["F", null],
-                      ["I", null],
-                      ["S", null],
-                      ["U", null],
-                      ["Q", null],
-                      ["X", null]
+                      [
+                        "A",
+                        null
+                      ],
+                      [
+                        "B",
+                        null
+                      ],
+                      [
+                        "C",
+                        null
+                      ],
+                      [
+                        "D",
+                        null
+                      ],
+                      [
+                        "F",
+                        null
+                      ],
+                      [
+                        "I",
+                        null
+                      ],
+                      [
+                        "S",
+                        null
+                      ],
+                      [
+                        "U",
+                        null
+                      ],
+                      [
+                        "Q",
+                        null
+                      ],
+                      [
+                        "X",
+                        null
+                      ]
                     ],
                     "meta": {
                       "courseNumber": "120",
@@ -920,16 +1094,46 @@
                   },
                   "CSCE120_100615": {
                     "data": [
-                      ["A", 26],
-                      ["B", 2],
-                      ["C", null],
-                      ["D", null],
-                      ["F", null],
-                      ["I", null],
-                      ["S", null],
-                      ["U", null],
-                      ["Q", 1],
-                      ["X", null]
+                      [
+                        "A",
+                        26
+                      ],
+                      [
+                        "B",
+                        2
+                      ],
+                      [
+                        "C",
+                        null
+                      ],
+                      [
+                        "D",
+                        null
+                      ],
+                      [
+                        "F",
+                        null
+                      ],
+                      [
+                        "I",
+                        null
+                      ],
+                      [
+                        "S",
+                        null
+                      ],
+                      [
+                        "U",
+                        null
+                      ],
+                      [
+                        "Q",
+                        1
+                      ],
+                      [
+                        "X",
+                        null
+                      ]
                     ],
                     "meta": {
                       "courseNumber": "120",
@@ -940,16 +1144,46 @@
                   },
                   "CSCE120_193825": {
                     "data": [
-                      ["A", 133],
-                      ["B", 59],
-                      ["C", 23],
-                      ["D", 15],
-                      ["F", 1],
-                      ["I", null],
-                      ["S", null],
-                      ["U", null],
-                      ["Q", 10],
-                      ["X", 11]
+                      [
+                        "A",
+                        133
+                      ],
+                      [
+                        "B",
+                        59
+                      ],
+                      [
+                        "C",
+                        23
+                      ],
+                      [
+                        "D",
+                        15
+                      ],
+                      [
+                        "F",
+                        1
+                      ],
+                      [
+                        "I",
+                        null
+                      ],
+                      [
+                        "S",
+                        null
+                      ],
+                      [
+                        "U",
+                        null
+                      ],
+                      [
+                        "Q",
+                        10
+                      ],
+                      [
+                        "X",
+                        11
+                      ]
                     ],
                     "meta": {
                       "courseNumber": "120",
@@ -960,16 +1194,46 @@
                   },
                   "CSCE120_232025": {
                     "data": [
-                      ["A", 72],
-                      ["B", 32],
-                      ["C", 13],
-                      ["D", 4],
-                      ["F", 4],
-                      ["I", null],
-                      ["S", null],
-                      ["U", null],
-                      ["Q", 16],
-                      ["X", null]
+                      [
+                        "A",
+                        72
+                      ],
+                      [
+                        "B",
+                        32
+                      ],
+                      [
+                        "C",
+                        13
+                      ],
+                      [
+                        "D",
+                        4
+                      ],
+                      [
+                        "F",
+                        4
+                      ],
+                      [
+                        "I",
+                        null
+                      ],
+                      [
+                        "S",
+                        null
+                      ],
+                      [
+                        "U",
+                        null
+                      ],
+                      [
+                        "Q",
+                        16
+                      ],
+                      [
+                        "X",
+                        null
+                      ]
                     ],
                     "meta": {
                       "courseNumber": "120",
@@ -1015,7 +1279,18 @@
                 "example": {
                   "lineGraphData": {
                     "CSCE120_64785": {
-                      "data": [null, null, null, null, null, null, null, null, null, null],
+                      "data": [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                      ],
                       "meta": {
                         "courseNumber": "120",
                         "department": "CSCE",
@@ -1098,6 +1373,40 @@
                   ]
                 }
               }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RootNode": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "root"
+          },
+          "id": {
+            "type": "string",
+            "example": "root-node-0"
+          },
+          "courseName": {
+            "type": "string",
+            "example": "ECEN 403"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "met",
+              "needed"
+            ]
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "type": "object"
             }
           }
         }
