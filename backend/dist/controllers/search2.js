@@ -1,12 +1,4 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProfessorDataForCourseDBRowSchema = void 0;
-const zod_1 = require("zod");
-const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
 const { Client } = require("pg");
 const pool = require("../db.js");
 const getSemestersForCourse = async (req, res) => {
@@ -23,58 +15,48 @@ const getSemestersForCourse = async (req, res) => {
 //             name,
 //         }
 //     },
-// const ProfessorDataForCourseInputSchema = z.object({
-//     department: z.preprocess(
-//         (value) => (Array.isArray(value) ? value[0] : value),
-//         z.string()
-//     ),
-//     courseNumber: z.preprocess(
-//         (value) => (Array.isArray(value) ? value[0] : value),
-//         z.string()
-//     ),
-// });
-const ProfessorDataForCourseInputSchema = zod_1.z.object({ department: zod_1.z.string(), courseNumber: zod_1.z.string() });
-const ProfessorDataForCourseDBInfoSchema = zod_1.z.object({
-    tags: zod_1.z.array(zod_1.z.string()).nullable(),
-    name: zod_1.z.string(),
-    averageGPA: zod_1.z.number().nullable(),
-    difficulty: zod_1.z.number().nullable(),
-    totalSections: zod_1.z.number(),
-    totalStudents: zod_1.z.number(),
-    wouldTakeAgain: zod_1.z.number().nullable(),
-    totalRatings: zod_1.z.number().nullable(),
-    averageRating: zod_1.z.number().nullable(),
-    rmpLink: zod_1.z.string().nullable()
-});
-const ProfessorDataForCourseDBDataSchema = zod_1.z.object({
-    info: ProfessorDataForCourseDBInfoSchema,
-    courses: zod_1.z.array(zod_1.z.number()).nullable(),
-    ratings: zod_1.z.record(zod_1.z.any())
-});
-exports.ProfessorDataForCourseDBRowSchema = zod_1.z.object({
-    professorid: zod_1.z.number(),
-    professor_data: ProfessorDataForCourseDBDataSchema
-});
-const ProfessorDataForCourseDBRowsSchema = zod_1.z.array(exports.ProfessorDataForCourseDBRowSchema);
 const getProfessorDataForCourse = async (req, res) => {
-    const parsed = ProfessorDataForCourseInputSchema.safeParse(req.query);
-    if (!parsed.success) {
-        return res.status(400).json({ "error": "failed to parse input. see api docs" });
-    }
-    const { department, courseNumber } = parsed.data;
+    const { department, courseNumber } = req.query;
     const courseId = `${department}_${courseNumber}`;
+    // console.log(courseId);
     const client = await pool.connect();
     try {
-        const sqlFilePath = path_1.default.join(__dirname, '../../sql/getProfessorDataForCourse.sql');
-        ;
-        const sql = fs_1.default.readFileSync(sqlFilePath, 'utf-8');
-        const result = await client.query(sql, [courseId]);
-        const parsed = ProfessorDataForCourseDBRowsSchema.safeParse(result.rows);
-        if (!parsed.success) {
-            console.log(parsed.error.message);
-            throw new Error("DB contract violated: " + parsed.error.message);
+        const sql3 = `
+            SELECT 
+                p.id AS professorid,
+                json_build_object(
+                    'info', json_build_object(
+                        'tags', JSON_AGG(pt.tag),
+                        'name', p.name,
+                        'averageGPA', p.averageGPA,
+                        'difficulty', p.difficulty,
+                        'totalSections', p.totalSections,
+                        'totalStudents', p.totalStudents,
+                        'wouldTakeAgain', p.wouldTakeAgain,
+                        'totalRatings', SUM(pr.frequency),
+                        'averageRating', SUM(pr.value * pr.frequency) * 1.0 / NULLIF(SUM(pr.frequency), 0),
+                        'rmpLink', p.rmpLink
+                    ),
+                    'courses', (
+                        SELECT JSON_AGG(course_id) 
+                        FROM course_explorer.courses_professors cp 
+                        WHERE cp.professor_id = p.id
+                    ),
+                    'ratings', '{}'::jsonb
+                ) AS professor_data
+            FROM course_explorer.professor_courses AS pc
+            JOIN course_explorer.professors AS p ON pc.professor_id = p.id 
+            LEFT JOIN course_explorer.professor_ratings AS pr ON pr.professor_id = p.id AND pr.course_id = $1
+            LEFT JOIN course_explorer.professor_tags AS pt ON pt.professor_id = p.id AND pt.course_id = $1
+            WHERE pc.course_id = $1
+            GROUP BY pc.course_id, p.id; 
+        `;
+        // console.log(sql3);
+        const result3 = await client.query(sql3, [courseId]);
+        if (!result3.rows.length) {
+            return res.status(404).json({ error: `No professors found for course with ID ${courseId}.` });
         }
-        const professors = result.rows.reduce((acc, row) => {
+        const professors = result3.rows.reduce((acc, row) => {
             acc[row.professorid] = row.professor_data;
             return acc;
         }, {}) || {}; //js object, professor_id -> info
@@ -120,13 +102,10 @@ const getCourseData = async (req, res) => {
             WHERE course_id = $1
         `; //this is in notes of database
         const result = await client.query(sql5, [courseId]);
-        //result, based on postgres has some invariants
-        //-> rows, rows can be full of undefineds 
         const courses = result.rows.reduce((acc, row) => {
             acc[courseId] = row.course_data;
             return acc;
         }, {}) || {};
-        //edge case 1: result.rows is empty, or result doesn't have attribute rows        
         return res.json(courses);
     }
     catch (error) {

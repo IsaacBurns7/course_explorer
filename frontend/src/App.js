@@ -14,7 +14,8 @@ import ComparePage from "./pages/Compare";
 import CourseDetails from "./pages/CourseDetails";
 import DashboardRedirect from "./pages/DashboardRedirect";
 import { SearchContextProvider } from "./context/search";
-import Scheduler from "./pages/Scheduler"
+import Scheduler from "./pages/Scheduler";
+import PrereqDiagram from "./components/Diagram/PrereqDiagram";
 
 const App = () => {
    //const [professors, setProfessors] = useState([]);
@@ -95,6 +96,15 @@ const App = () => {
                             <Route
                                 path = "/scheduler"
                                 element = {<Scheduler />}
+                            ></Route>
+                            <Route
+                                path = "/Diagram"
+                                element={
+                                    <div className="flex flex-col">
+                                        <div style={{ height: "70px" }} />
+                                        <PrereqDiagram course="CSCE_313" />
+                                    </div>
+                                }
                             ></Route>
                         </Routes>
                     </SearchContextProvider>
