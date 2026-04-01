@@ -12,16 +12,20 @@ const courseRoutes: Router = require("./routes/course");
 const searchRoutes2: Router = require("./routes/search2");
 const healthRoutes: Router = require("./routes/health");
 const plannerRoutes2: Router = require("./routes/planner2");
-// const { populateProfessors, 
-//     populateCourses, 
-//     populateDepartments, 
-//     populateSectionsForCourse} = require("./services/parseData");
+const authRoutes: Router = require("./routes/auth");
+const prereqsRoutes: Router = require("./routes/prereqs");
 const cors = require("cors") as typeof import("cors");
+const cookieParser = require('cookie-parser');
 
 const app: Express = express();
 
+app.use(cors({
+  origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+  credentials: true
+}));
+
+app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
     console.log(req.path, req.method);
@@ -33,6 +37,8 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/search2", searchRoutes2);
 app.use("/api/health", healthRoutes);
 app.use("/api/planner2", plannerRoutes2);
+app.use("/auth", authRoutes);
+app.use("/api/prereqs", prereqsRoutes);
 
 //this is for running the database locally, or for running neon in mocha(testing framework)
 

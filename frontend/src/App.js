@@ -97,12 +97,13 @@ const App = () => {
                                 path = "/scheduler"
                                 element = {<Scheduler />}
                             ></Route>
+                            {/* Parameterized Prerequisite Diagram */}
                             <Route
-                                path = "/Diagram"
+                                path = "/diagram/:courseId"
                                 element={
                                     <div className="flex flex-col">
                                         <div style={{ height: "70px" }} />
-                                        <PrereqDiagram course="CSCE_313" />
+                                        <PrereqDiagram />
                                     </div>
                                 }
                             ></Route>

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { RenderNode } from "./RenderNode";
 import type { Node, RootNode } from "./types";
 
 /**
- * @param course string
+ * @param course string (optional)
  *
  * department in all caps; underscore between code/number and department;
  *
@@ -11,15 +12,23 @@ import type { Node, RootNode } from "./types";
  * ex: "ECEN_403"
  * ```
  */
-export default function PrereqDiagram({ course }: { course: string }) {
+export default function PrereqDiagram({ course }: { course?: string }) {
+  const { courseId } = useParams();
+  const effectiveCourse = course || courseId;
+
   const [root, setRoot] = useState<Node | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!effectiveCourse) return;
+
     async function load() {
       try {
+        setRoot(null);
+        setError(null);
+
         /* Fetch the evaluated tree from the backend */
-        const res = await fetch(`/server/api/prereqs/${course}`);
+        const res = await fetch(`/server/api/prereqs/${effectiveCourse}`);
         
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
