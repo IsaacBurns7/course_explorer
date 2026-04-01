@@ -1,4 +1,3 @@
-const { Client } = require("pg");
 const pool = require("../db.js");
 
 const getSemestersForCourse = async(req, res) => {
