@@ -1,5 +1,5 @@
 import type { Node, RootNode } from "./types";
-import "../../styles/PrereqDiagram.css";
+import "../../styles/prereqDiagram.css";
 
 type Props = {
   node: Node | RootNode;
