@@ -26,8 +26,8 @@ export function RenderNode({ node, isRootChild = false }: Props) {
             <div className="root-horizontal" />
 
             <div className="root-children-row">
-              {node.children.map((child, i) => (
-                <div key={i} className="root-child">
+              {node.children.map((child) => (
+                  <div key={child.id} className="root-child">
                   <div className="child-vertical" />
                   <RenderNode node={child} isRootChild={true} />  {/* NEW */}
                 </div>
@@ -51,8 +51,8 @@ export function RenderNode({ node, isRootChild = false }: Props) {
       <div className="group-label">{label}</div>
 
       <div className="root-children-row">
-        {node.children.map((child, i) => (
-          <div key={i} className="root-child">
+        {node.children.map((child) => (
+          <div key={child.id} className="root-child">
             <RenderNode node={child} />
           </div>
         ))}
