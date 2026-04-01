@@ -99,8 +99,8 @@ if (!isRootChild && node.type === "and") {
         <div className="and-connector-line" />
 
         <div className="group-content">
-          {node.children.map((child, i) => (
-            <RenderNode key={i} node={child} />
+          {node.children.map((child) => (
+            <RenderNode key={child.id} node={child} />
           ))}
         </div>
       </div>
@@ -115,8 +115,8 @@ return (
       <div className="group-label">{label}</div>
 
       <div className="group-content">
-        {node.children.map((child, i) => (
-          <RenderNode key={i} node={child} />
+        {node.children.map((child) => (
+          <RenderNode key={child.id} node={child} />
         ))}
       </div>
     </div>
