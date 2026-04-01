@@ -103,6 +103,8 @@
   font-weight: bold;
   border: 2px solid #333;
   border-radius: 6px;
+   /* LIFT LABEL ABOVE CONTENT*/
+   z-index: 3;
 }
 
 /* children arranged vertically */
@@ -113,6 +115,10 @@
   gap: 12px;
 
   animation: groupFadeIn 0.3s ease;
+   
+   /* Lift content above the line */
+   position: relative;
+  z-index: 2;
 }
 
 /* ================================
@@ -176,8 +182,10 @@
   justify-content: center;
   align-items: flex-start;
   margin-top: 20px;
+  flex-wrap: wrap;
+  max-width: 90vw;    /* prevents overflow */
+   
 }
-
 
 .root-child {
   display: flex;
@@ -209,29 +217,7 @@
 }  
   */
 
-/* Lift content ABOVE the line */
-.group-content {
-  position: relative;
-  z-index: 2;
-}
 
-/* Lift label ABOVE content*/
-
-.group-label {
-  /* position: relative; */
-  z-index: 3;
-}  
-
-.root-children-row {
-  display: flex;
-  flex-direction: row;
-  gap: 40px;
-  justify-content: center;
-  align-items: flex-start;
-
-  flex-wrap: wrap;    /* 👈 KEY */
-  max-width: 90vw;    /* prevents overflow */
-}
 
 
 
