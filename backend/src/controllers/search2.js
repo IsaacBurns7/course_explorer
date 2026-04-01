@@ -194,7 +194,7 @@ const getGraphData = async(req, res) => {
             acc[`${department}${courseNumber}_${row.professor_id}`] = row.graph_data;
             
             return acc;
-        });
+        }, {});
         return res.json(graphData);
     } catch (error){
         console.error("error in getGraphData: ", error);
