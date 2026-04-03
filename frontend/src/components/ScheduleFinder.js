@@ -108,6 +108,10 @@ export default function ScheduleFinder({ selectedClasses, planner, onBack }) {
     const endHour = Math.min(22, Math.ceil(latestTime / 60) + 1)
     return { daySchedules, startHour, endHour }
   }
+  const dowload = async() =>{
+    setLoading(true)
+    
+  }
 
   const generateSchedule = async () => {
     setLoading(true)
@@ -464,6 +468,10 @@ export default function ScheduleFinder({ selectedClasses, planner, onBack }) {
           </motion.div>
         </div>
       </div>
+      <button 
+      className="w-full sm:w-auto px-4 py-2 bg-maroon hover:bg-maroon/80 text-beige-light rounded transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50" 
+      type="button">Dowload(.ics);</button>
+      onClick{}
     </div>
   )
 }
