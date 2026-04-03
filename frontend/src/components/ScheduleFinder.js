@@ -1,4 +1,4 @@
-"use client"
+use client"
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
@@ -470,8 +470,8 @@ export default function ScheduleFinder({ selectedClasses, planner, onBack }) {
       </div>
       <button 
       className="w-full sm:w-auto px-4 py-2 bg-maroon hover:bg-maroon/80 text-beige-light rounded transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50" 
-      type="button">Dowload(.ics);</button>
-      onClick{}
+      type="button">Dowload(.ics);
+      onClick{}</button>
     </div>
   )
 }
