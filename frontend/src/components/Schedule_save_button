@@ -1,3 +1,0 @@
-<button id="save-schedule-btn" onClick={handleSave}>
-  Save Schedule
-</button>
