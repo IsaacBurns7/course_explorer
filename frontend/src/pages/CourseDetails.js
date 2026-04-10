@@ -46,6 +46,20 @@ const linkifyCourseCodes = (description) => {
   return parts;
 }
 
+const getCurrentSemester = () => {
+  const now = new Date();
+  const month = now.getMonth(); // 0 = Jan, 11 = Dec
+  const year = now.getFullYear();
+
+  if ((month >= 0 && month <= 2)) {
+    return `Spring ${year}`;
+  } else if (month >= 11) {
+    return `Spring ${year + 1}`
+  } else {
+    return `Fall ${year}`;
+  }
+};
+
 const aggregateProfessorData = async (courseData, profInfo) => {
   const sections = courseData.sections || {};
   const professorMap = {};
@@ -91,7 +105,7 @@ const aggregateProfessorData = async (courseData, profInfo) => {
       }
 
       // Mark if teaching next
-      if (semester === "Spring 2026") {
+      if (semester === getCurrentSemester()) {
         prof.teachingNext = true;
       }
     }
