@@ -10,18 +10,25 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-describe("Planner API", () => {
-    console.log("Starting test suite execution...");
-    async function checkHealth(){
-        const client = await pool.connect();
-        const healthServer = await request(app).get(`/api/health/level1`);
-        const healthDB = await client.query("SELECT 1");
-        console.log("Before test: ", healthServer.body, healthDB.rows);
-        console.log("Server OK, DB OK");
-        client.release();
-    }
+async function checkHealth() {
+  const client = await pool.connect();
 
-    checkHealth();
+  try {
+    const healthServer = await request(app).get('/api/health/level1');
+    expect(healthServer.status).to.equal(200);
+    expect(healthServer.body).to.have.property('STATUS');
+
+    const healthDB = await client.query('SELECT 1');
+    expect(healthDB.rows).to.be.an('array');
+  } finally {
+    client.release();
+  }
+}
+
+describe("Planner API", () => {
+    before(async () => {
+        await checkHealth();
+    });
 
 //     it("GET /planner2/class should return info of a class", async () => {
 //         console.log("real test starts now.");
