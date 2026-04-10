@@ -1,0 +1,10 @@
+Global setup: Attempting to connect to DB at  postgresql://isaac:npg_gyAJrH9S4eQb@ep-flat-wind-adwtnsu1-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+Global setup: Server listening on port 4000
+Global setup: DB Connection established successfully.
+SIGTERM signal received: closing database pool
+/auth/me GET
+/auth/me GET
+/auth/me GET
+/auth/me GET
+/auth/me GET
+/auth/me GET
