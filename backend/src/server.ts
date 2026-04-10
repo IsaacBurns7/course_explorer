@@ -7,11 +7,13 @@ const express = require("express") as typeof import("express");
 // const fetch = require('node-fetch');
 const mongoose = require("mongoose") as typeof import("mongoose");
 
+
 const professorRoutes: Router = require("./routes/professor");
 const courseRoutes: Router = require("./routes/course");
 const searchRoutes2: Router = require("./routes/search2");
 const healthRoutes: Router = require("./routes/health");
 const plannerRoutes2: Router = require("./routes/planner2");
+const authRoutes: Router = require("./routes/auth");
 // const { populateProfessors, 
 //     populateCourses, 
 //     populateDepartments, 
@@ -33,6 +35,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/search2", searchRoutes2);
 app.use("/api/health", healthRoutes);
 app.use("/api/planner2", plannerRoutes2);
+app.use("/auth", authRoutes);
 
 //this is for running the database locally, or for running neon in mocha(testing framework)
 
