@@ -20,3 +20,5 @@ node_modules/
 
 !/backend/openapi/
 !/backend/openapi/*.json
+
+backend/course_explorer_dump.sql 
