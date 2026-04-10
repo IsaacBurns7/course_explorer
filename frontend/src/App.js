@@ -14,6 +14,7 @@ import ComparePage from "./pages/Compare";
 import CourseDetails from "./pages/CourseDetails";
 import DashboardRedirect from "./pages/DashboardRedirect";
 import { SearchContextProvider } from "./context/search";
+import { UserProvider } from "./context/user";
 import Scheduler from "./pages/Scheduler"
 
 const App = () => {
@@ -67,6 +68,7 @@ const App = () => {
     return (
         <div className = "App bg-background text-white h-screen relative ">
             <BrowserRouter>
+            <UserProvider>
             <Navbar />
                 <div className = "pages min-h-screen">
                     <SearchContextProvider>
@@ -99,6 +101,7 @@ const App = () => {
                         </Routes>
                     </SearchContextProvider>
                 </div>
+            </UserProvider>
             </BrowserRouter>
         </div>
     );
