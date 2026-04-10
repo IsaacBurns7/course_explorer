@@ -1,0 +1,17 @@
+
+> web_frontend@1.0.0 dev
+> webpack-dev-server .
+
+<i> [webpack-dev-server] [HPM] Proxy created: /server  -> http://localhost:4000
+<i> [webpack-dev-server] [HPM] Proxy rewrite rule created: "^/server" ~> ""
+<i> [webpack-dev-server] Project is running at:
+<i> [webpack-dev-server] Loopback: http://localhost:3000/, http://[::1]:3000/
+<i> [webpack-dev-server] On Your Network (IPv4): http://10.244.1.232:3000/
+<i> [webpack-dev-server] On Your Network (IPv6): http://[fd68:110b:83e3:d00a:483:3dad:cbdb:5160]:3000/
+<i> [webpack-dev-server] Content not from webpack is served from './public' directory
+<i> [webpack-dev-server] 404s will fallback to '/index.html'
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+<i> [webpack-dev-server] Gracefully shutting down. To force exit, press ^C again. Please wait...
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
