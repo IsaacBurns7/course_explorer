@@ -16,5 +16,7 @@ node_modules/
 **/backups/
 *.json
 
+!/backend/tsconfig.json
+
 !/backend/openapi/
 !/backend/openapi/*.json
