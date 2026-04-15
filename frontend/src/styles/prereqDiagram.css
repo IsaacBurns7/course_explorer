@@ -280,22 +280,135 @@
 /* ================================
    PERFORMANCE / LOW-END PROFILES
 ================================ */
-.low-end-device .circle-node,
-.low-end-device .group-box,
-.low-end-device .group-label {
-  backdrop-filter: none !important;
-  box-shadow: none !important;
-  will-change: transform;
-  transform: translateZ(0); 
-}
-
-/* Compensate lost blur opacity globally by deepening the fallback tints */
-.low-end-device .group-box {
-  background: rgba(250, 250, 250, 0.08) !important;
-}
-
 .low-end-device .circle-node {
-  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 50%;
+  padding: 16px 22px;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+  text-align: center;
+  white-space: pre-line;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  will-change: transform;
+}
+
+.low-end-device .circle-node.met {
+  background: rgba(215, 255, 215, 0.12) !important;
+  border-color: #2ecc40 !important;
+  color: #d7ffd7 !important;
+}
+
+.low-end-device .circle-node.needed {
+  background: rgba(255, 229, 229, 0.12) !important;
+  border-color: #ff2b2b !important;
+  color: #ffe5e5 !important;
+}
+
+.low-end-device .circle-node.SATISFIED {
+  background: rgba(10, 15, 25, 0.7) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  color: #bae6fd !important;
+}
+
+.low-end-device .circle-node:hover {
+  transform: scale(1.03) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+}
+
+.low-end-device .circle-node.met:hover {
+  outline: 2px solid rgba(46, 204, 64, 0.6) !important;
+  outline-offset: 2px !important;
+}
+
+.low-end-device .circle-node.needed:hover {
+  outline: 2px solid rgba(255, 43, 43, 0.6) !important;
+  outline-offset: 2px !important;
+}
+
+.low-end-device .circle-node.SATISFIED:hover {
+  outline: 2px solid rgba(56, 189, 248, 0.6) !important;
+  outline-offset: 2px !important;
+}
+
+.low-end-device .group-box {
+  border-radius: 10px;
+  padding: 28px 16px 16px 16px !important;
+  background: rgba(250, 250, 250, 0.04) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.low-end-device .group-box:hover {
+  transform: scale(1.02) !important;
+}
+
+.low-end-device .group-box.met {
+  border-color: #2ecc40 !important;
+  background: rgba(234, 255, 234, 0.12) !important;
+}
+
+.low-end-device .group-box.needed {
+  border-color: #ff2b2b !important;
+  background: rgba(255, 234, 234, 0.12) !important;
+}
+
+.low-end-device .group-box.SATISFIED {
+  border-color: #38bdf8 !important;
+  background: rgba(224, 242, 254, 0.08) !important;
+}
+
+.low-end-device .group-label {
+  top: -12px !important;
+  border: 1px solid #555 !important;
+  z-index: 2 !important;
+  backdrop-filter: none !important;
+}
+
+.low-end-device .group-box.met > .group-label,
+.low-end-device .group-box.needed > .group-label,
+.low-end-device .group-box.SATISFIED > .group-label {
+  backdrop-filter: none !important;
+}
+
+.low-end-device .group-content {
+  animation: groupFadeInLow 0.2s ease !important;
+}
+
+@keyframes groupFadeInLow {
+  0% { transform: translateY(-6px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.low-end-device .root-vertical {
+  width: 2px !important;
+  height: 28px !important;
+}
+
+.low-end-device .root-horizontal {
+  height: 2px !important;
+}
+
+.low-end-device .root-children-row {
+  gap: 14px !important;
+  margin-top: 18px !important;
+}
+
+.low-end-device .child-vertical {
+  width: 2px !important;
+  height: 18px !important;
+}
+
+.low-end-device .and-connector-line {
+  width: 2px !important;
 }
 
 
