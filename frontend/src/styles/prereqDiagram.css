@@ -44,7 +44,7 @@
   color: #ffe5e5;
 }
 
-.circle-node.extra {
+.circle-node.SATISFIED {
   background: rgba(10, 15, 25, 0.6); /* deeply darkened core */
   border-color: rgba(56, 189, 248, 0.35); /* much softer border opacity */
   color: #bae6fd; /* sky-200 */
@@ -55,9 +55,9 @@
 /* 
   UNUSED: Diagonal strikethrough bar for unutilized extra classes. 
   Currently stripped out by user request. To restore, swap class below 
-  back to `.circle-node.extra::after`.
+  back to `.circle-node.SATISFIED::after`.
 */
-.circle-node.extra-with-cross::after {
+.circle-node.SATISFIED-with-cross::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -84,7 +84,7 @@
   box-shadow: 0 0 18px rgba(255, 43, 43, 0.5);
 }
 
-.circle-node.extra:hover {
+.circle-node.SATISFIED:hover {
   box-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
 }
 
@@ -94,7 +94,7 @@
 .group-box {
   border: 3px solid #444;
   border-radius: 10px;
-  padding: 18px;
+  padding: 32px 18px 18px 18px; /* Increased top padding to prevent inner-label vertical collisions */
   background: rgba(250, 250, 250, 0.05);
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -113,7 +113,7 @@
   background: rgba(255, 234, 234, 0.15);
 }
 
-.group-box.extra {
+.group-box.SATISFIED {
   border-color: #38bdf8;
   background: rgba(224, 242, 254, 0.1);
 }
@@ -132,7 +132,7 @@
   box-shadow: 0 0 14px rgba(255, 43, 43, 0.45);
 }
 
-.group-box.extra:hover {
+.group-box.SATISFIED:hover {
   box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
 }
 
@@ -166,7 +166,7 @@
   backdrop-filter: blur(4px);
 }
 
-.group-box.extra > .group-label {
+.group-box.SATISFIED > .group-label {
   background: rgba(56, 189, 248, 0.85); /* Solid icy blue */
   border-color: #38bdf8;
   color: #0f172a; /* dark slate for contrast against light blue */
