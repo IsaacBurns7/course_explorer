@@ -249,7 +249,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
 
   return (
     <div className={`py-4 flex flex-col relative transition-all duration-300 ${isLowEnd ? "low-end-device" : ""}`}>
-      <div className="absolute top-0 right-0 z-10 hidden md:flex">
+      <div className="absolute top-0 right-0 z-10 flex">
         <button 
           onClick={() => setIsCollapsed(true)}
           className="bg-background border border-dark-border text-beige-light hover:text-white px-3 py-1.5 rounded-xl text-sm font-medium shadow transition flex items-center gap-2"
