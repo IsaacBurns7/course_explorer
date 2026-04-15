@@ -2,7 +2,7 @@ const rl = require('readline-sync');
 const fs = require('fs');
 const populateClasses = require('./populateClasses');
 const adjustData = require('./adjustClasses');
-const sql = require('./insertData')
+//const sql = require('./insertData')
 
 // ---------------------------
 // Parse CLI arguments
@@ -209,6 +209,15 @@ async function adjustGPA(data) {
     return data;
 }
 
+function removeSemester(data, sem) {
+  for (const courseKey in data) {
+    if (data[courseKey].sections && data[courseKey].sections[sem]) {
+      delete data[courseKey].sections[sem];
+    }
+  }
+  return data;
+}
+
 
 // ---------------------------
 // Main function
@@ -223,11 +232,21 @@ async function main() {
     // ---------------------------
     let data = {};
     let mode = 1
+    console.log("BRUH!")
     if (filePath && fs.existsSync(filePath)) {
     try {
         const raw = fs.readFileSync(filePath, 'utf8');
         data = JSON.parse(raw);
         console.log(`Loaded existing data from ${filePath}`);
+        data = removeSemester(data, `${semName} ${year}`);
+        const outFileName = `data_${semName}${year}.json`;
+        fs.writeFile(outFileName, JSON.stringify(data, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return;
+            }
+            console.log(`${outFileName} written successfully!`);
+        });
         mode = 2;
     } catch (err) {
         console.error("Error reading existing file:", err);
@@ -292,7 +311,7 @@ async function main() {
         console.log(`${outFileName} written successfully!`);
     });
 
-    await sql.runAllQueries(data);
+    //await sql.runAllQueries(data);
 }
 
 main();

@@ -10,6 +10,9 @@ async function parsePDF(dept, year, semester) {
     const url = `https://web-as.tamu.edu/GradeReports/PDFReports/${year}${semester}/grd${year}${semester}${dept}.pdf`;
     console.log(url)
     const res = await fetch(url);
+    if (!res.ok || res.status !=200) {
+        return {};
+    }
     const buffer = await res.buffer();
 
     const pdfParser = new PDFParser();
@@ -372,10 +375,11 @@ async function gatherData(courses = {}, semester, site = "College Station", year
 
     if (isSemesterOver(`${semester} ${year}`)) {
         // --- Semester passed: use archived PDF data
+        console.log("Semester is over")
         const pdfData = await parsePDF(dept, year, seasonOrder[semester]);
         const parsedCourses = extractCourses(pdfData);
         courseObjects = transformParsedData(parsedCourses, year, semester);
-        console.log(courseObjects)
+        
     } else {
         // --- Semester ongoing: seed courses from API
         courseObjects = {}; // empty container
@@ -414,6 +418,15 @@ async function gatherData(courses = {}, semester, site = "College Station", year
                 courseObjects[courseKey].sections[termKey] = [];
             }
             courseObjects[courseKey].sections[termKey].push({ section: sectionNum });
+            if (courseKey == "CSCE_120") {
+                console.log("Initial section data for CSCE_120:", courseObjects[courseKey].sections[termKey]);
+                process.exit(0);
+            } else {
+                console.log("Wrong, but")
+                console.log(courseObjects[courseKey].sections[termKey])
+                process.exit(0);
+            }
+            console.log(courseObjects[courseKey].sections[termKey])
         }
 
         //console.log("courseObjects:")
