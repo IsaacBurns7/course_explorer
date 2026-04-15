@@ -1,62 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Calendar, Notebook, Menu, X } from 'lucide-react';
+import { Home, Calendar, Notebook, Menu, X, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import AutoCompleteSearch from './Search';
-import axios from "axios";
-import SearchButton from "./SearchButton";
-import { getAllCourses } from "../hooks/useAllCourses";
 import LoginButton from './LoginButton';
+import { useUser } from '../context/user';
+import { getAllCourses } from "../hooks/useAllCourses";
+
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const location = useLocation();
+  const dropdownRef = useRef(null);
+
+  // Use the global user context
+  const { user, refreshUser, logout } = useUser();
+  const API = "http://localhost:4000";
+  const [courses, setCourses] = useState(new Set());
 
   // Close mobile menu when route changes
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
 
-
-    const API = "http://localhost:4000";
-    const [user, setUser] = useState(null);
-    const [courses, setCourses] = useState(new Set());
-
-    const refreshMe = async () => {
-    try{
-      console.log("Attempting to refresh user info...");
-      const r = await fetch(`${API}/auth/me`, { credentials: "include" });
-      const d = await r.json();
-      console.log(d)
-      setUser(d.user || null);
-    } catch {
-      setUser(null);
-    }
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        handleCloseDropdown();
+      }
     };
 
-    useEffect(() =>{
-      refreshMe();
-    }, [location.key]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-    async function handleLogout() {
-      await fetch(`${API}/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-      setUser(null);
-    }
+  const handleCloseDropdown = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setProfileDropdownOpen(false);
+      setIsClosing(false);
+    }, 200);
+  };
 
-    useEffect(() => {
-        getAllCourses()
-          .then(courseSet => {
-            setCourses(prev => {
-              const newSet = prev;
-              courseSet.forEach((courseKey) => {
-                newSet.add(courseKey);
-              })
-              return newSet;
-            });
+  // Refresh user on route change
+  useEffect(() => {
+    refreshUser();
+  }, [location.key]);
+
+  async function handleLogout() {
+    await logout();
+    setProfileDropdownOpen(false);
+  }
+
+  useEffect(() => {
+    getAllCourses()
+      .then(courseSet => {
+        setCourses(prev => {
+          const newSet = prev;
+          courseSet.forEach((courseKey) => {
+            newSet.add(courseKey);
           })
-          .catch(err => console.error("Failed to load courses", err));
-      }, []);
+          return newSet;
+        });
+      })
+      .catch(err => console.error("Failed to load courses", err));
+  }, []);
 
   return (
     <>
@@ -137,24 +146,90 @@ const Navbar = () => {
                 <Notebook className="h-4 w-4" />
                 <span className="hidden xl:inline font-medium">Scheduler</span>
               </Link>
+              
               {user ? (
-              <div className="flex items-center gap-3">
-                {user.picture && (
-                  <img
-                    src={user.picture}
-                    alt={user.name || "User"}
-                    className="w-8 h-8 rounded-full border border-gray-700"
-                  />
-                )}
-                <span className="text-sm text-gray-200">
-                  {user.name || user.email || "Signed in"}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="ml-4 px-6 py-2 border border-purple-500 text-white rounded-full hover:bg-purple-600 transition duration-300"
-                >
-                  Logout
-                </button>
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-full text-beige-light hover:bg-dark-select transition-all duration-200 group"
+                  >
+                    {user.picture ? (
+                      <img
+                        src={user.picture}
+                        alt={user.name || "User"}
+                        className="w-8 h-8 rounded-full border-2 border-beige-dark group-hover:border-beige-light transition-colors"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-dark-select flex items-center justify-center border-2 border-beige-dark group-hover:border-beige-light transition-colors">
+                        <User className="h-4 w-4" />
+                      </div>
+                    )}
+                    <span className="text-sm font-medium hidden xl:inline max-w-[120px] truncate">
+                      {user.name || user.email || "User"}
+                    </span>
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {profileDropdownOpen && (
+                    <div 
+                      className="absolute right-0 mt-2 w-56 bg-maroon border border-dark-border rounded-lg shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                      style={{
+                        animation: 'dropdownSlide 0.2s ease-out'
+                      }}
+                    >
+                      <style>{`
+                        @keyframes dropdownSlide {
+                          from {
+                            opacity: 0;
+                            transform: translateY(-10px) scale(0.95);
+                          }
+                          to {
+                            opacity: 1;
+                            transform: translateY(0) scale(1);
+                          }
+                        }
+                      `}</style>
+                      <div className="px-4 py-3 border-b border-dark-border">
+                        <p className="text-sm font-medium text-beige-light truncate">
+                          {user.name || "User"}
+                        </p>
+                        <p className="text-xs text-beige-dark truncate mt-1">
+                          {user.email || ""}
+                        </p>
+                      </div>
+                      
+                      <div className="py-1">
+                        <Link
+                          to="/profile"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-beige-light hover:bg-dark-select transition-colors duration-150"
+                        >
+                          <User className="h-4 w-4" />
+                          <span className="text-sm font-medium">Profile</span>
+                        </Link>
+                        
+                        <Link
+                          to="/settings"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-beige-light hover:bg-dark-select transition-colors duration-150"
+                        >
+                          <Settings className="h-4 w-4" />
+                          <span className="text-sm font-medium">Settings</span>
+                        </Link>
+                      </div>
+
+                      <div className="border-t border-dark-border py-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 px-4 py-2.5 text-red-400 hover:bg-dark-select hover:text-red-300 transition-colors duration-150 w-full"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          <span className="text-sm font-medium">Log out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <LoginButton authUrl={`${API}/auth/google`} />
@@ -209,28 +284,63 @@ const Navbar = () => {
               <Notebook className="h-5 w-5" />
               <span className="font-medium">Scheduler</span>
             </Link>
-              {user ? (
-              <div className="flex items-center gap-3 px-4">
-                {user.picture && (
-                  <img
-                    src={user.picture}
-                    alt={user.name || "User"}
-                    className="w-8 h-8 rounded-full border border-gray-700"
-                  />
-                )}
-                <span className="text-sm text-gray-200">
-                  {user.name || user.email || "Signed in"}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="ml-4 px-6 py-2 border border-purple-500 text-white rounded-full hover:bg-purple-600 transition duration-300"
-                >
-                  Logout
-                </button>
+
+            {user ? (
+              <div className="space-y-2 pt-3 border-t border-dark-border">
+                <div className="flex items-center gap-3 px-4 py-2">
+                  {user.picture ? (
+                    <img
+                      src={user.picture}
+                      alt={user.name || "User"}
+                      className="w-10 h-10 rounded-full border-2 border-beige-dark"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-dark-select flex items-center justify-center border-2 border-beige-dark">
+                      <User className="h-5 w-5 text-beige-light" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-beige-light truncate">
+                      {user.name || "User"}
+                    </p>
+                    <p className="text-xs text-beige-dark truncate">
+                      {user.email || ""}
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <LoginButton authUrl={`${API}/auth/google`} />
-              )}
+
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center space-x-3 px-4 py-3 rounded-lg text-beige-light hover:bg-dark-select transition-all duration-200 w-full"
+                >
+                  <User className="h-5 w-5" />
+                  <span className="font-medium">Profile</span>
+                </Link>
+
+                <Link
+                  to="/settings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center space-x-3 px-4 py-3 rounded-lg text-beige-light hover:bg-dark-select transition-all duration-200 w-full"
+                >
+                  <Settings className="h-5 w-5" />
+                  <span className="font-medium">Settings</span>
+                </Link>
+
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="flex items-center space-x-3 px-4 py-3 rounded-lg text-red-400 hover:bg-dark-select hover:text-red-300 transition-all duration-200 w-full"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span className="font-medium">Log out</span>
+                </button>
+              </div>
+            ) : (
+              <LoginButton authUrl={`${API}/auth/google`} />
+            )}
           </div>
         </div>
       )}

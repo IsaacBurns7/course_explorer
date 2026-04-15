@@ -14,7 +14,9 @@ import ComparePage from "./pages/Compare";
 import CourseDetails from "./pages/CourseDetails";
 import DashboardRedirect from "./pages/DashboardRedirect";
 import { SearchContextProvider } from "./context/search";
+import { UserProvider } from "./context/user";
 import Scheduler from "./pages/Scheduler"
+import PrereqDiagram from "./components/Diagram/PrereqDiagram";
 
 const App = () => {
    //const [professors, setProfessors] = useState([]);
@@ -67,6 +69,7 @@ const App = () => {
     return (
         <div className = "App bg-background text-white h-screen relative ">
             <BrowserRouter>
+            <UserProvider>
             <Navbar />
                 <div className = "pages min-h-screen">
                     <SearchContextProvider>
@@ -96,9 +99,19 @@ const App = () => {
                                 path = "/scheduler"
                                 element = {<Scheduler />}
                             ></Route>
+                            <Route
+                                path = "/Diagram/:courseId"
+                                element={
+                                    <div className="flex flex-col">
+                                        <div style={{ height: "70px" }} />
+                                        <PrereqDiagram />
+                                    </div>
+                                }
+                            />
                         </Routes>
                     </SearchContextProvider>
                 </div>
+            </UserProvider>
             </BrowserRouter>
         </div>
     );

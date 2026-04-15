@@ -6,6 +6,8 @@ dotenv.config();
 const express = require("express") as typeof import("express");
 // const fetch = require('node-fetch');
 const mongoose = require("mongoose") as typeof import("mongoose");
+const cookieParser = require('cookie-parser');
+
 
 
 const professorRoutes: Router = require("./routes/professor");
@@ -18,12 +20,18 @@ const authRoutes: Router = require("./routes/auth");
 //     populateCourses, 
 //     populateDepartments, 
 //     populateSectionsForCourse} = require("./services/parseData");
+const prereqsRoutes: Router = require("./routes/prereqs");
 const cors = require("cors") as typeof import("cors");
 
 const app: Express = express();
 
-app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+  credentials: true
+}));
+
+app.use(cookieParser());
+app.use(express.json({ limit: '50mb' }));
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
     console.log(req.path, req.method);
@@ -36,6 +44,7 @@ app.use("/api/search2", searchRoutes2);
 app.use("/api/health", healthRoutes);
 app.use("/api/planner2", plannerRoutes2);
 app.use("/auth", authRoutes);
+app.use("/api/prereqs", prereqsRoutes);
 
 //this is for running the database locally, or for running neon in mocha(testing framework)
 
