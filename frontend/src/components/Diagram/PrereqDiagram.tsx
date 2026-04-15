@@ -116,7 +116,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
       <div className="flex justify-end py-2 shrink-0 my-2">
         <button 
           onClick={() => setIsCollapsed(false)}
-          className="bg-background border border-dark-border text-beige-light hover:text-white px-4 py-2 rounded-lg text-sm font-medium shadow transition flex items-center gap-2"
+          className="bg-background border border-dark-border text-beige-light hover:text-white px-4 py-2 rounded-xl text-sm font-medium shadow transition flex items-center gap-2"
         >
           <span>Expand Diagram</span>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -130,7 +130,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
       <div className="absolute top-0 right-0 z-10 hidden md:flex">
         <button 
           onClick={() => setIsCollapsed(true)}
-          className="bg-background border border-dark-border text-beige-light hover:text-white px-3 py-1.5 rounded-lg text-sm font-medium shadow transition flex items-center gap-2"
+          className="bg-background border border-dark-border text-beige-light hover:text-white px-3 py-1.5 rounded-xl text-sm font-medium shadow transition flex items-center gap-2"
         >
           <span>Collapse Diagram</span>
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
