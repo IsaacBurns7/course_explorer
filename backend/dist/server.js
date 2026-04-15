@@ -16,6 +16,7 @@ const authRoutes = require("./routes/auth");
 //     populateCourses, 
 //     populateDepartments, 
 //     populateSectionsForCourse} = require("./services/parseData");
+const prereqsRoutes = require("./routes/prereqs");
 const cors = require("cors");
 const app = express();
 app.use(cors({
@@ -34,6 +35,7 @@ app.use("/api/search2", searchRoutes2);
 app.use("/api/health", healthRoutes);
 app.use("/api/planner2", plannerRoutes2);
 app.use("/auth", authRoutes);
+app.use("/api/prereqs", prereqsRoutes);
 //this is for running the database locally, or for running neon in mocha(testing framework)
 const portEnv = process.env.PORT;
 const port = portEnv ? Number.parseInt(portEnv, 10) : 3000;
