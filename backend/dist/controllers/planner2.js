@@ -34,7 +34,7 @@ const getBestClasses = async (parsed, req, res) => {
                 courseIds.push(`${course.department}_${course.number}`);
             }
         }
-        const sqlFilePath = path.join(__dirname, '/sql/getBestClasses.sql');
+        const sqlFilePath = path.join(__dirname, '../../sql/getBestClasses.sql');
         ;
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         const queryResult = await client.query(sql, [courseIds, semesterIds]);
@@ -73,7 +73,7 @@ const getClassInfo = async (req, res) => {
         const department = courseData[0];
         const courseNumber = courseData[1];
         const courseId = `${department}_${courseNumber}`;
-        const sqlFilePath = path.join(__dirname, './sql/getClassInfo.sql');
+        const sqlFilePath = path.join(__dirname, '../../sql/getClassInfo.sql');
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         //console.log("Executing SQL:" + sql.replace(/\s+/g, ' ').trim() + ` with courseId=${courseId}`);
         const queryResult = await client.query(sql, [courseId]);
@@ -364,7 +364,7 @@ const getOptimalSchedule = async (req, res) => {
                 "penalty": 0.95
             }
         };
-        const sqlFilePath = path.join(__dirname, "./sql/getOptimalSchedule.sql");
+        const sqlFilePath = path.join(__dirname, "../../sql/getOptimalSchedule.sql");
         const sql = fs.readFileSync(sqlFilePath, 'utf-8');
         // console.log(sql);
         // console.log("Params: ", [courses, semester]);

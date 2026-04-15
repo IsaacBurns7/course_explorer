@@ -27,8 +27,45 @@ export default function PrereqDiagram({ course }: { course?: string }) {
         setRoot(null);
         setError(null);
 
-        /* Fetch the evaluated tree from the backend */
-        const res = await fetch(`/server/api/prereqs/${effectiveCourse}`);
+        // 1. Dynamically read user's specific progress from browser's LocalStorage!
+        let taken: string[] = [];
+        try {
+          const stored = localStorage.getItem("academicPlanner");
+          if (stored) {
+            const planner = JSON.parse(stored);
+            Object.values(planner).forEach((semesterClasses: any) => {
+              if (Array.isArray(semesterClasses)) {
+                semesterClasses.forEach((cls: any) => {
+                  const dept = cls?.department || cls?.info?.department;
+                  const num = cls?.number || cls?.info?.number;
+                  
+                  if (dept && num) {
+                    taken.push(`${dept}_${num} A`);
+                    taken.push(`${dept}${num} A`);
+                  } else if (cls?.info?.id) {
+                    // Fallback to checking id field
+                    taken.push(`${cls.info.id} A`);
+                    taken.push(`${cls.info.id.replace("_", "")} A`);
+                  }
+                });
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Failed to parse academicPlanner from local storage", e);
+        }
+
+        /* Fetch the evaluated tree from the backend via POST */
+        const res = await fetch(`/server/api/prereqs/${effectiveCourse}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            taken: taken,
+            enrolled: []
+          }),
+        });
         
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
