@@ -59,6 +59,17 @@ export default function PrereqDiagram({ course }: { course?: string }) {
   const [error, setError] = useState<string | null>(null);
   const [testLayer, setTestLayer] = useState<string[]>([]);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const [isLowEnd, setIsLowEnd] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Hardware heuristic: <= 4GB RAM or < 4 logical cores denotes weak hardware capable of lag
+    const memory = (navigator as any).deviceMemory || 8;
+    const cores = navigator.hardwareConcurrency || 4;
+    
+    if (memory <= 4 || cores < 4) {
+      setIsLowEnd(true);
+    }
+  }, []);
   
   // Track previous course to avoid flashing on test clicks
   const [prevCourse, setPrevCourse] = useState<string | undefined>(undefined);
@@ -237,7 +248,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
   }
 
   return (
-    <div className="py-4 flex flex-col relative transition-all duration-300">
+    <div className={`py-4 flex flex-col relative transition-all duration-300 ${isLowEnd ? "low-end-device" : ""}`}>
       <div className="absolute top-0 right-0 z-10 hidden md:flex">
         <button 
           onClick={() => setIsCollapsed(true)}
