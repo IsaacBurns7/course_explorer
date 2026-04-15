@@ -3,6 +3,44 @@ import { useParams, Link } from "react-router-dom";
 import { RenderNode } from "./RenderNode";
 import type { Node, RootNode } from "./types";
 
+const formatPlacementExams = (node: any) => {
+  const checkAndReplace = (name: string) => {
+    if (!name.includes('|')) return name;
+    
+    // Split into prefix (exam type + number) and suffix (minimum score)
+    const [prefix, suffix] = name.split('|');
+    
+    // Extract the score (numeric digits) from the suffix
+    const scoreMatch = suffix.match(/(\d+)/);
+    const score = scoreMatch ? scoreMatch[1] : '';
+
+    let formattedExam = prefix.trim();
+    if (formattedExam.includes('MPTL')) formattedExam = formattedExam.replace('MPTL', 'Math\u00A0Placement');
+    else if (formattedExam.includes('DSPS')) formattedExam = formattedExam.replace('DSPS', 'Spanish\u00A0Placement');
+    else if (formattedExam.includes('MPL')) formattedExam = formattedExam.replace('MPL', 'Math\u00A0Placement');
+
+    // Replace any remaining spaces to avoid triggering the RenderNode regex early
+    formattedExam = formattedExam.replace(/ /g, '\u00A0');
+
+    if (score) {
+      return `${formattedExam} ${score}`;
+    }
+    return formattedExam;
+  };
+
+  if (node.courseName) {
+    if (!node.originalCourseName) node.originalCourseName = node.courseName;
+    node.courseName = checkAndReplace(node.courseName);
+  }
+  if (node.course) {
+    if (!node.originalCourse) node.originalCourse = node.course;
+    node.course = checkAndReplace(node.course);
+  }
+  if (node.children?.length) {
+    node.children.forEach(formatPlacementExams);
+  }
+};
+
 /**
  * @param course string (optional)
  *
@@ -50,12 +88,12 @@ export default function PrereqDiagram({ course }: { course?: string }) {
                   const num = cls?.number || cls?.info?.number;
                   
                   if (dept && num) {
-                    taken.push(`${dept}_${num} A`);
-                    taken.push(`${dept}${num} A`);
+                    taken.push(`${dept}_${num} !`);
+                    taken.push(`${dept}${num} !`);
                   } else if (cls?.info?.id) {
                     // Fallback to checking id field
-                    taken.push(`${cls.info.id} A`);
-                    taken.push(`${cls.info.id.replace("_", "")} A`);
+                    taken.push(`${cls.info.id} !`);
+                    taken.push(`${cls.info.id.replace("_", "")} !`);
                   }
                 });
               }
@@ -84,6 +122,8 @@ export default function PrereqDiagram({ course }: { course?: string }) {
         
         const rootWrapped: RootNode = await res.json();
         
+        formatPlacementExams(rootWrapped);
+        
         setRoot(rootWrapped);
       } catch (err: any) {
         console.error("PrereqDiagram error:", err);
@@ -97,8 +137,8 @@ export default function PrereqDiagram({ course }: { course?: string }) {
   const handleNodeClick = useCallback((courseString: string) => {
     // raw courseString is e.g. "CSCE 120 ^" or "CSCE 120"
     const parsedRaw = courseString.replace(/\s+|\^/g, "").toUpperCase(); 
-    // This gives "CSCE120". We append " A" so the backend considers it passed.
-    const testCourseFormatted = `${parsedRaw} A`;
+    // This gives "CSCE120". We append " !" so the backend considers it universally passed (ASCII ! < 0 and < A).
+    const testCourseFormatted = `${parsedRaw} !`;
 
     setTestLayer((prev) => {
       if (prev.includes(testCourseFormatted)) {
@@ -159,7 +199,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
           {testLayer.length > 0 && (
             <div className="mt-2 text-xs text-blue-300 flex items-center">
               <span className="font-semibold mr-2">Simulated Classes:</span> 
-              {testLayer.map(c => c.replace(" A", "")).join(", ")}
+              {testLayer.map(c => c.replace(" !", "")).join(", ")}
             </div>
           )}
         </div>

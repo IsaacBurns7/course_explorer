@@ -23,6 +23,7 @@
   text-align: center;
   white-space: pre-line;
   display: inline-flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 
@@ -43,6 +44,31 @@
   color: #ffe5e5;
 }
 
+.circle-node.extra {
+  background: rgba(10, 15, 25, 0.6); /* deeply darkened core */
+  border-color: rgba(56, 189, 248, 0.35); /* much softer border opacity */
+  color: #bae6fd; /* sky-200 */
+  position: relative;
+  overflow: hidden;
+}
+
+/* 
+  UNUSED: Diagonal strikethrough bar for unutilized extra classes. 
+  Currently stripped out by user request. To restore, swap class below 
+  back to `.circle-node.extra::after`.
+*/
+.circle-node.extra-with-cross::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -10%;
+  width: 120%;
+  height: 3px;
+  background-color: rgba(56, 189, 248, 0.6);
+  transform: rotate(-20deg);
+  pointer-events: none;
+}
+
 /* HOVER ANIMATION */
 .circle-node:hover {
   transform: scale(1.07);
@@ -56,6 +82,10 @@
 
 .circle-node.needed:hover {
   box-shadow: 0 0 18px rgba(255, 43, 43, 0.5);
+}
+
+.circle-node.extra:hover {
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
 }
 
 /* ================================
@@ -83,6 +113,11 @@
   background: rgba(255, 234, 234, 0.15);
 }
 
+.group-box.extra {
+  border-color: #38bdf8;
+  background: rgba(224, 242, 254, 0.1);
+}
+
 /* Hover */
 .group-box:hover {
   transform: scale(1.03);
@@ -95,6 +130,10 @@
 
 .group-box.needed:hover {
   box-shadow: 0 0 14px rgba(255, 43, 43, 0.45);
+}
+
+.group-box.extra:hover {
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
 }
 
 .group-label {
@@ -124,6 +163,13 @@
   background: rgba(255, 43, 43, 0.85); /* Solid red background */
   border-color: #ff2b2b;
   color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.group-box.extra > .group-label {
+  background: rgba(56, 189, 248, 0.85); /* Solid icy blue */
+  border-color: #38bdf8;
+  color: #0f172a; /* dark slate for contrast against light blue */
   backdrop-filter: blur(4px);
 }
 
