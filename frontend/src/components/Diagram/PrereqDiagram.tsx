@@ -45,7 +45,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
     }
 
     load();
-  }, [course]);
+  }, [effectiveCourse]);
 
   if (error) return <div className="p-8 text-red-500 font-bold bg-red-50 border border-red-200 rounded-md">Error: {error}</div>;
   if (!root) return <div className="p-8 animate-pulse text-gray-500 italic">Preparing Diagram...</div>;
