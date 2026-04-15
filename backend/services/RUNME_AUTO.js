@@ -232,7 +232,6 @@ async function main() {
     // ---------------------------
     let data = {};
     let mode = 1
-    console.log("BRUH!")
     if (filePath && fs.existsSync(filePath)) {
     try {
         const raw = fs.readFileSync(filePath, 'utf8');
