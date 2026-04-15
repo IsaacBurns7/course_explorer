@@ -15,6 +15,20 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
     return 'bg-red-dark text-red-light';
   };
 
+  const getCurrentSemester = () => {
+    const now = new Date();
+    const month = now.getMonth(); // 0 = Jan, 11 = Dec
+    const year = now.getFullYear();
+
+    if ((month >= 0 && month <= 2)) {
+      return `Spring ${year}`;
+    } else if (month >= 11) {
+      return `Spring ${year + 1}`
+    } else {
+      return `Fall ${year}`;
+    }
+  };
+
   // Filter out semesters where all GPAs are 0/null
   const validPeriods = timePeriods.filter((period) =>
     teachers.some((teacher) => {
@@ -260,7 +274,7 @@ const HistoricalDataTable = ({ teachers = [], timePeriods = [] }) => {
                       {teacher.teachingNext && (
                         <div className="flex items-center gap-1 text-xs font-medium text-green-light mt-1">
                           <span className="w-2 h-2 bg-green-dark rounded-full"></span>
-                          Teaching Next Semester
+                          Teaching {getCurrentSemester()}
                         </div>
                       )}
                       {teacher.students == 0 && (

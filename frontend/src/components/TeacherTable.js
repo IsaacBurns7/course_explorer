@@ -31,6 +31,20 @@ const TeacherTable = ({ teachers }) => {
     }));
   };
 
+  const getCurrentSemester = () => {
+    const now = new Date();
+    const month = now.getMonth(); // 0 = Jan, 11 = Dec
+    const year = now.getFullYear();
+
+    if ((month >= 0 && month <= 2)) {
+      return `Spring ${year}`;
+    } else if (month >= 11) {
+      return `Spring ${year + 1}`
+    } else {
+      return `Fall ${year}`;
+    }
+  };
+
   // Updated to use your dark palette
   const getGpaColor = (gpa) => {
     if (gpa == 0 || gpa == null) return 'bg-dark-input text-beige-dark'
@@ -179,7 +193,7 @@ const TeacherTable = ({ teachers }) => {
               htmlFor="teachingNext"
               className="text-sm font-medium text-beige-dark cursor-pointer"
             >
-              Teaching Next Semester
+              Teaching {getCurrentSemester()}
             </label>
           </div>
         </div>
@@ -237,7 +251,7 @@ const TeacherTable = ({ teachers }) => {
                       {teacher.teachingNext && (
                         <div className="flex items-center gap-1 text-xs font-medium text-green-light mt-1">
                           <span className="w-2 h-2 bg-green-dark rounded-full"></span>
-                          Teaching Next Semester
+                          Teaching {getCurrentSemester()}
                         </div>
                       )}
 
