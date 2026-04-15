@@ -3,9 +3,10 @@
 ================================ */
 .node-container {
   display: flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 14px;
+  margin: 6px;
 }
 
 /* ================================
@@ -112,14 +113,14 @@
 }
 
 /* Make group-labels hold the conditional background colors */
-.group-box.met .group-label {
+.group-box.met > .group-label {
   background: rgba(46, 204, 64, 0.85); /* Solid green background */
   border-color: #2ecc40;
   color: #fff;
   backdrop-filter: blur(4px);
 }
 
-.group-box.needed .group-label {
+.group-box.needed > .group-label {
   background: rgba(255, 43, 43, 0.85); /* Solid red background */
   border-color: #ff2b2b;
   color: #fff;
@@ -131,7 +132,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
 
   animation: groupFadeIn 0.3s ease;
    
@@ -197,7 +197,7 @@
 .root-children-row {
   display: flex;
   flex-direction: row;      /* horizontal layout */
-  gap: 40px;                /* spacing between children */
+  gap: 16px;                /* spacing between children */
   justify-content: center;
   align-items: flex-start;
   margin-top: 20px;

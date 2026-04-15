@@ -1,12 +1,14 @@
+import React from "react";
 import type { Node, RootNode } from "./types";
 import "../../styles/prereqDiagram.css";
 
 type Props = {
   node: Node | RootNode;
   isRootChild?: boolean;  // <── NEW FLAG
+  onNodeClick?: (course: string) => void;
 };
 
-export function RenderNode({ node, isRootChild = false }: Props) {
+export function RenderNode({ node, isRootChild = false, onNodeClick }: Props) {
 
   // ============================
   // ROOT NODE (fixed)
@@ -15,7 +17,10 @@ export function RenderNode({ node, isRootChild = false }: Props) {
   if (node.type === "root") {
     return (
       <div className="node-container">
-        <div className={`circle-node ${node.status ?? ""}`}>
+        <div 
+          className={`circle-node ${node.status ?? ""} ${onNodeClick ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}`}
+          onClick={() => onNodeClick && onNodeClick(node.courseName)}
+        >
           {node.courseName}
         </div>
 
@@ -29,7 +34,7 @@ export function RenderNode({ node, isRootChild = false }: Props) {
               {node.children.map((child) => (
                   <div key={child.id} className="root-child">
                   <div className="child-vertical" />
-                  <RenderNode node={child} isRootChild={true} />  {/* NEW */}
+                  <RenderNode node={child} isRootChild={true} onNodeClick={onNodeClick} />  {/* NEW */}
                 </div>
               ))}
             </div>
@@ -53,7 +58,7 @@ export function RenderNode({ node, isRootChild = false }: Props) {
       <div className="root-children-row">
         {node.children.map((child) => (
           <div key={child.id} className="root-child">
-            <RenderNode node={child} />
+            <RenderNode node={child} onNodeClick={onNodeClick} />
           </div>
         ))}
       </div>
@@ -68,13 +73,18 @@ export function RenderNode({ node, isRootChild = false }: Props) {
   // ===========================================
   if (node.type === "single") {
     const text = node.course.replace(/ (?:(\w)|\^)/g, (_, letter) => {
-      if (letter) return `\n| Pass Grade: ${letter} |`;
-      return "\n| or Concurrent |";
+      if (letter) return `\n( Pass Grade: ${letter} )`;
+      return "\n( or Concurrent )";
     });
 
     return (
       <div className="node-container">
-        <div className={`circle-node ${node.status ?? ""}`}>{text}</div>
+        <div 
+          className={`circle-node ${node.status ?? ""} ${onNodeClick ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}`}
+          onClick={() => onNodeClick && onNodeClick(node.course)}
+        >
+          {text}
+        </div>
       </div>
     );
   }
@@ -91,16 +101,15 @@ if (!isRootChild && node.type === "and") {
     <div className="node-container">
       <div
         className={`group-box ${node.status ?? ""}`}
-        style={{ position: "relative" }}
       >
         <div className="group-label">{label}</div>
 
-        {/* vertical line connecting children */}
-        <div className="and-connector-line" />
-
         <div className="group-content">
-          {node.children.map((child) => (
-            <RenderNode key={child.id} node={child} />
+          {node.children.map((child, index) => (
+            <React.Fragment key={child.id}>
+              {index > 0 && <div className="child-vertical my-1" />}
+              <RenderNode node={child} onNodeClick={onNodeClick} />
+            </React.Fragment>
           ))}
         </div>
       </div>
@@ -116,7 +125,7 @@ return (
 
       <div className="group-content">
         {node.children.map((child) => (
-          <RenderNode key={child.id} node={child} />
+          <RenderNode key={child.id} node={child} onNodeClick={onNodeClick} />
         ))}
       </div>
     </div>
