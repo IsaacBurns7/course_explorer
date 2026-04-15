@@ -60,6 +60,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
   const [testLayer, setTestLayer] = useState<string[]>([]);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [isLowEnd, setIsLowEnd] = useState<boolean>(false);
+  const [noPrereqs, setNoPrereqs] = useState<boolean>(false);
 
   useEffect(() => {
     // Hardware heuristic: <= 4GB RAM or < 4 logical cores denotes weak hardware capable of lag
@@ -81,6 +82,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
       setBaseRoot(null);
       setRoot(null);
       setTestLayer([]);
+      setNoPrereqs(false);
       setPrevCourse(effectiveCourse);
     }
 
@@ -130,7 +132,14 @@ export default function PrereqDiagram({ course }: { course?: string }) {
         
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
-          throw new Error(errorData.error || "Could not fetch prerequisite tree from backend");
+          const errStr = errorData.error || "";
+          
+          if (res.status === 404 || errStr.toLowerCase().includes("not found") || errStr.toLowerCase().includes("no prerequisite")) {
+            setNoPrereqs(true);
+            return;
+          }
+          
+          throw new Error(errStr || "Could not fetch prerequisite tree from backend");
         }
         
         const rootWrapped: RootNode = await res.json();
@@ -231,6 +240,25 @@ export default function PrereqDiagram({ course }: { course?: string }) {
   }, []);
 
   if (error) return <div className="p-8 text-red-500 font-bold bg-red-50 border border-red-200 rounded-md">Error: {error}</div>;
+
+  if (noPrereqs) {
+    return (
+      <div className="py-12 flex flex-col items-center justify-center text-center space-y-4">
+        <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center text-green-400">
+          <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-xl font-bold text-white mb-2">Ready to Enroll!</h3>
+          <p className="text-gray-400 max-w-sm">
+            It looks like <span className="text-green-400 font-semibold">{effectiveCourse?.replace("_", " ")}</span> doesn't have any formal prerequisites. You're free to add this to your plan whenever you'd like!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!root) return <div className="p-8 animate-pulse text-gray-500 italic">Preparing Diagram...</div>;
 
   if (isCollapsed) {
