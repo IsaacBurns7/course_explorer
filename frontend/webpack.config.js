@@ -27,12 +27,12 @@ module.exports = {
         liveReload: true,
     },
     resolve: {
-        extensions: [".js", ".jsx", ".json", ".css", ".png", ".jpg"]
+        extensions: [".js", ".jsx", ".json", ".css", ".png", ".ts", ".tsx", ".jpg"]
     },
     module: {
         rules: [
             {
-                test: /\.(js|jsx)$/,
+                test: /\.(js|jsx|ts|tsx)$/,
                 exclude: /node_modules/,
                 use: {
                     loader: "babel-loader"
