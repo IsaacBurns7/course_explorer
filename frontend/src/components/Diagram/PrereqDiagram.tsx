@@ -54,6 +54,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
   const { courseId } = useParams();
   const effectiveCourse = course || courseId;
 
+  const [baseRoot, setBaseRoot] = useState<Node | RootNode | null>(null);
   const [root, setRoot] = useState<Node | RootNode | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [testLayer, setTestLayer] = useState<string[]>([]);
@@ -66,6 +67,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
     if (!effectiveCourse) return;
 
     if (effectiveCourse !== prevCourse) {
+      setBaseRoot(null);
       setRoot(null);
       setTestLayer([]);
       setPrevCourse(effectiveCourse);
@@ -110,7 +112,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            taken: [...taken, ...testLayer],
+            taken: [...taken],
             enrolled: []
           }),
         });
@@ -124,7 +126,7 @@ export default function PrereqDiagram({ course }: { course?: string }) {
         
         formatPlacementExams(rootWrapped);
         
-        setRoot(rootWrapped);
+        setBaseRoot(rootWrapped);
       } catch (err: any) {
         console.error("PrereqDiagram error:", err);
         setError(err.message || "An unknown error occurred loading the diagram.");
@@ -132,7 +134,76 @@ export default function PrereqDiagram({ course }: { course?: string }) {
     }
 
     load();
-  }, [effectiveCourse, prevCourse, testLayer]);
+  }, [effectiveCourse, prevCourse]);
+
+  // LOCAL SIMULATION EVALUATOR (Zero-Latency)
+  useEffect(() => {
+    if (!baseRoot) {
+      setRoot(null);
+      return;
+    }
+
+    if (testLayer.length === 0) {
+      setRoot(baseRoot);
+      return;
+    }
+
+    const cloned = JSON.parse(JSON.stringify(baseRoot));
+
+    function evaluateNode(node: any): boolean {
+      if (node.type === "single") {
+        const raw = (node.originalCourse || node.course).replace(/\s+|\^/g, "").toUpperCase();
+        const isSimulated = testLayer.includes(`${raw} !`);
+        if (isSimulated || node.status === 'met') {
+          node.status = 'met';
+          return true;
+        }
+        return false;
+      }
+
+      if (node.type === "and") {
+        let allMet = true;
+        for (const child of node.children) {
+          if (!evaluateNode(child)) allMet = false;
+        }
+        if (allMet || node.status === 'met') {
+          node.status = 'met';
+          return true;
+        }
+        return false;
+      }
+
+      if (node.type === "or") {
+        let anyMet = false;
+        for (const child of node.children) {
+          if (evaluateNode(child)) anyMet = true;
+        }
+        if (anyMet || node.status === 'met') {
+          node.status = 'met';
+          return true;
+        }
+        return false;
+      }
+
+      if (node.type === "root") {
+        let allMet = node.children.length > 0;
+        for (const child of node.children) {
+          if (!evaluateNode(child)) allMet = false;
+        }
+        const rawRoot = (node.originalCourseName || node.courseName)?.replace(/\s+|\^/g, "").toUpperCase();
+        if ((rawRoot && testLayer.includes(`${rawRoot} !`)) || allMet || node.status === 'met') {
+          node.status = 'met';
+          return true;
+        }
+        return false;
+      }
+      return false;
+    }
+
+    evaluateNode(cloned);
+    setRoot(cloned);
+
+  }, [baseRoot, testLayer]);
 
   const handleNodeClick = useCallback((courseString: string) => {
     // raw courseString is e.g. "CSCE 120 ^" or "CSCE 120"

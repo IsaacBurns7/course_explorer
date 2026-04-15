@@ -28,7 +28,7 @@
   align-items: center;
 
   /* animations */
-  transition: transform 0.18s ease, box-shadow 0.2s ease;
+  transition: transform 0.18s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 /* Status colors */
@@ -100,7 +100,7 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   position: relative;
 
-  transition: transform 0.18s ease, box-shadow 0.2s ease;
+  transition: transform 0.18s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .group-box.met {
@@ -149,6 +149,7 @@
   border-radius: 6px;
    /* LIFT LABEL ABOVE CONTENT*/
    z-index: 3;
+   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 /* Make group-labels hold the conditional background colors */
