@@ -27,11 +27,11 @@ build_frontend:
 	cd frontend && npm run build 
 
 rsync_to_server:
-	rsync -av -e "ssh -p 22000" --delete \
-  --exclude='node_modules' \
-  --exclude='*/node_modules' \
-  --exclude='dist' \
-  --exclude='build' \
-  --exclude ".git" \
-  --max-size=10m \
-  ~/Github/course_explorer/ isaac@isaac-db.dylt.dev:/home/isaac/course_explorer
+	sudo rsync -av -e "ssh -p 22000" --delete \
+		--rsync-path="sudo rsync" \
+		--exclude='node_modules' \
+		--exclude='*/node_modules' \
+		--exclude='build' \
+		--exclude ".git" \
+		--max-size=10m \
+		~/Github/course_explorer/ isaac@isaac-db.dylt.dev:/home/isaac/course_explorer
