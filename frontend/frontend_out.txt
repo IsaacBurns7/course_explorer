@@ -6,12 +6,29 @@
 <i> [webpack-dev-server] [HPM] Proxy rewrite rule created: "^/server" ~> ""
 <i> [webpack-dev-server] Project is running at:
 <i> [webpack-dev-server] Loopback: http://localhost:3000/, http://[::1]:3000/
-<i> [webpack-dev-server] On Your Network (IPv4): http://10.244.1.232:3000/
+<i> [webpack-dev-server] On Your Network (IPv4): http://10.246.14.12:3000/
 <i> [webpack-dev-server] On Your Network (IPv6): http://[fd68:110b:83e3:d00a:483:3dad:cbdb:5160]:3000/
 <i> [webpack-dev-server] Content not from webpack is served from './public' directory
 <i> [webpack-dev-server] 404s will fallback to '/index.html'
 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
-<i> [webpack-dev-server] Gracefully shutting down. To force exit, press ^C again. Please wait...
 Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
   npx update-browserslist-db@latest
   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+asset main.js 12.8 MiB [emitted] (name: main)
+asset a49af005a1ed34e838c8.png 532 KiB [emitted] [immutable] [from: src/assets/Pinwheel_3.png] (auxiliary name: main)
+asset 48fc41e583b9516fd12e.ttf 35.2 KiB [emitted] [immutable] [from: src/assets/cardcharacters.ttf] (auxiliary name: main)
+orphan modules 3.13 MiB [orphan] 2465 modules
+runtime modules 28.2 KiB 14 modules
+cacheable modules 11.4 MiB (javascript) 567 KiB (asset)
+  modules by path ./node_modules/ 3.37 MiB 383 modules
+  modules by path ./src/ 8.02 MiB (javascript) 567 KiB (asset)
+    modules by path ./src/components/ 388 KiB 34 modules
+    modules by path ./src/pages/*.js 129 KiB 9 modules
+    modules by path ./src/styles/*.css 7.48 MiB 6 modules
+    modules by path ./src/hooks/*.js 11 KiB 3 modules
+    modules by path ./src/*.js 6.15 KiB 2 modules
+    modules by path ./src/context/*.js 14.1 KiB 2 modules
+    asset modules 567 KiB (asset) 84 bytes (javascript) 2 modules
+webpack 5.102.1 compiled successfully in 6326 ms
+(node:30830) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)

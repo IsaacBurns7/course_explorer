@@ -1,10 +1,51 @@
 Global setup: Attempting to connect to DB at  postgresql://isaac:npg_gyAJrH9S4eQb@ep-flat-wind-adwtnsu1-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 Global setup: Server listening on port 4000
-Global setup: DB Connection established successfully.
-SIGTERM signal received: closing database pool
+Connection error Error: Connection terminated due to connection timeout
+    at /Users/kingisaac/Github/course_explorer/backend/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/Users/kingisaac/Github/course_explorer/backend/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:621:28)
+      at Connection.emit (node:events:507:28)
+      at Socket.<anonymous> (/Users/kingisaac/Github/course_explorer/backend/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:519:35)
+      at TCP.<anonymous> (node:net:346:12)
+}
+/auth/me GET
+/auth/me GET
+/api/courses/getAll GET
+/auth/me GET
+/api/professors/getAll GET
+/auth/me GET
+/auth/me GET
+/api/courses/getAll GET
+/auth/me GET
+/api/professors/getAll GET
+/auth/me GET
+/auth/me GET
+/auth/me GET
+/api/courses/getAll GET
 /auth/me GET
 /auth/me GET
 /auth/me GET
 /auth/me GET
+/api/courses/getAll GET
+/auth/me GET
+/api/prereqs/CSCE120 GET
 /auth/me GET
 /auth/me GET
+/api/prereqs/CSCE120 GET
+/auth/me GET
+/api/prereqs/CSCE_120 GET
+/auth/me GET
+/api/courses/getAll GET
+/auth/me GET
+/auth/me GET
+/api/prereqs/CSCE_120 GET
+/auth/me GET
+/api/prereqs/ECEN_403 GET
+/auth/me GET
+/api/courses/getAll GET
+/auth/me GET
+/auth/me GET
+/api/prereqs/ECEN_403 GET

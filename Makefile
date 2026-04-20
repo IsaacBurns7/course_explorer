@@ -34,4 +34,4 @@ rsync_to_server:
   --exclude='build' \
   --exclude ".git" \
   --max-size=10m \
-  ~/Github/course_explorer/ isaac@isaac-db.dylt.dev:/Users/kingisaac/Github/course_explorer
+  ~/Github/course_explorer/ isaac@isaac-db.dylt.dev:/home/isaac/course_explorer
