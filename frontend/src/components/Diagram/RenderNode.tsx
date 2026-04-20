@@ -7,15 +7,36 @@ type Props = {
   isRootChild?: boolean;  // <── NEW FLAG
   onNodeClick?: (course: string) => void;
   isAncestorMet?: boolean;
+  satisfiedBy?: string;
 };
 
-export function RenderNode({ node, isRootChild = false, onNodeClick, isAncestorMet = false }: Props) {
+function findMetCourseName(node: any): string | undefined {
+  if (node.type === "single" && node.status === "met") {
+    const raw = (node.originalCourse || node.course) as string;
+    // Strip grade/concurrency suffixes like " C" or " ^"
+    return raw.replace(/\s+[\w^]$/, "").trim();
+  }
+  for (const child of node.children ?? []) {
+    const found = findMetCourseName(child);
+    if (found) return found;
+  }
+  return undefined;
+}
+
+export function RenderNode({ node, isRootChild = false, onNodeClick, isAncestorMet = false, satisfiedBy }: Props) {
   let effectiveStatus = node.status ?? "";
   if (effectiveStatus === "needed" && isAncestorMet) {
     effectiveStatus = "SATISFIED";
   }
   
   const childAncestorMet = isAncestorMet || node.status === "met";
+  const isSatisfiedBy: string | undefined =
+  (node.type === "or" || node.type === "root")
+    ? (() => {
+        const metChild = node.children?.find((c: any) => c.status === "met");
+        return metChild ? findMetCourseName(metChild) : undefined;
+      })()
+    : undefined;
 
   // ============================
   // ROOT NODE (fixed)
@@ -65,7 +86,12 @@ export function RenderNode({ node, isRootChild = false, onNodeClick, isAncestorM
       <div className="root-children-row">
         {node.children.map((child) => (
           <div key={child.id} className="root-child">
-            <RenderNode node={child} onNodeClick={onNodeClick} isAncestorMet={childAncestorMet} />
+            <RenderNode
+              node={child}
+              onNodeClick={onNodeClick}
+              isAncestorMet={childAncestorMet}
+              satisfiedBy={child.status !== "met" ? isSatisfiedBy : undefined}  
+            />
           </div>
         ))}
       </div>
@@ -93,13 +119,54 @@ export function RenderNode({ node, isRootChild = false, onNodeClick, isAncestorM
         >
           <span>{text}</span>
           {effectiveStatus === "SATISFIED" && (
-            <span className="flex items-center justify-center gap-1 text-[11px] text-sky-400 mt-1 font-bold z-10 leading-none">
-              SATISFIED
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm11.378-3.917c-.89-.777-2.366-.777-3.255 0a.75.75 0 01-.988-1.129c1.454-1.272 3.776-1.272 5.23 0 1.513 1.324 1.513 3.518 0 4.842a3.75 3.75 0 01-.837.552c-.676.328-1.028.774-1.028 1.152v.75a.75.75 0 01-1.5 0v-.75c0-1.279 1.06-2.107 1.875-2.502.182-.088.351-.199.503-.331.83-.727.83-1.857 0-2.584zM12 18a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
-              </svg>
-            </span>
-          )}
+  <span className="relative inline-flex items-center gap-1 text-[11px] text-sky-400 mt-1 font-bold leading-none cursor-default">
+    SATISFIED
+    <span className="relative group inline-flex items-center">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="w-4 h-4 cursor-help"
+  >
+    <path
+      fillRule="evenodd"
+      d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm11.378-3.917c-.89-.777-2.366-.777-3.255 0a.75.75 0 01-.988-1.129c1.454-1.272 3.776-1.272 5.23 0 1.513 1.324 1.513 3.518 0 4.842a3.75 3.75 0 01-.837.552c-.676.328-1.028.774-1.028 1.152v.75a.75.75 0 01-1.5 0v-.75c0-1.279 1.06-2.107 1.875-2.502.182-.088.351-.199.503-.331.83-.727.83-1.857 0-2.584zM12 18a.75.75 0 100-1.5.75.75 0 000 1.5z"
+      clipRule="evenodd"
+    />
+  </svg>
+
+  {/* Tooltip — Now positioned BELOW */}
+  <span
+    className="
+      absolute
+      top-full left-1/2 -translate-x-1/2 mt-2 -ml-24
+      w-max max-w-[200px]
+      px-2 py-1.5 rounded-md
+      bg-gray-900 text-white text-[10px]
+      text-center leading-snug
+      text-2xs
+      opacity-0 scale-95
+      group-hover:opacity-100 group-hover:scale-100
+      pointer-events-none
+      transition-all duration-150
+      z-[100]
+      shadow-xl
+    "
+  >
+    {satisfiedBy ? (
+      <>
+        This course is satisfied by{" "}
+        <span className="font-semibold text-sky-300">{satisfiedBy}</span>
+      </>
+    ) : (
+      "This course is already satisfied by another requirement."
+    )}
+
+
+  </span>
+</span>
+</span>
+)}
         </div>
       </div>
     );
@@ -141,7 +208,7 @@ return (
 
       <div className="group-content">
         {node.children.map((child) => (
-          <RenderNode key={child.id} node={child} onNodeClick={onNodeClick} isAncestorMet={childAncestorMet} />
+          <RenderNode key={child.id} node={child} onNodeClick={onNodeClick} isAncestorMet={childAncestorMet} satisfiedBy={child.status !== "met" ? isSatisfiedBy : undefined} />
         ))}
       </div>
     </div>

@@ -3,217 +3,205 @@
 ================================ */
 .node-container {
   display: flex;
-  display: flex;
   flex-direction: column;
   align-items: center;
   margin: 6px;
 }
 
+.node-container:hover {
+  z-index: 100;
+}
+
+
 /* ================================
    CIRCLE NODES (ROOT + SINGLE)
 ================================ */
 .circle-node {
-  border: 3px solid #333;
   border-radius: 50%;
-  padding: 18px 26px;
+  padding: 16px 22px;
   font-weight: bold;
-  background: rgba(255, 255, 255, 0.05); /* transparent */
-  backdrop-filter: blur(8px); /* blur */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* shadow */
+
+  /* lightweight "glass" effect (no backdrop-filter) */
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  /* lighter shadow */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+
   text-align: center;
   white-space: pre-line;
+
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 
-  /* animations */
-  transition: transform 0.18s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  will-change: transform;
 }
 
 /* Status colors */
 .circle-node.met {
-  background: rgba(215, 255, 215, 0.15);
+  background: rgba(215, 255, 215, 0.12);
   border-color: #2ecc40;
   color: #d7ffd7;
 }
 
 .circle-node.needed {
-  background: rgba(255, 229, 229, 0.15);
+  background: rgba(255, 229, 229, 0.12);
   border-color: #ff2b2b;
   color: #ffe5e5;
 }
 
-.circle-node.SATISFIED {
-  background: rgba(10, 15, 25, 0.6); /* deeply darkened core */
-  border-color: rgba(56, 189, 248, 0.35); /* much softer border opacity */
-  color: #bae6fd; /* sky-200 */
+.circle-wrapper {
   position: relative;
-  overflow: hidden;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* 
-  UNUSED: Diagonal strikethrough bar for unutilized extra classes. 
-  Currently stripped out by user request. To restore, swap class below 
-  back to `.circle-node.SATISFIED::after`.
-*/
+.circle-node.SATISFIED {
+  background: rgba(10, 15, 25, 0.7);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #bae6fd;
+}
+
+/* Optional diagonal cross (unused) */
 .circle-node.SATISFIED-with-cross::after {
   content: "";
   position: absolute;
   top: 50%;
   left: -10%;
   width: 120%;
-  height: 3px;
+  height: 2px;
   background-color: rgba(56, 189, 248, 0.6);
   transform: rotate(-20deg);
   pointer-events: none;
 }
 
-/* HOVER ANIMATION */
+/* Hover (lighter + cheaper) */
 .circle-node:hover {
-  transform: scale(1.07);
-  box-shadow: 0 0 12px rgba(0,0,0,0.18);
+  transform: scale(1.03);
+  z-index: 101;
 }
 
-/* Glow based on status */
+/* Glow replacement using outline (cheap) */
 .circle-node.met:hover {
-  box-shadow: 0 0 18px rgba(46, 204, 64, 0.5);
+  outline: 2px solid rgba(46, 204, 64, 0.6);
+  outline-offset: 2px;
 }
 
 .circle-node.needed:hover {
-  box-shadow: 0 0 18px rgba(255, 43, 43, 0.5);
+  outline: 2px solid rgba(255, 43, 43, 0.6);
+  outline-offset: 2px;
 }
 
 .circle-node.SATISFIED:hover {
-  box-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
+  outline: 2px solid rgba(56, 189, 248, 0.6);
+  outline-offset: 2px;
 }
 
 /* ================================
    GROUP BOX (AND / OR)
 ================================ */
 .group-box {
-  border: 3px solid #444;
   border-radius: 10px;
-  padding: 32px 18px 18px 18px; /* Increased top padding to prevent inner-label vertical collisions */
-  background: rgba(250, 250, 250, 0.05);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  padding: 28px 16px 16px 16px;
+
+  background: rgba(250, 250, 250, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+
   position: relative;
 
-  transition: transform 0.18s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.15s ease;
 }
 
 .group-box.met {
   border-color: #2ecc40;
-  background: rgba(234, 255, 234, 0.15);
+  background: rgba(234, 255, 234, 0.12);
 }
 
 .group-box.needed {
   border-color: #ff2b2b;
-  background: rgba(255, 234, 234, 0.15);
+  background: rgba(255, 234, 234, 0.12);
 }
 
 .group-box.SATISFIED {
   border-color: #38bdf8;
-  background: rgba(224, 242, 254, 0.1);
+  background: rgba(224, 242, 254, 0.08);
 }
 
 /* Hover */
 .group-box:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 12px rgba(0,0,0,0.18);
+  transform: scale(1.02);
+   z-index: 50;
 }
 
-.group-box.met:hover {
-  box-shadow: 0 0 14px rgba(46, 204, 64, 0.45);
-}
-
-.group-box.needed:hover {
-  box-shadow: 0 0 14px rgba(255, 43, 43, 0.45);
-}
-
-.group-box.SATISFIED:hover {
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
-}
-
+/* ================================
+   GROUP LABEL
+================================ */
 .group-label {
   position: absolute;
-  top: -14px;
+  top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: #222; /* Default background */
-  color: #fff; /* Default text color */
+
+  background: #222;
+  color: #fff;
+
   padding: 2px 8px;
   font-weight: bold;
-  border: 2px solid #555;
+
+  border: 1px solid #555;
   border-radius: 6px;
-   /* LIFT LABEL ABOVE CONTENT*/
-   z-index: 3;
-   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+
+  z-index: 2;
 }
 
-/* Make group-labels hold the conditional background colors */
+/* Colored labels */
 .group-box.met > .group-label {
-  background: rgba(46, 204, 64, 0.85); /* Solid green background */
+  background: rgba(46, 204, 64, 0.85);
   border-color: #2ecc40;
   color: #fff;
-  backdrop-filter: blur(4px);
 }
 
 .group-box.needed > .group-label {
-  background: rgba(255, 43, 43, 0.85); /* Solid red background */
+  background: rgba(255, 43, 43, 0.85);
   border-color: #ff2b2b;
   color: #fff;
-  backdrop-filter: blur(4px);
 }
 
 .group-box.SATISFIED > .group-label {
-  background: rgba(56, 189, 248, 0.85); /* Solid icy blue */
+  background: rgba(56, 189, 248, 0.85);
   border-color: #38bdf8;
-  color: #0f172a; /* dark slate for contrast against light blue */
-  backdrop-filter: blur(4px);
+  color: #0f172a;
 }
 
-/* children arranged vertically */
+/* ================================
+   GROUP CONTENT
+================================ */
 .group-content {
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  animation: groupFadeIn 0.3s ease;
-   
-   /* Lift content above the line */
-   position: relative;
-  z-index: 2;
+  /* shorter, lighter animation */
+  animation: groupFadeIn 0.2s ease;
 }
 
 /* ================================
-   ANIMATIONS
+   ANIMATIONS (REDUCED)
 ================================ */
 @keyframes groupFadeIn {
   0% {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
     opacity: 0;
   }
   100% {
     transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.root-vertical,
-.root-horizontal,
-.child-vertical {
-  animation: lineReveal 0.35s ease-out;
-}
-
-@keyframes lineReveal {
-  0% {
-    transform: scaleY(0.1);
-    opacity: 0;
-  }
-  100% {
-    transform: scaleY(1);
     opacity: 1;
   }
 }
@@ -227,30 +215,28 @@
 }
 
 .root-vertical {
-  width: 3px;
-  height: 32px;
-  background: #fff; /* White lines */
+  width: 2px;
+  height: 28px;
+  background: #fff;
   margin: 0 auto;
 }
 
 .root-horizontal {
-  height: 3px;
-  background: #fff; /* White lines */
+  height: 2px;
+  background: #fff;
   width: 100%;
-  margin-top: 0;
 }
 
-/* first layer horizontally */
+/* First layer (horizontal layout) */
 .root-children-row {
   display: flex;
-  flex-direction: row;      /* horizontal layout */
-  gap: 16px;                /* spacing between children */
+  flex-direction: row;
+  gap: 14px;
   justify-content: center;
   align-items: flex-start;
-  margin-top: 20px;
+  margin-top: 18px;
   flex-wrap: wrap;
-  max-width: 90vw;    /* prevents overflow */
-   
+  max-width: 90vw;
 }
 
 .root-child {
@@ -260,159 +246,20 @@
 }
 
 .child-vertical {
-  width: 3px;
-  height: 20px;
-  background: #fff; /* White lines */
+  width: 2px;
+  height: 18px;
+  background: #fff;
 }
 
+/* Vertical AND connector */
 .and-connector-line {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 3px;
-  background: #fff; /* White lines */
+  width: 2px;
+  background: #fff;
   transform: translateX(-50%);
   z-index: 0;
   pointer-events: none;
 }
-
-/* ================================
-   PERFORMANCE / LOW-END PROFILES
-================================ */
-.low-end-device .circle-node {
-  border-radius: 50%;
-  padding: 16px 22px;
-  font-weight: bold;
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: none !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
-  text-align: center;
-  white-space: pre-line;
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  will-change: transform;
-}
-
-.low-end-device .circle-node.met {
-  background: rgba(215, 255, 215, 0.12) !important;
-  border-color: #2ecc40 !important;
-  color: #d7ffd7 !important;
-}
-
-.low-end-device .circle-node.needed {
-  background: rgba(255, 229, 229, 0.12) !important;
-  border-color: #ff2b2b !important;
-  color: #ffe5e5 !important;
-}
-
-.low-end-device .circle-node.SATISFIED {
-  background: rgba(10, 15, 25, 0.7) !important;
-  border-color: rgba(56, 189, 248, 0.4) !important;
-  color: #bae6fd !important;
-}
-
-.low-end-device .circle-node:hover {
-  transform: scale(1.03) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
-}
-
-.low-end-device .circle-node.met:hover {
-  outline: 2px solid rgba(46, 204, 64, 0.6) !important;
-  outline-offset: 2px !important;
-}
-
-.low-end-device .circle-node.needed:hover {
-  outline: 2px solid rgba(255, 43, 43, 0.6) !important;
-  outline-offset: 2px !important;
-}
-
-.low-end-device .circle-node.SATISFIED:hover {
-  outline: 2px solid rgba(56, 189, 248, 0.6) !important;
-  outline-offset: 2px !important;
-}
-
-.low-end-device .group-box {
-  border-radius: 10px;
-  padding: 28px 16px 16px 16px !important;
-  background: rgba(250, 250, 250, 0.04) !important;
-  backdrop-filter: none !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
-  position: relative;
-  transition: transform 0.15s ease;
-}
-
-.low-end-device .group-box:hover {
-  transform: scale(1.02) !important;
-}
-
-.low-end-device .group-box.met {
-  border-color: #2ecc40 !important;
-  background: rgba(234, 255, 234, 0.12) !important;
-}
-
-.low-end-device .group-box.needed {
-  border-color: #ff2b2b !important;
-  background: rgba(255, 234, 234, 0.12) !important;
-}
-
-.low-end-device .group-box.SATISFIED {
-  border-color: #38bdf8 !important;
-  background: rgba(224, 242, 254, 0.08) !important;
-}
-
-.low-end-device .group-label {
-  top: -12px !important;
-  border: 1px solid #555 !important;
-  z-index: 2 !important;
-  backdrop-filter: none !important;
-}
-
-.low-end-device .group-box.met > .group-label,
-.low-end-device .group-box.needed > .group-label,
-.low-end-device .group-box.SATISFIED > .group-label {
-  backdrop-filter: none !important;
-}
-
-.low-end-device .group-content {
-  animation: groupFadeInLow 0.2s ease !important;
-}
-
-@keyframes groupFadeInLow {
-  0% { transform: translateY(-6px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
-.low-end-device .root-vertical {
-  width: 2px !important;
-  height: 28px !important;
-}
-
-.low-end-device .root-horizontal {
-  height: 2px !important;
-}
-
-.low-end-device .root-children-row {
-  gap: 14px !important;
-  margin-top: 18px !important;
-}
-
-.low-end-device .child-vertical {
-  width: 2px !important;
-  height: 18px !important;
-}
-
-.low-end-device .and-connector-line {
-  width: 2px !important;
-}
-
-
-
-
-
-
