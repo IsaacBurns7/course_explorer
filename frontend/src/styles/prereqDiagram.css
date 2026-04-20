@@ -3,9 +3,10 @@
 ================================ */
 .node-container {
   display: flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 14px;
+  margin: 6px;
 }
 
 /* ================================
@@ -16,28 +17,56 @@
   border-radius: 50%;
   padding: 18px 26px;
   font-weight: bold;
-  background: white;
+  background: rgba(255, 255, 255, 0.05); /* transparent */
+  backdrop-filter: blur(8px); /* blur */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* shadow */
   text-align: center;
   white-space: pre-line;
   display: inline-flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 
   /* animations */
-  transition: transform 0.18s ease, box-shadow 0.2s ease;
+  transition: transform 0.18s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 /* Status colors */
 .circle-node.met {
-  background: #d7ffd7;
+  background: rgba(215, 255, 215, 0.15);
   border-color: #2ecc40;
-  color: #000;
+  color: #d7ffd7;
 }
 
 .circle-node.needed {
-  background: #ffe5e5;
+  background: rgba(255, 229, 229, 0.15);
   border-color: #ff2b2b;
-  color: #000;
+  color: #ffe5e5;
+}
+
+.circle-node.SATISFIED {
+  background: rgba(10, 15, 25, 0.6); /* deeply darkened core */
+  border-color: rgba(56, 189, 248, 0.35); /* much softer border opacity */
+  color: #bae6fd; /* sky-200 */
+  position: relative;
+  overflow: hidden;
+}
+
+/* 
+  UNUSED: Diagonal strikethrough bar for unutilized extra classes. 
+  Currently stripped out by user request. To restore, swap class below 
+  back to `.circle-node.SATISFIED::after`.
+*/
+.circle-node.SATISFIED-with-cross::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -10%;
+  width: 120%;
+  height: 3px;
+  background-color: rgba(56, 189, 248, 0.6);
+  transform: rotate(-20deg);
+  pointer-events: none;
 }
 
 /* HOVER ANIMATION */
@@ -55,27 +84,38 @@
   box-shadow: 0 0 18px rgba(255, 43, 43, 0.5);
 }
 
+.circle-node.SATISFIED:hover {
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
+}
+
 /* ================================
    GROUP BOX (AND / OR)
 ================================ */
 .group-box {
   border: 3px solid #444;
   border-radius: 10px;
-  padding: 18px;
-  background: #fafafa;
+  padding: 32px 18px 18px 18px; /* Increased top padding to prevent inner-label vertical collisions */
+  background: rgba(250, 250, 250, 0.05);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   position: relative;
 
-  transition: transform 0.18s ease, box-shadow 0.2s ease;
+  transition: transform 0.18s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .group-box.met {
   border-color: #2ecc40;
-  background: #eaffea;
+  background: rgba(234, 255, 234, 0.15);
 }
 
 .group-box.needed {
   border-color: #ff2b2b;
-  background: #ffeaea;
+  background: rgba(255, 234, 234, 0.15);
+}
+
+.group-box.SATISFIED {
+  border-color: #38bdf8;
+  background: rgba(224, 242, 254, 0.1);
 }
 
 /* Hover */
@@ -92,19 +132,46 @@
   box-shadow: 0 0 14px rgba(255, 43, 43, 0.45);
 }
 
-/* Group label (AND / OR badge) */
+.group-box.SATISFIED:hover {
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
+}
+
 .group-label {
   position: absolute;
   top: -14px;
   left: 50%;
   transform: translateX(-50%);
-  background: #fff;
+  background: #222; /* Default background */
+  color: #fff; /* Default text color */
   padding: 2px 8px;
   font-weight: bold;
-  border: 2px solid #333;
+  border: 2px solid #555;
   border-radius: 6px;
    /* LIFT LABEL ABOVE CONTENT*/
    z-index: 3;
+   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Make group-labels hold the conditional background colors */
+.group-box.met > .group-label {
+  background: rgba(46, 204, 64, 0.85); /* Solid green background */
+  border-color: #2ecc40;
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.group-box.needed > .group-label {
+  background: rgba(255, 43, 43, 0.85); /* Solid red background */
+  border-color: #ff2b2b;
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.group-box.SATISFIED > .group-label {
+  background: rgba(56, 189, 248, 0.85); /* Solid icy blue */
+  border-color: #38bdf8;
+  color: #0f172a; /* dark slate for contrast against light blue */
+  backdrop-filter: blur(4px);
 }
 
 /* children arranged vertically */
@@ -112,7 +179,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
 
   animation: groupFadeIn 0.3s ease;
    
@@ -163,13 +229,13 @@
 .root-vertical {
   width: 3px;
   height: 32px;
-  background: #000;
+  background: #fff; /* White lines */
   margin: 0 auto;
 }
 
 .root-horizontal {
   height: 3px;
-  background: #000;
+  background: #fff; /* White lines */
   width: 100%;
   margin-top: 0;
 }
@@ -178,7 +244,7 @@
 .root-children-row {
   display: flex;
   flex-direction: row;      /* horizontal layout */
-  gap: 40px;                /* spacing between children */
+  gap: 16px;                /* spacing between children */
   justify-content: center;
   align-items: flex-start;
   margin-top: 20px;
@@ -196,7 +262,7 @@
 .child-vertical {
   width: 3px;
   height: 20px;
-  background: #000;
+  background: #fff; /* White lines */
 }
 
 .and-connector-line {
@@ -205,17 +271,145 @@
   bottom: 0;
   left: 50%;
   width: 3px;
-  background: #333;
+  background: #fff; /* White lines */
   transform: translateX(-50%);
   z-index: 0;
   pointer-events: none;
 }
 
-/* .group-box > *:not(.and-connector-line) {
+/* ================================
+   PERFORMANCE / LOW-END PROFILES
+================================ */
+.low-end-device .circle-node {
+  border-radius: 50%;
+  padding: 16px 22px;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+  text-align: center;
+  white-space: pre-line;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  will-change: transform;
+}
+
+.low-end-device .circle-node.met {
+  background: rgba(215, 255, 215, 0.12) !important;
+  border-color: #2ecc40 !important;
+  color: #d7ffd7 !important;
+}
+
+.low-end-device .circle-node.needed {
+  background: rgba(255, 229, 229, 0.12) !important;
+  border-color: #ff2b2b !important;
+  color: #ffe5e5 !important;
+}
+
+.low-end-device .circle-node.SATISFIED {
+  background: rgba(10, 15, 25, 0.7) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  color: #bae6fd !important;
+}
+
+.low-end-device .circle-node:hover {
+  transform: scale(1.03) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+}
+
+.low-end-device .circle-node.met:hover {
+  outline: 2px solid rgba(46, 204, 64, 0.6) !important;
+  outline-offset: 2px !important;
+}
+
+.low-end-device .circle-node.needed:hover {
+  outline: 2px solid rgba(255, 43, 43, 0.6) !important;
+  outline-offset: 2px !important;
+}
+
+.low-end-device .circle-node.SATISFIED:hover {
+  outline: 2px solid rgba(56, 189, 248, 0.6) !important;
+  outline-offset: 2px !important;
+}
+
+.low-end-device .group-box {
+  border-radius: 10px;
+  padding: 28px 16px 16px 16px !important;
+  background: rgba(250, 250, 250, 0.04) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
   position: relative;
-  z-index: 1;
-}  
-  */
+  transition: transform 0.15s ease;
+}
+
+.low-end-device .group-box:hover {
+  transform: scale(1.02) !important;
+}
+
+.low-end-device .group-box.met {
+  border-color: #2ecc40 !important;
+  background: rgba(234, 255, 234, 0.12) !important;
+}
+
+.low-end-device .group-box.needed {
+  border-color: #ff2b2b !important;
+  background: rgba(255, 234, 234, 0.12) !important;
+}
+
+.low-end-device .group-box.SATISFIED {
+  border-color: #38bdf8 !important;
+  background: rgba(224, 242, 254, 0.08) !important;
+}
+
+.low-end-device .group-label {
+  top: -12px !important;
+  border: 1px solid #555 !important;
+  z-index: 2 !important;
+  backdrop-filter: none !important;
+}
+
+.low-end-device .group-box.met > .group-label,
+.low-end-device .group-box.needed > .group-label,
+.low-end-device .group-box.SATISFIED > .group-label {
+  backdrop-filter: none !important;
+}
+
+.low-end-device .group-content {
+  animation: groupFadeInLow 0.2s ease !important;
+}
+
+@keyframes groupFadeInLow {
+  0% { transform: translateY(-6px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.low-end-device .root-vertical {
+  width: 2px !important;
+  height: 28px !important;
+}
+
+.low-end-device .root-horizontal {
+  height: 2px !important;
+}
+
+.low-end-device .root-children-row {
+  gap: 14px !important;
+  margin-top: 18px !important;
+}
+
+.low-end-device .child-vertical {
+  width: 2px !important;
+  height: 18px !important;
+}
+
+.low-end-device .and-connector-line {
+  width: 2px !important;
+}
 
 
 

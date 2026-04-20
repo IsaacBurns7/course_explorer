@@ -6,6 +6,7 @@ import HistoricalDataTable from '../components/HistoricalDataTable';
 import pinwheelBg from '../assets/Pinwheel_3.png';
 import attributeColors from '../components/AttributeColors';
 import data from './TEMP_DATA'
+import PrereqDiagram from '../components/Diagram/PrereqDiagram';
 
 const linkifyCourseCodes = (description) => {
   const regex = /\b([A-Z]{2,4})\s(\d{3})\b/g;
@@ -145,19 +146,19 @@ const CourseDetails = () => {
   const [profData, setProfData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Parse courseId safely at the top level outside of useEffect 
+  const match = courseId ? courseId.match(/^([A-Z]+)(\d+)$/) : null;
+  const department = match ? match[1] : '';
+  const courseNumber = match ? match[2] : '';
 
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
         setLoading(true);
         
-        // Parse courseId (e.g., "CSCE120" -> department="CSCE", courseNumber="120")
-        const match = courseId.match(/^([A-Z]+)(\d+)$/);
         if (!match) {
           throw new Error('Invalid course ID format');
         }
-        const department = match[1];
-        const courseNumber = match[2];
         
         const res = await fetch(`/server/api/search2/courses?department=${department}&courseNumber=${courseNumber}`);
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
@@ -305,7 +306,8 @@ const CourseDetails = () => {
         </div>
 
         </div>
-
+          {/* Prereq Diagram*/}
+          <PrereqDiagram course={`${department}_${courseNumber}`} />
          {/* Teachers Table Component */}
         <TeacherTable teachers={profData} />
 

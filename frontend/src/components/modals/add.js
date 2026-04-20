@@ -63,7 +63,7 @@ export default function AddClassModal({ isOpen, onClose, onAdd, onAddSemester, s
       course.toLowerCase().includes(searchTerm.toLowerCase()),
   ).slice(0, 50);
 
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear()-5
   const availableYears = Array.from({ length: 11 }, (_, i) => currentYear + i)
 
   const handleAddClass = () => {

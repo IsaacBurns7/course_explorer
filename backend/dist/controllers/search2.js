@@ -13,9 +13,12 @@ const ProfessorDataForCourseInputSchema = z.object({
     courseNumber: z.string()
 });
 const getProfessorDataForCourse = async (req, res) => {
-    const { department, courseNumber } = req.query;
+    const parsed = ProfessorDataForCourseInputSchema.safeParse(req.query);
+    if (!parsed.success) {
+        return res.status(400).json({ "error": "failed to parse input. see api docs" });
+    }
+    const { department, courseNumber } = parsed.data;
     const courseId = `${department}_${courseNumber}`;
-    // console.log(courseId);
     const client = await pool.connect();
     try {
         const sqlFilePath = path.join(__dirname, '../../sql/getProfessorDataForCourse.sql');

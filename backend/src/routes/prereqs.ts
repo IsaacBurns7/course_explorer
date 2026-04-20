@@ -8,20 +8,10 @@ import { getPrereqBucket, prereqchecker } from "../services/prereqChecker";
 
 const router = Router();
 
-// Preload ONLY the small coursesTaken JSON
-const takenFilePath = path.join(__dirname, "../../data/coursesTaken.json");
+// We no longer read localized coursesTaken.json here since it is anti-pattern in production!
+// Each user's browser should pass their own LocalStorage data via req.body in a POST request.
 
-let takenJson: { taken: string[], enrolled: string[] } = { taken: [], enrolled: [] };
-
-try {
-    if (fs.existsSync(takenFilePath)) {
-        takenJson = JSON.parse(fs.readFileSync(takenFilePath, "utf-8"));
-    }
-} catch (err) {
-    console.error("Error pre-loading prerequisite JSONs:", err);
-}
-
-router.get("/:courseId", async (req: Request, res: Response) => {
+router.post("/:courseId", async (req: Request, res: Response) => {
     try {
         const course = req.params.courseId as string;
         const prereqs = await getPrereqBucket(course);
@@ -32,10 +22,12 @@ router.get("/:courseId", async (req: Request, res: Response) => {
 
         const parsedTree = parsePrereqs(prereqs);
 
+        const { taken = [], enrolled = [] } = req.body || {};
+
         const evaluated = evaluateTree(
             parsedTree,
-            takenJson.taken || [],
-            takenJson.enrolled || []
+            taken,
+            enrolled
         );
 
         const childrenToUse = evaluated.type === "and" ? evaluated.children : [evaluated];
