@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function LoginButton({ authUrl = "http://localhost:4000/auth/google" }) {
+export default function LoginButton({ authUrl = "/auth/google" }) {
   return (
     <button
       type="button"
