@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Calendar, Notebook, Menu, X, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import AutoCompleteSearch from './Search';
-import LoginButton from './LoginButton';
+// import LoginButton from './LoginButton';
 import { useUser } from '../context/user';
 import { getAllCourses } from "../hooks/useAllCourses";
 
@@ -15,8 +15,10 @@ const Navbar = () => {
 
   // Use the global user context
   const { user, refreshUser, logout } = useUser();
-  const API = "http://localhost:4000";
-  const [courses, setCourses] = useState(new Set());
+    const API = "http://localhost:4000";
+//   const base = window.location.origin;
+    // const base = "http://aggieclasses.com";
+    const [courses, setCourses] = useState(new Set());
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -147,7 +149,7 @@ const Navbar = () => {
                 <span className="hidden xl:inline font-medium">Scheduler</span>
               </Link>
               
-              {user ? (
+              {/* {user ? (
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -170,7 +172,6 @@ const Navbar = () => {
                     <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
 
-                  {/* Dropdown Menu */}
                   {profileDropdownOpen && (
                     <div 
                       className="absolute right-0 mt-2 w-56 bg-maroon border border-dark-border rounded-lg shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
@@ -232,8 +233,8 @@ const Navbar = () => {
                   )}
                 </div>
               ) : (
-                <LoginButton authUrl={`${API}/auth/google`} />
-              )}
+                <LoginButton authUrl={`${base}:4000/auth/google`} />
+              )} */}
             </div>
 
             {/* Mobile Menu Button */}
@@ -285,7 +286,7 @@ const Navbar = () => {
               <span className="font-medium">Scheduler</span>
             </Link>
 
-            {user ? (
+            {/* {user ? (
               <div className="space-y-2 pt-3 border-t border-dark-border">
                 <div className="flex items-center gap-3 px-4 py-2">
                   {user.picture ? (
@@ -339,8 +340,8 @@ const Navbar = () => {
                 </button>
               </div>
             ) : (
-              <LoginButton authUrl={`${API}/auth/google`} />
-            )}
+              <LoginButton authUrl={`${base}:4000/auth/google` } />
+            )} */}
           </div>
         </div>
       )}
