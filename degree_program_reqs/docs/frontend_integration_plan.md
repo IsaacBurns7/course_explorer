@@ -33,6 +33,31 @@
 | 5 | `frontend/src/lib/degreeProgress.js` matching engine | done, verified against real catalog data |
 | 6 | `frontend/src/components/DegreeProgress.js`, mounted in `components/Planner.js` | done, compiles |
 
+### Working right now: temporary local file fallback
+
+Because the tables don't exist yet, `controllers/programs.js` falls back to reading the
+scraper JSON straight off disk, via **`backend/src/controllers/programsLocalFallback.js`**.
+
+- It triggers **only** on Postgres error `42P01` (undefined_table) — a real connection or
+  permission failure still returns a 500, so nothing is masked.
+- It emits the same payloads as the SQL paths and uses the **same slug rule** as the seed
+  script, so `program_id`s the client has cached stay valid after the switch.
+- It logs one warning per process, then serves from an in-memory cache.
+- **It self-deactivates**: once the tables exist and are seeded, the query succeeds and the
+  fallback never runs.
+
+Verified end to end this way: `/api/programs` returns 265 majors + 139 minors + 3 core
+categories, `/api/programs/bachelor-of-science-in-computer-science/requirements` returns 36
+requirements with footnotes 1–9, unknown ids 404, and the planner panel renders Major /
+Minor / Core correctly in the browser.
+
+**To remove it** (after creating + seeding the tables):
+1. delete `backend/src/controllers/programsLocalFallback.js` (and the compiled
+   `backend/dist/controllers/programsLocalFallback.js`)
+2. in `backend/src/controllers/programs.js`, delete the `require` of that module, the
+   `warnLocal` helper, and the two `if (isMissingTableError(error))` blocks
+3. `npx tsc`
+
 ### ⚠ Blocker: DDL permission on the `course_explorer` schema
 
 The schema is owned by role **`isaac`**; the app connects as **`neondb_owner`**, which has

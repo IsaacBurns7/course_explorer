@@ -36,7 +36,12 @@ def get_program_links(college_links, MAJOR_DIV_ID="majorstextcontainer", MINOR_D
         save_path (str): The path to save the generated JSON file.
     """
 
+    # Each college page lists every program twice (the catalog renders the list once per
+    # layout), so dedupe on (desc_name, link) — otherwise the scrape does 2x the HTTP
+    # requests for identical pages. Verified no link is tagged both major and minor.
     program_links = []
+    seen = set()
+
     for link in college_links:
         response = requests.get(link)
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
@@ -48,11 +53,16 @@ def get_program_links(college_links, MAJOR_DIV_ID="majorstextcontainer", MINOR_D
             if not div:
                 continue
             for a in div.find_all('a', href=True):
-                program_links.append({
+                entry = {
                     "desc_name": clean_text(a.text.strip()),
                     "link": a['href'],
                     "kind": kind,
-                })
+                }
+                key = (entry["desc_name"], entry["link"])
+                if key in seen:
+                    continue
+                seen.add(key)
+                program_links.append(entry)
 
     with open(save_path, 'w') as f:
         json.dump(program_links, f, indent=4)
