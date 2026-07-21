@@ -7,8 +7,10 @@ install_backend:
 	cd backend && npm install 
 install: install_frontend install_backend 
 
+# tsc only emits JS, so the raw .sql files the controllers read at runtime
+# (path.join(__dirname, './sql/...')) have to be copied into dist alongside it.
 build_backend:
-	cd backend && npx tsc 
+	cd backend && npx tsc && mkdir -p dist/controllers/sql && cp controllers/sql/*.sql dist/controllers/sql/
 
 run_backend:
 	cd backend && node dist/server.js > backend_out.txt 2>&1 & 
