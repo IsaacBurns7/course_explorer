@@ -4,6 +4,7 @@ Generates a program_requirements.json file containing all the degree programs an
 
 import __main__
 import os
+import time
 import requests
 import re
 import bs4
@@ -40,19 +41,17 @@ def get_program_links(college_links, MAJOR_DIV_ID="majorstextcontainer", MINOR_D
         response = requests.get(link)
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
         
-        major_div = soup.find('div', id=MAJOR_DIV_ID)
-        if major_div:
-            for a in major_div.find_all('a', href=True):
+        # Which div a link came from is the authoritative major-vs-minor signal — the
+        # name alone is unreliable. `kind` is carried through to the requirements JSON.
+        for div_id, kind in ((MAJOR_DIV_ID, "major"), (MINOR_DIV_ID, "minor")):
+            div = soup.find('div', id=div_id)
+            if not div:
+                continue
+            for a in div.find_all('a', href=True):
                 program_links.append({
                     "desc_name": clean_text(a.text.strip()),
-                    "link": a['href']
-                })
-        minor_div = soup.find('div', id=MINOR_DIV_ID)
-        if minor_div:
-            for a in minor_div.find_all('a', href=True):
-                program_links.append({
-                    "desc_name": clean_text(a.text.strip()),
-                    "link": a['href']
+                    "link": a['href'],
+                    "kind": kind,
                 })
 
     with open(save_path, 'w') as f:
@@ -61,126 +60,182 @@ def get_program_links(college_links, MAJOR_DIV_ID="majorstextcontainer", MINOR_D
 COURSE_LEAF_TABLE_ID = "programrequirementstextcontainer"
 PROGRAM_REQUIRMENTS_PATH = os.path.join(SCRIPT_DIR, "program_requirements_raw.json")
 
-def scrape_tables_raw(program_links=PROGRAM_LINKS_PATH, COURSE_LEAF_TABLE_ID="programrequirementstextcontainer", save_path=PROGRAM_REQUIRMENTS_PATH):
+# One session for the whole run: connection reuse cuts down the RemoteDisconnected errors
+# the catalog server returns when hammered with hundreds of fresh connections.
+_SESSION = requests.Session()
+_SESSION.headers.update({"User-Agent": "course-explorer degree-requirements scraper"})
+
+
+def fetch(url, retries=3, backoff=1.5, session=_SESSION):
+    """GET with retries. The catalog intermittently drops connections mid-run, which is
+    transient — retrying recovers it. Raises the last error if every attempt fails."""
+    last_error = None
+    for attempt in range(retries):
+        try:
+            response = session.get(url, timeout=30)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as e:
+            last_error = e
+            if attempt < retries - 1:
+                time.sleep(backoff * (2 ** attempt))
+    raise last_error
+
+def scrape_tables_raw(program_links=PROGRAM_LINKS_PATH, COURSE_LEAF_TABLE_ID="programrequirementstextcontainer", save_path=PROGRAM_REQUIRMENTS_PATH, limit=None):
     """
     Scrapes the CourseLeaf tables from the inputted links and generates a JSON file containing all the degree programs and their requirements.
 
     Args:
         program_links (list): A list of links to the degree programs.
-        COURSE_LEAF_TABLE_ID (str): The id of the div containing the course requirements.   
+        COURSE_LEAF_TABLE_ID (str): The id of the div containing the course requirements.
         save_path (str): The path to save the generated JSON file.
+        limit (int|None): Scrape only the first N programs (for quick dev runs). None = all.
     """
-    
+
     with open(program_links, 'r') as f:
         program_links = json.load(f)
 
+    if limit is not None:
+        program_links = program_links[:limit]
+
     programs = []
-    count = 0
     for entry in program_links:
-        count += 1
-        if count > 25:
-            break
-        
-        link = entry["link"]
-        url = link if link.startswith("http") else BASE_URL + link
-
-        program = {
-            "desc_name": entry.get("desc_name"),
-            "link": link,
-            "url": url,
-            "found": False,
-            "intro": [],
-            "footnotes": {},
-            "tables": [],
-        }
-
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-        except requests.RequestException as e:
-            program["error"] = str(e)
-            programs.append(program)
-            print(f"[error] {entry.get('desc_name')}: {e}")
-            continue
-
-        soup = bs4.BeautifulSoup(response.content, 'html.parser')
-        container = soup.find(id=COURSE_LEAF_TABLE_ID)
-
-        if container is None:
-            # Not a degree page (e.g. department/college landing page) — no table.
-            programs.append(program)
-            print(f"[skip] no requirements container: {entry.get('desc_name')}")
-            continue
-
-        program["found"] = True
-
-        # Intro paragraphs (may describe a shared freshman year, etc.).
-        for p in container.find_all('p', recursive=False):
-            text = clean_text(p.get_text(" ", strip=True))
-            if text:
-                program["intro"].append(text)
-
-        # Footnotes: <dl class="sc_footnotes"> of <dt><sup>n</sup></dt><dd>text</dd> pairs.
-        # A page may split these across MULTIPLE dl blocks (e.g. 1-5 in one, 6-9 in
-        # another), so iterate every block, not just the first.
-        for footnotes_dl in container.find_all(class_="sc_footnotes"):
-            for dt in footnotes_dl.find_all("dt"):
-                number = clean_text(dt.get_text(" ", strip=True))
-                dd = dt.find_next_sibling("dd")
-                text = clean_text(dd.get_text(" ", strip=True)) if dd else ""
-                if number:
-                    program["footnotes"][number] = text
-
-        # Requirement tables: plan grids and supplementary course lists.
-        for table in container.find_all("table", class_=["sc_plangrid", "sc_courselist"]):
-            classes = table.get("class", [])
-            table_type = "sc_plangrid" if "sc_plangrid" in classes else "sc_courselist"
-            table_data = {"type": table_type, "rows": []}
-
-            for tr in table.find_all("tr"):
-                row = {
-                    "classes": tr.get("class", []),
-                    "cells": [],
-                }
-                for cell in tr.find_all(["td", "th"]):
-                    # Footnote reference numbers live in <sup> tags within the cell.
-                    footnote_refs = []
-                    for sup in cell.find_all("sup"):
-                        for part in re.split(r"[,\s]+", clean_text(sup.get_text())):
-                            if part:
-                                footnote_refs.append(part)
-
-                    # Specific courses are <a class="bubblelink code"> hyperlinks.
-                    courses = []
-                    for a in cell.find_all("a", class_="code"):
-                        courses.append({
-                            "code": clean_text(a.get_text()),
-                            "href": a.get("href"),
-                        })
-
-                    row["cells"].append({
-                        "classes": cell.get("class", []),
-                        "text": clean_text(cell.get_text(" ", strip=True)),
-                        "courses": courses,
-                        "footnote_refs": footnote_refs,
-                    })
-                    
-                if "even" in row["classes"] or "odd" in row["classes"]:
-                    if not bool(re.match(r"^[A-Z]{3,5} \d{3,4}$", row["cells"][0]["text"])):
-                        print(row["cells"][0]["text"])
-                        print("-----------------------------------------------------------------")
-                        
-                        
-                table_data["rows"].append(row)
-
-            program["tables"].append(table_data)
-
+        program = scrape_program(entry, COURSE_LEAF_TABLE_ID=COURSE_LEAF_TABLE_ID)
         programs.append(program)
-        print(f"[ok] {entry.get('desc_name')}: {len(program['tables'])} table(s)")
 
     with open(save_path, 'w') as f:
         json.dump(programs, f, indent=4)
 
+    return programs
+
+
+def scrape_program(entry, COURSE_LEAF_TABLE_ID=COURSE_LEAF_TABLE_ID):
+    """Scrape one program page into its raw record.
+
+    Always returns a record: on a network failure it carries an `error` key, and on a page
+    with no requirements container it stays `found: False`. Shared by the full run and the
+    repair pass so both parse identically.
+    """
+    link = entry["link"]
+    url = link if link.startswith("http") else BASE_URL + link
+
+    program = {
+        "desc_name": entry.get("desc_name"),
+        "kind": entry.get("kind"),
+        "link": link,
+        "url": url,
+        "found": False,
+        "intro": [],
+        "footnotes": {},
+        "tables": [],
+    }
+
+    try:
+        response = fetch(url)
+    except requests.RequestException as e:
+        program["error"] = str(e)
+        print(f"[error] {entry.get('desc_name')}: {e}")
+        return program
+
+    soup = bs4.BeautifulSoup(response.content, 'html.parser')
+    container = soup.find(id=COURSE_LEAF_TABLE_ID)
+
+    if container is None:
+        # Not a degree page (e.g. department/college landing page) — no table.
+        print(f"[skip] no requirements container: {entry.get('desc_name')}")
+        return program
+
+    program["found"] = True
+
+    # Intro paragraphs (may describe a shared freshman year, etc.).
+    for p in container.find_all('p', recursive=False):
+        text = clean_text(p.get_text(" ", strip=True))
+        if text:
+            program["intro"].append(text)
+
+    # Footnotes: <dl class="sc_footnotes"> of <dt><sup>n</sup></dt><dd>text</dd> pairs.
+    # A page may split these across MULTIPLE dl blocks (e.g. 1-5 in one, 6-9 in
+    # another), so iterate every block, not just the first.
+    for footnotes_dl in container.find_all(class_="sc_footnotes"):
+        for dt in footnotes_dl.find_all("dt"):
+            number = clean_text(dt.get_text(" ", strip=True))
+            dd = dt.find_next_sibling("dd")
+            text = clean_text(dd.get_text(" ", strip=True)) if dd else ""
+            if number:
+                program["footnotes"][number] = text
+
+    # Requirement tables: plan grids and supplementary course lists.
+    for table in container.find_all("table", class_=["sc_plangrid", "sc_courselist"]):
+        classes = table.get("class", [])
+        table_type = "sc_plangrid" if "sc_plangrid" in classes else "sc_courselist"
+        table_data = {"type": table_type, "rows": []}
+
+        for tr in table.find_all("tr"):
+            row = {
+                "classes": tr.get("class", []),
+                "cells": [],
+            }
+            for cell in tr.find_all(["td", "th"]):
+                # Footnote reference numbers live in <sup> tags within the cell. The
+                # separator is usually a comma but a few pages use a period ("1.2" means
+                # footnotes 1 and 2), so split on both.
+                footnote_refs = []
+                for sup in cell.find_all("sup"):
+                    for part in re.split(r"[,.\s]+", clean_text(sup.get_text())):
+                        if part:
+                            footnote_refs.append(part)
+
+                # Specific courses are <a class="bubblelink code"> hyperlinks.
+                courses = []
+                for a in cell.find_all("a", class_="code"):
+                    courses.append({
+                        "code": clean_text(a.get_text()),
+                        "href": a.get("href"),
+                    })
+
+                row["cells"].append({
+                    "classes": cell.get("class", []),
+                    "text": clean_text(cell.get_text(" ", strip=True)),
+                    "courses": courses,
+                    "footnote_refs": footnote_refs,
+                })
+
+            table_data["rows"].append(row)
+
+        program["tables"].append(table_data)
+
+    print(f"[ok] {entry.get('desc_name')}: {len(program['tables'])} table(s)")
+    return program
+
+
+def repair_failed_programs(raw_path=PROGRAM_REQUIRMENTS_PATH, save_path=None):
+    """Re-scrape only the programs whose last run errored, and merge them back in.
+
+    The catalog drops connections sporadically during a long run, so a full scrape can
+    finish with a handful of transient failures. This retries just those instead of
+    re-fetching all ~800 pages. Entries that legitimately have no requirements container
+    (`found: False` with no error) are left alone — refetching them changes nothing.
+    """
+    save_path = save_path or raw_path
+
+    with open(raw_path, 'r') as f:
+        programs = json.load(f)
+
+    failed = [i for i, p in enumerate(programs) if p.get("error")]
+    print(f"[repair] {len(failed)} program(s) to retry")
+
+    fixed = 0
+    for i in failed:
+        entry = programs[i]
+        result = scrape_program(entry)
+        if not result.get("error"):
+            fixed += 1
+        programs[i] = result
+
+    with open(save_path, 'w') as f:
+        json.dump(programs, f, indent=4)
+
+    print(f"[repair] recovered {fixed} of {len(failed)}")
     return programs
 
 
@@ -209,12 +264,18 @@ def _cell_by_col(row, col):
 
 def _row_footnotes(row):
     """Union of footnote reference numbers across every cell in the row (they can sit on
-    the code column or the title column)."""
+    the code column or the title column).
+
+    A few catalog pages separate multiple refs with a period rather than a comma, so a
+    raw ref can arrive as "1.2" meaning footnotes 1 and 2 — split those apart here so
+    they resolve against the program's footnote table.
+    """
     refs = []
     for cell in row.get("cells", []):
-        for r in cell.get("footnote_refs", []):
-            if r not in refs:
-                refs.append(r)
+        for raw_ref in cell.get("footnote_refs", []):
+            for r in re.split(r"[,.\s]+", str(raw_ref)):
+                if r and r not in refs:
+                    refs.append(r)
     return refs
 
 
@@ -278,6 +339,8 @@ def generate_clean_program_requirments(program_requirments_path=PROGRAM_REQUIRME
     for program in program_requirments:
         entry = {
             "desc_name": program.get("desc_name"),
+            "kind": program.get("kind"),
+            "url": program.get("url"),
             "intro": program.get("intro", []),
             "footnotes": program.get("footnotes", {}),
             "requirements": [],

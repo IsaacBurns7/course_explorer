@@ -22,6 +22,50 @@
 
 ---
 
+## 1b. Implementation status
+
+| # | Step | Status |
+|---|------|--------|
+| 1 | Full 817-program re-scrape (`kind` tag, footnotes 6–11, 25-cap removed) | **done** — 817 programs, **811 with requirements**, **0 unresolved footnote refs** |
+| 2 | `database/models/program_requirements.sql` | **written, NOT applied — blocked, see below** |
+| 3 | `database/migration_tools/seedProgramRequirements.js` | written, cannot run until tables exist |
+| 4 | `backend/src/routes/programs.ts` + `controllers/programs.js`, registered in `server.ts` | done, compiles, route verified live |
+| 5 | `frontend/src/lib/degreeProgress.js` matching engine | done, verified against real catalog data |
+| 6 | `frontend/src/components/DegreeProgress.js`, mounted in `components/Planner.js` | done, compiles |
+
+### ⚠ Blocker: DDL permission on the `course_explorer` schema
+
+The schema is owned by role **`isaac`**; the app connects as **`neondb_owner`**, which has
+`USAGE` but not `CREATE`:
+
+```
+has_schema_privilege(current_user,'course_explorer','CREATE') -> false
+GRANT CREATE ON SCHEMA course_explorer TO CURRENT_USER  -> reports OK but is a no-op
+GRANT isaac TO CURRENT_USER                             -> permission denied
+```
+
+So steps 2–3 must be run with the **schema owner's credentials** (`isaac`, or via the Neon
+console/psql as that role):
+
+```sql
+-- as isaac
+\i database/models/program_requirements.sql
+-- optionally, so the app role can keep seeding later:
+GRANT CREATE ON SCHEMA course_explorer TO neondb_owner;
+```
+then
+```
+NODE_PATH=backend/node_modules node database/migration_tools/seedProgramRequirements.js
+```
+
+Everything downstream is already wired: with the tables present and seeded,
+`GET /api/programs` starts returning data and the planner panel works. Verified today that
+the route reaches the controller and the DB — it currently returns exactly
+`relation "course_explorer.program_requirements" does not exist`, i.e. the only missing
+piece is the table.
+
+---
+
 ## 1a. Execution order (start here)
 
 Build bottom-up; each step is testable in isolation, so you never debug two unknowns at
@@ -273,6 +317,24 @@ semester, each course `{department, number, hours}`, persisted to
 **Placement:** simplest is a panel inside the planner view (`components/Planner.js` already
 holds `planner`), so it reacts to plan edits without new routing. Alternative: a new
 `pages/DegreeProgress.js` route added to `App.js`.
+
+---
+
+## 5a. Scraper robustness notes
+
+- **Transient connection drops.** A full ~800-page run reliably ends with a handful of
+  `RemoteDisconnected` failures — the catalog drops connections when hit hard. `fetch()`
+  now retries with exponential backoff over a shared `requests.Session`, and
+  `repair_failed_programs()` re-scrapes only the records that still carry an `error` and
+  merges them back, so you never re-fetch all 800 to recover a few. The first full run hit
+  18 such failures; the repair pass recovered 18 of 18.
+- **`limit` parameter** on `scrape_tables_raw()` for quick dev runs (was a hardcoded
+  25-program cap).
+- **Footnote separators.** Most pages use commas between refs, a few use a period
+  (`"Engineering Mathematics I 1.2"` means footnotes 1 *and* 2). Both the scraper and
+  `_row_footnotes()` split on `[,.\s]+`.
+- Six programs legitimately have no plan grid (department landing pages / prose-only
+  minors); the seed script skips records with empty `requirements`.
 
 ---
 

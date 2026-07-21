@@ -8,6 +8,7 @@ import AddClassModal from "./modals/add"
 import ClearConfirmModal from "./modals/clear"
 import Alert from "./ui/alert"
 import ScheduleFinder from "./ScheduleFinder"
+import DegreeProgress from "./DegreeProgress"
 
 import "../styles/tailwind.css"
 
@@ -874,6 +875,11 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
           </svg>
           <span>Clear Planner</span>
         </button>
+      </div>
+
+      {/* Degree Progress Section */}
+      <div className="mt-12">
+        <DegreeProgress planner={planner} />
       </div>
 
       {/* Schedule Finder Section */}
