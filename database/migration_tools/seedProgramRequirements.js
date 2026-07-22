@@ -26,6 +26,7 @@ require('dotenv').config({ path: path.join(__dirname, '../../backend/.env') });
 
 const REQS_PATH = path.join(__dirname, '../../degree_program_reqs/program_requirements_clean.json');
 const CORE_PATH = path.join(__dirname, '../../degree_program_reqs/core_curriculum.json');
+const CREDIT_PATH = path.join(__dirname, '../../degree_program_reqs/credit_equivalency.json');
 
 // 'Bachelor of Science in Computer Science' -> 'bachelor-of-science-in-computer-science'
 function slugify(name) {
@@ -113,6 +114,24 @@ async function seedCore(client, categories) {
     return count;
 }
 
+async function seedCredits(client, credit) {
+    const methodNames = new Map((credit.methods || []).map((m) => [m.id, m.name]));
+    let count = 0;
+    for (const [method, exams] of Object.entries(credit.equivalency || {})) {
+        await client.query(
+            `INSERT INTO course_explorer.credit_equivalency (method, name, exams)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (method) DO UPDATE SET
+                 name  = EXCLUDED.name,
+                 exams = EXCLUDED.exams`,
+            [method, methodNames.get(method) || method, JSON.stringify(exams || [])]
+        );
+        count += 1;
+    }
+    console.log(`[credits] upserted ${count} method(s)`);
+    return count;
+}
+
 async function main() {
     if (!process.env.NEON_DB_URL) {
         throw new Error('NEON_DB_URL is not set (expected in backend/.env)');
@@ -120,6 +139,7 @@ async function main() {
 
     const programs = readJson(REQS_PATH);
     const core = readJson(CORE_PATH);
+    const credit = readJson(CREDIT_PATH);
 
     const pool = new Pool({
         connectionString: process.env.NEON_DB_URL,
@@ -133,6 +153,7 @@ async function main() {
         await client.query('BEGIN');
         await seedPrograms(client, programs);
         await seedCore(client, core);
+        await seedCredits(client, credit);
         await client.query('COMMIT');
         console.log('[done] seed committed');
     } catch (error) {

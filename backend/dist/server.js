@@ -12,6 +12,7 @@ const searchRoutes2 = require("./routes/search2");
 const healthRoutes = require("./routes/health");
 const plannerRoutes2 = require("./routes/planner2");
 const programRoutes = require("./routes/programs");
+const creditRoutes = require("./routes/credits");
 const authRoutes = require("./routes/auth");
 // const { populateProfessors, 
 //     populateCourses, 
@@ -35,6 +36,7 @@ app.use("/api/search2", searchRoutes2);
 app.use("/api/health", healthRoutes);
 app.use("/api/planner2", plannerRoutes2);
 app.use("/api/programs", programRoutes);
+app.use("/api/credits", creditRoutes);
 app.use("/auth", authRoutes);
 //this is for running the database locally, or for running neon in mocha(testing framework)
 const portEnv = process.env.PORT;

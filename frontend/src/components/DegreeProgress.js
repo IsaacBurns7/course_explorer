@@ -31,6 +31,7 @@ export default function DegreeProgress({ planner }) {
   const [fetching, setFetching] = useState(false)
 
   const [result, setResult] = useState(null)
+  const [panelIndex, setPanelIndex] = useState(0)
 
   // Pick-lists + core curriculum, once on mount.
   useEffect(() => {
@@ -107,10 +108,38 @@ export default function DegreeProgress({ planner }) {
     ensureProgram(value)
   }
 
-  const handleCheck = () => {
-    const major = majorId ? programCache[majorId] : null
-    const minors = minorIds.filter(Boolean).map((id) => programCache[id]).filter(Boolean)
+  const handleCheck = async () => {
+    // Make sure every selected program's requirements are loaded before evaluating.
+    // A restored selection (from localStorage on reload) sets the ids but never fetched
+    // their requirements, so reading the cache directly could miss the major and show
+    // only the core. Load whatever is missing here, then evaluate from a merged cache.
+    const ids = [majorId, ...minorIds].filter(Boolean)
+    setFetching(true)
+    const loaded = {}
+    try {
+      await Promise.all(
+        ids.map(async (id) => {
+          if (programCache[id]) {
+            loaded[id] = programCache[id]
+            return
+          }
+          const response = await axios.get(`/server/api/programs/${id}/requirements`)
+          loaded[id] = response.data
+        })
+      )
+    } catch (error) {
+      setLoadError(`Failed to load requirements: ${error.message}`)
+    } finally {
+      setFetching(false)
+    }
+
+    const cache = { ...programCache, ...loaded }
+    setProgramCache(cache)
+
+    const major = majorId ? cache[majorId] : null
+    const minors = minorIds.filter(Boolean).map((id) => cache[id]).filter(Boolean)
     setResult(evaluateAll({ major, minors, core: catalog.core, planner }))
+    setPanelIndex(0)
   }
 
   const canCheck = Boolean(majorId || minorIds.some(Boolean)) && !fetching
@@ -184,13 +213,69 @@ export default function DegreeProgress({ planner }) {
         {fetching ? "Loading requirements…" : "Check Requirements"}
       </button>
 
-      {result && (
-        <div className="mt-8 space-y-6">
-          {result.major && <ProgramResult result={result.major} label="Major" />}
-          {result.minors.map((minor) => (
-            <ProgramResult key={minor.program_id} result={minor} label="Minor" />
+      {result && <ResultCarousel result={result} index={panelIndex} setIndex={setPanelIndex} />}
+    </div>
+  )
+}
+
+/*
+Shows one requirement panel at a time — Major first, then each Minor, then the University
+Core Curriculum — with arrows in the top-right to loop through them.
+*/
+function ResultCarousel({ result, index, setIndex }) {
+  const panels = []
+  if (result.major) {
+    panels.push({ key: "major", label: "Major", node: <ProgramResult result={result.major} label="Major" /> })
+  }
+  result.minors.forEach((minor) => {
+    panels.push({ key: minor.program_id, label: "Minor", node: <ProgramResult result={minor} label="Minor" /> })
+  })
+  panels.push({ key: "core", label: "University Core Curriculum", node: <CoreResult core={result.core} /> })
+
+  if (panels.length === 0) return null
+  const current = ((index % panels.length) + panels.length) % panels.length // wrap + clamp
+  const go = (delta) => setIndex(current + delta)
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-sm text-gray-400">
+          {current + 1} of {panels.length}: <span className="text-gray-200">{panels[current].label}</span>
+        </div>
+        {panels.length > 1 && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => go(-1)}
+              aria-label="Previous requirement group"
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-dark-semester border border-gray-700 text-gray-200 hover:border-emerald-500 transition-colors"
+            >
+              ‹
+            </button>
+            <button
+              onClick={() => go(1)}
+              aria-label="Next requirement group"
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-dark-semester border border-gray-700 text-gray-200 hover:border-emerald-500 transition-colors"
+            >
+              ›
+            </button>
+          </div>
+        )}
+      </div>
+
+      {panels[current].node}
+
+      {panels.length > 1 && (
+        <div className="flex justify-center gap-2 mt-4">
+          {panels.map((panel, i) => (
+            <button
+              key={panel.key}
+              onClick={() => setIndex(i)}
+              aria-label={`Go to ${panel.label}`}
+              className={`w-2 h-2 rounded-full transition-colors ${
+                i === current ? "bg-emerald-500" : "bg-gray-600 hover:bg-gray-500"
+              }`}
+            />
           ))}
-          <CoreResult core={result.core} />
         </div>
       )}
     </div>

@@ -41,3 +41,12 @@ CREATE TABLE IF NOT EXISTS course_explorer.core_curriculum (
     data          JSONB NOT NULL DEFAULT '[]'::jsonb,   -- the areas array
     footnotes     JSONB NOT NULL DEFAULT '{}'::jsonb
 );
+
+-- Credit-by-examination equivalency (AP / IB / SAT II / DANTES), scraped from
+-- testing.tamu.edu by degree_program_reqs/scrape_credit_equivalency.py. One row per
+-- method; `exams` is that method's array of {exam, tiers:[{score, courses, hours, ...}]}.
+CREATE TABLE IF NOT EXISTS course_explorer.credit_equivalency (
+    method        TEXT PRIMARY KEY,               -- 'ap' | 'ib' | 'sat_ii' | 'dantes'
+    name          TEXT NOT NULL,
+    exams         JSONB NOT NULL DEFAULT '[]'::jsonb
+);

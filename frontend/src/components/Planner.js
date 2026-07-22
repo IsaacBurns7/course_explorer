@@ -12,6 +12,12 @@ import DegreeProgress from "./DegreeProgress"
 
 import "../styles/tailwind.css"
 
+// Reserved planner key holding exam/transfer credits. It's stored inside the planner
+// object (not a normal semester) so the degree-progress engine — which reads every
+// planner key — counts its hours and requirements automatically, while the UI renders it
+// as its own section and excludes it from the semester grid.
+export const TRANSFER_KEY = "Transfer Credit"
+
 export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToLanding }) {
   const [openSemesters, setOpenSemesters] = useState({})
   const [openCourses, setOpenCourses] = useState({})
@@ -30,11 +36,14 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
   const sortedSemesters = []
 
   for (const key of Object.keys(planner)) {
+    if (key === TRANSFER_KEY) continue // rendered separately, not as a semester
     const year = key.split(" ")[1]
     if (!plannerData[year]) plannerData[year] = []
     plannerData[year].push({ name: key, courses: planner[key] })
     sortedSemesters.push({ name: key, courses: planner[key], year })
   }
+
+  const transferCredits = planner[TRANSFER_KEY] || []
 
   // Sort semesters chronologically
   sortedSemesters.sort((a, b) => {
@@ -151,6 +160,28 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
     onUpdatePlanner(updatedPlanner)
   }
 
+  // Add claimed exam/transfer credits under the reserved key. Each course carries a
+  // `transfer` source ({method, methodName, exam, score}) for the credit display.
+  const handleAddTransfer = (courses, source) => {
+    const updatedPlanner = { ...planner }
+    const existing = updatedPlanner[TRANSFER_KEY] || []
+    const have = new Set(existing.map((c) => `${c.department} ${c.number}`))
+    const additions = courses
+      .filter((c) => !have.has(`${c.department} ${c.number}`))
+      .map((c) => ({ ...c, transfer: source }))
+    updatedPlanner[TRANSFER_KEY] = [...existing, ...additions]
+    onUpdatePlanner(updatedPlanner)
+  }
+
+  const handleRemoveTransfer = (index) => {
+    const updatedPlanner = { ...planner }
+    const existing = updatedPlanner[TRANSFER_KEY] || []
+    const next = existing.filter((_, i) => i !== index)
+    if (next.length === 0) delete updatedPlanner[TRANSFER_KEY]
+    else updatedPlanner[TRANSFER_KEY] = next
+    onUpdatePlanner(updatedPlanner)
+  }
+
   // Show alert function
   const showAlert = (message, type = "info") => {
     setAlert({ message, type, isVisible: true })
@@ -194,7 +225,9 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
   }
 
   return (
-    <div className="pt-4 px-2 md:px-0">
+    // zoom: 0.8 gives the whole planner the same comfortable density as viewing it at
+    // 80% browser zoom, without shrinking the rest of the app.
+    <div className="pt-4 px-2 md:px-0" style={{ zoom: 0.8 }}>
       {/* Alert Component */}
       <Alert message={alert.message} type={alert.type} isVisible={alert.isVisible} onClose={closeAlert} />
 
@@ -237,6 +270,49 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
           </button>
         </div>
       </div>
+
+      {/* Transfer / exam credits — shown above the semesters. Counts toward the degree. */}
+      {transferCredits.length > 0 && (
+        <div className="mb-6 bg-dark-card border border-dark-border rounded-lg overflow-hidden">
+          <div className="p-4 font-bold text-gray-100 bg-dark-semester flex items-center justify-between">
+            <span>Transfer &amp; Exam Credit</span>
+            <span className="text-sm font-normal text-gray-300">
+              {transferCredits.reduce((sum, c) => sum + (Number(c.hours) || 0), 0)} credit hours
+            </span>
+          </div>
+          <div className="divide-y divide-dark-border">
+            {transferCredits.map((course, index) => (
+              <div key={`${course.department}-${course.number}-${index}`} className="flex items-center justify-between p-4">
+                <div>
+                  <div className="font-semibold text-gray-100">
+                    {course.department} {course.number}
+                    {course.title ? <span className="font-normal text-gray-400"> — {course.title}</span> : null}
+                  </div>
+                  <div className="text-sm text-gray-400 mt-1">
+                    {(Number(course.hours) || 0)} hrs
+                    {course.transfer && (
+                      <span>
+                        {" · via "}
+                        {course.transfer.methodName || course.transfer.method}: {course.transfer.exam}
+                        {course.transfer.score != null && ` (score ${course.transfer.score})`}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleRemoveTransfer(index)}
+                  className="text-gray-400 hover:text-red-400 transition p-1"
+                  aria-label={`Remove ${course.department} ${course.number} transfer credit`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* MOBILE VIEW - Card layout for small screens */}
       <div className="block md:hidden">
@@ -931,6 +1007,7 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
         onClose={() => setShowAddModal(false)}
         onAdd={handleAddClass}
         onAddSemester={handleAddSemester}
+        onAddTransfer={handleAddTransfer}
         semesters={sortedSemesters}
         showAlert={showAlert}
         currentSemester={selectedSemester}
