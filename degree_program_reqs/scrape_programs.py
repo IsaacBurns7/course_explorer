@@ -320,6 +320,16 @@ def _row_tokens(row):
     return [t for t in tokens if t.strip().lower() not in EXCLUDED_LABELS]
 
 
+def _is_ucc_row(row):
+    """True if a row is a University Core Curriculum slot (a label, not a specific course).
+    Used to spot a UCC option inside a 'Select one of the following:' group."""
+    code_cell = _cell_by_col(row, "codecol") or (row.get("cells") or [{}])[0]
+    if code_cell.get("courses"):
+        return False
+    label = TRAILING_REFS.sub("", code_cell.get("text", "")).strip()
+    return label.lower() in EXCLUDED_LABELS
+
+
 def _requirement(tokens, footnotes):
     """Build a uniform requirement object: first token is the course, the rest are
     swappable alternatives."""
@@ -373,6 +383,10 @@ def generate_clean_program_requirments(program_requirments_path=PROGRAM_REQUIRME
                 if SELECT_HEADER.search(code_cell.get("text", "")) and not code_cell.get("courses"):
                     footnotes = _row_footnotes(row)
                     tokens = []
+                    # If any option is "take a University Core Curriculum course", the whole
+                    # group is just filling the semester's hours, not a degree requirement —
+                    # drop it entirely (including its non-UCC options).
+                    has_ucc_option = False
                     j = i + 1
                     while j < len(rows):
                         opt = rows[j]
@@ -382,12 +396,14 @@ def generate_clean_program_requirments(program_requirments_path=PROGRAM_REQUIRME
                         hours_cell = _cell_by_col(opt, "hourscol")
                         if hours_cell is not None and hours_cell.get("text", "").strip():
                             break  # own hours => a new requirement, group is over
+                        if _is_ucc_row(opt):
+                            has_ucc_option = True
                         tokens.extend(_row_tokens(opt))
                         for r in _row_footnotes(opt):
                             if r not in footnotes:
                                 footnotes.append(r)
                         j += 1
-                    if tokens:
+                    if tokens and not has_ucc_option:
                         entry["requirements"].append(_requirement(tokens, footnotes))
                     i = j
                     continue
