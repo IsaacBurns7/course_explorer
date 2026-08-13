@@ -17,25 +17,6 @@ function getPool() {
     return _pool;
 }
 
-// TEMPORARY: serves from local scraper JSON until the Neon table exists.
-// Remove this require and the isMissingTableError blocks once the table is seeded.
-const {
-    isMissingTableError,
-    listMethodsLocal,
-    listExamsLocal,
-    getExamLocal,
-} = require("./creditsLocalFallback");
-
-let _warnedLocal = false;
-function warnLocal() {
-    if (_warnedLocal) return;
-    _warnedLocal = true;
-    console.warn(
-        "[credits] course_explorer.credit_equivalency not found — serving credit data " +
-        "from local scraper JSON. Create and seed the table to use the database."
-    );
-}
-
 // "BIOL 111" -> { code, department, number }
 function splitCode(code) {
     const m = String(code).match(/^([A-Z]{2,4})\s*(\d{3}[A-Z]?)$/);
@@ -126,10 +107,6 @@ const listMethods = async (req, res) => {
         );
         return res.status(200).json(result.rows);
     } catch (error) {
-        if (isMissingTableError(error)) {
-            warnLocal();
-            return res.status(200).json(listMethodsLocal());
-        }
         console.log(error);
         return res.status(500).json({ error: error.message });
     } finally {
@@ -144,12 +121,6 @@ const listExams = async (req, res) => {
         if (!row) return res.status(404).json({ error: `unknown method '${req.params.method}'` });
         return res.status(200).json((row.exams || []).map((e) => e.exam));
     } catch (error) {
-        if (isMissingTableError(error)) {
-            warnLocal();
-            const exams = listExamsLocal(req.params.method);
-            if (exams === null) return res.status(404).json({ error: `unknown method '${req.params.method}'` });
-            return res.status(200).json(exams);
-        }
         console.log(error);
         return res.status(500).json({ error: error.message });
     } finally {
@@ -167,19 +138,11 @@ const evaluate = async (req, res) => {
     const target = String(exam).trim().toLowerCase();
     const client = await getPool().connect();
     try {
-        // Resolve the exam record from the DB, or the local fallback if the table is absent.
         let examRecord = null;
         let unknownMethod = false;
-        try {
-            const row = await methodRowFromDb(client, method);
-            if (!row) unknownMethod = true;
-            else examRecord = (row.exams || []).find((e) => e.exam.trim().toLowerCase() === target);
-        } catch (error) {
-            if (!isMissingTableError(error)) throw error;
-            warnLocal();
-            if (listExamsLocal(method) === null) unknownMethod = true;
-            else examRecord = getExamLocal(method, exam);
-        }
+        const row = await methodRowFromDb(client, method);
+        if (!row) unknownMethod = true;
+        else examRecord = (row.exams || []).find((e) => e.exam.trim().toLowerCase() === target);
 
         if (unknownMethod) return res.status(404).json({ error: `unknown method '${method}'` });
         if (!examRecord) return res.status(404).json({ error: `unknown exam '${exam}'` });

@@ -30,6 +30,9 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
   const [selectedSemester, setSelectedSemester] = useState(null)
   const [showDeleteSemesterConfirm, setShowDeleteSemesterConfirm] = useState(null)
   const [profSortOption, setProfSortOption] = useState("Name") // NEW: sorting option
+  const [degreeProgressSidebar, setDegreeProgressSidebar] = useState(() => {
+    try { return localStorage.getItem("degreeProgressSidebar") === "true" } catch { return false }
+  })
 
   // Group semesters by year and sort chronologically
   const plannerData = {}
@@ -64,6 +67,14 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
     })
     setCollapsedSemesters(initialCollapsedState)
   }, [planner])
+
+  const toggleDegreeProgressSidebar = () => {
+    setDegreeProgressSidebar((prev) => {
+      const next = !prev
+      try { localStorage.setItem("degreeProgressSidebar", String(next)) } catch {}
+      return next
+    })
+  }
 
   // Handle professor selection - Now updates the planner object directly
   const handleProfessorSelect = (semesterName, courseIndex, professorIndex) => {
@@ -182,6 +193,27 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
     onUpdatePlanner(updatedPlanner)
   }
 
+  const handleExtensionUploadRequest = () => {
+    try {
+      console.log("[ACE] handleExtensionUploadRequest")    
+      const plannerRaw = localStorage.getItem("academicPlanner");
+      const planner = plannerRaw ? JSON.parse(plannerRaw) : null;
+
+      window.dispatchEvent(new CustomEvent("ACE_DEGREE_PLAN_DATA", {
+        detail: planner ?? null
+      }))
+
+      window.addEventListener("RESPONSE_ACE_DEGREE_PLAN_DATA", () => {
+        showAlert("Degree plan extracted. Proceed to Howdy.", "success")
+        console.log("[ACE] ext recieved plan")
+      }, {once: true})
+      
+    } catch (error) {
+      showAlert("Could not extract degree plan. Try reloading the page.", "error")
+      console.log("[ACE] error in uploading to extension", error)
+    }
+  }
+
   // Show alert function
   const showAlert = (message, type = "info") => {
     setAlert({ message, type, isVisible: true })
@@ -228,6 +260,10 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
     // zoom: 0.8 gives the whole planner the same comfortable density as viewing it at
     // 80% browser zoom, without shrinking the rest of the app.
     <div className="pt-4 px-2 md:px-0" style={{ zoom: 0.8 }}>
+    {/* Outer flex row: planner on the left, optional pinned Degree Progress on the right */}
+    <div className={degreeProgressSidebar ? "flex gap-6 items-start" : ""}>
+      {/* Main planner content — takes remaining width when sidebar is pinned */}
+      <div className={degreeProgressSidebar ? "flex-1 min-w-0" : ""}>
       {/* Alert Component */}
       <Alert message={alert.message} type={alert.type} isVisible={alert.isVisible} onClose={closeAlert} />
 
@@ -244,6 +280,24 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
             <option value="GPA">Sort by GPA</option>
             <option value="Rating">Sort by Rating</option>
           </select>
+
+          <button
+            onClick={toggleDegreeProgressSidebar}
+            title={degreeProgressSidebar ? "Move Degree Progress below" : "Pin Degree Progress to the right"}
+            className={`px-4 py-2 rounded border transition flex items-center justify-center gap-2 w-full sm:w-auto text-sm ${
+              degreeProgressSidebar
+                ? "bg-indigo-700 border-indigo-500 text-white hover:bg-indigo-600"
+                : "bg-dark-input border-dark-border text-gray-300 hover:border-indigo-500 hover:text-white"
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {degreeProgressSidebar
+                ? <><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></>
+                : <><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></>
+              }
+            </svg>
+            <span className="hidden sm:inline">Degree Progress</span>
+          </button>
 
           <button
             onClick={() => {
@@ -267,6 +321,15 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
               <path d="M5 12h14" />
             </svg>
             <span className="text-sm sm:text-base">Add Class/Semester</span>
+          </button>
+
+          <button
+            onClick={() => {
+              handleExtensionUploadRequest()
+            }}
+            className="px-4 py-2 bg-red-900 text-white rounded hover:bg-red-800 transition flex items-center justify-center space-x-2 w-full sm:w-auto"
+          >
+            <span className="text-sm sm:text-base">Transfer Plan to Howdy</span>
           </button>
         </div>
       </div>
@@ -953,10 +1016,12 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
         </button>
       </div>
 
-      {/* Degree Progress Section */}
-      <div className="mt-12">
-        <DegreeProgress planner={planner} />
-      </div>
+      {/* Degree Progress — inline (below semesters) when not pinned to sidebar */}
+      {!degreeProgressSidebar && (
+        <div className="mt-12">
+          <DegreeProgress planner={planner} />
+        </div>
+      )}
 
       {/* Schedule Finder Section */}
       <div className="mt-12">
@@ -1018,6 +1083,19 @@ export default function PlannerDisplay({ planner, onUpdatePlanner, handleBackToL
         onClose={() => setShowClearModal(false)}
         onConfirm={() => handleBackToLanding()}
       />
+      </div>
+      {/* END main planner content */}
+
+      {/* Degree Progress sidebar — pinned to the right, 40% width, scrolls independently */}
+      {degreeProgressSidebar && (
+        <div
+          className="shrink-0 sticky top-0 self-start overflow-y-auto"
+          style={{ width: "40%", maxHeight: "100vh" }}
+        >
+          <DegreeProgress planner={planner} compact />
+        </div>
+      )}
+    </div>
     </div>
   )
 }

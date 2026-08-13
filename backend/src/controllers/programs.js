@@ -16,25 +16,6 @@ function getPool() {
     return _pool;
 }
 
-// TEMPORARY: serves this data off disk until the Neon tables are created.
-// Delete this require and the two `isMissingTableError` blocks below once
-// course_explorer.program_requirements exists. See programsLocalFallback.js.
-const {
-    isMissingTableError,
-    listProgramsLocal,
-    getProgramRequirementsLocal,
-} = require("./programsLocalFallback");
-
-let _warnedLocal = false;
-function warnLocal() {
-    if (_warnedLocal) return;
-    _warnedLocal = true;
-    console.warn(
-        "[programs] course_explorer.program_requirements not found — serving program data " +
-        "from local scraper JSON. Create and seed the tables to use the database."
-    );
-}
-
 /*
 GET /api/programs
 -> {
@@ -78,11 +59,6 @@ const listPrograms = async (req, res) => {
             })),
         });
     } catch (error) {
-        // TEMPORARY: fall back to local scraper JSON while the tables don't exist.
-        if (isMissingTableError(error)) {
-            warnLocal();
-            return res.status(200).json(listProgramsLocal());
-        }
         console.log(error);
         return res.status(500).json({ error: error.message });
     } finally {
@@ -111,15 +87,6 @@ const getProgramRequirements = async (req, res) => {
 
         return res.status(200).json(result.rows[0]);
     } catch (error) {
-        // TEMPORARY: fall back to local scraper JSON while the tables don't exist.
-        if (isMissingTableError(error)) {
-            warnLocal();
-            const program = getProgramRequirementsLocal(req.params.id);
-            if (!program) {
-                return res.status(404).json({ error: `no program with id '${req.params.id}'` });
-            }
-            return res.status(200).json(program);
-        }
         console.log(error);
         return res.status(500).json({ error: error.message });
     } finally {

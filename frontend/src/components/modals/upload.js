@@ -13,7 +13,7 @@ NOTES 9/26/2025
 */
 export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded }) {
   const [uploadMethod, setUploadMethod] = useState("text")
-  const [textInput, setTextInput] = useState("")
+  const [extensionInput, setExtensionInput] = useState("")
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [alert, setAlert] = useState({ message: "", type: "info", isVisible: false })
@@ -49,32 +49,44 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
     }
   }
 
-  const handleTextUpload = async () => {
-    if (!textInput.trim()) {
-      showAlert("Please enter your planner text.", "warning")
-      return
-    }
+  const handleExtensionUpload = () => {
+    console.log("handleExtensionUpload start")
     setLoading(true)
-    try {
-      const response = await axios.post("/server/api/planner2/text", { type: "text", content: textInput });
 
-      if (response.data) {
-        if (Object.keys(response.data).length == 0) {
-          showAlert("No Terms Found. Make sure you pressed the \"Expand All\" button", "error")
-        } else {
-          setLoading(false)
-          handleClose(true)
-          onPlannerUploaded(response.data)
-        }
-      } 
-    
-      if (response.error) showAlert(response.error, "error")
-    } catch (error) {
-      console.error(error)
-      showAlert(error.response?.data?.error || "Failed to upload", "error")
-    } finally {
+    const timeout = setTimeout(() => {
       setLoading(false)
-    }
+      showAlert("Extension not detected or no data found.", "error")
+    }, 3000)
+
+    console.log("listening")
+    window.addEventListener("RESPONSE_HOWDY_DEGREE_PLAN_DATA", (e) => {
+      clearTimeout(timeout)
+      setLoading(false)
+      if (e.detail) {
+        handleClose(true)
+        
+        const transferKey = "Transfer Credit"
+        const reorganized = { [transferKey]: [] }
+
+        for (const [semester, courses] of Object.entries(e.detail)) {
+          const regular = []
+          for (const course of courses) {
+            if (course.grade === "TCR") {
+              reorganized[transferKey].push(course)
+            } else {
+              regular.push(course)
+            }
+          }
+          if (regular.length > 0) reorganized[semester] = regular
+        }
+
+        onPlannerUploaded(reorganized)
+      } else {
+        showAlert("No planner data found. Open Howdy first.", "warning")
+      }
+    }, { once: true })
+
+    window.dispatchEvent(new CustomEvent("REQUEST_HOWDY_DEGREE_PLAN_DATA"))
   }
 
   const handleFileUpload = async () => {
@@ -106,7 +118,6 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
   // handleClose now respects "force" flag so it can close after successful upload even if loading was true
   const handleClose = (force = false) => {
     if (loading && !force) return // Prevent closing during upload
-    setTextInput("")
     setSelectedFile(null)
     setUploadMethod("text")
     setLoading(false)
@@ -152,7 +163,7 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
 
               {/* Method Toggle */}
               <div className="flex mb-6 bg-dark-input rounded-lg p-1">
-                {["text", "file"].map((method) => (
+                {["extension", "file"].map((method) => (
                   <button
                     key={method}
                     onClick={() => !loading && setUploadMethod(method)}
@@ -161,16 +172,16 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
                       uploadMethod === method ? "bg-dark-select text-white" : "text-gray-300 hover:text-gray-100"
                     } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
-                    {method === "text" ? "Copy/Paste Text" : "Upload PDF File"}
+                    {method === "extension" ? "Use Extension" : "Upload PDF File"}
                   </button>
                 ))}
               </div>
 
               {/* Animated Content Switch */}
               <AnimatePresence mode="wait">
-                {uploadMethod === "text" ? (
+                {uploadMethod === "extension" ? (
                   <motion.div
-                    key="text-upload"
+                    key="extension-upload"
                     initial={{ opacity: 0, x: -15 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 15 }}
@@ -179,30 +190,22 @@ export default function UploadPlannerModal({ isOpen, onClose, onPlannerUploaded 
                   >
                     {/* Text Instructions */}
                     <div>
-                      <h4 className="text-md font-medium text-gray-200 mb-2">Copy/Paste Your Planner</h4>
+                      <h4 className="text-md font-medium text-gray-200 mb-2">Use Extension</h4>
                       <div className="bg-dark-input border border-dark-border rounded-lg p-4 mb-4">
                         <h5 className="font-medium text-gray-200 mb-2">Instructions:</h5>
                         <ul className="text-sm text-gray-300 space-y-1">
-                          <li>• Go to your Degree Planner in the Howdy Portal and evaluate your degree plan</li>
-                          <li>• Click on "Expand All"</li>
-                          <li>• Select the entire page (CTRL + A, CTRL + C)</li>
-                          <li>• Paste the contents into the text box (CTRL + V)</li>
+                          <li>• placeholder</li>
+                          <li>• placeholder</li>
+                          <li>• placeholder</li>
+                          <li>• placeholder</li>
                         </ul>
                       </div>
-                      <textarea
-                        value={textInput}
-                        onChange={(e) => setTextInput(e.target.value)}
-                        placeholder="Paste your academic planner text here..."
-                        className="w-full h-64 p-3 bg-dark-input border border-dark-border rounded-lg text-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-dark-select focus:border-dark-select resize-none"
-                        disabled={loading}
-                      />
                     </div>
                     <button
-                      onClick={handleTextUpload}
-                      disabled={loading || !textInput.trim()}
+                      onClick={handleExtensionUpload}
                       className="w-full px-6 py-3 bg-dark-select text-white rounded-lg hover:bg-dark-select transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {loading ? "Processing..." : "Upload Planner"}
+                      {loading ? "Processing..." : "Get Planner"}
                     </button>
                   </motion.div>
                 ) : (

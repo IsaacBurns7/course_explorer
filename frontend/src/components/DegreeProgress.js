@@ -20,7 +20,7 @@ governed by the footnote and the student's advisor.
 
 const MAX_MINORS = 2
 
-export default function DegreeProgress({ planner }) {
+export default function DegreeProgress({ planner, compact = false }) {
   const [catalog, setCatalog] = useState({ majors: [], minors: [], core: [] })
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
@@ -96,6 +96,7 @@ export default function DegreeProgress({ planner }) {
     setMajorId(value)
     setResult(null)
     ensureProgram(value)
+    
   }
 
   const handleMinorChange = (index, value) => {
@@ -166,7 +167,7 @@ export default function DegreeProgress({ planner }) {
       )}
 
       {/* Selectors */}
-      <div className="grid gap-4 md:grid-cols-3 mb-6">
+      <div className={`grid gap-4 mb-6 ${compact ? "grid-cols-1" : "md:grid-cols-3"}`}>
         <label className="block">
           <span className="text-sm text-gray-300">Major</span>
           <select

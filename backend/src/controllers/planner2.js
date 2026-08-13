@@ -16,11 +16,7 @@ const getBestClassesPDF = async(req, res) => {
   return getBestClasses(parsed, req, res)
 }
 
-const getBestClassesText = async(req, res) => {
-  const parsed = await parseDegreePlanText(req.body.content);
-  if (parsed.error) return res.status(500).json(parsed);
-
-  console.log(parsed)
+const getBestClassesExtension = async(req, res) => {
   return getBestClasses(parsed, req, res)
 }
 
@@ -469,4 +465,4 @@ const getOptimalSchedule = async (req, res) => {
     }
 }
 
-module.exports = { getBestClassesPDF, getBestClassesText, getClassInfo, getOptimalSchedule, findOptimalSchedules, parseTime, checkOverlap, generateMask, generateSchedule, getMaskBitForTime, getTimeForMaskBit, resetMaskState };
+module.exports = { getBestClassesPDF, getBestClassesExtension, getClassInfo, getOptimalSchedule, findOptimalSchedules, parseTime, checkOverlap, generateMask, generateSchedule, getMaskBitForTime, getTimeForMaskBit, resetMaskState };

@@ -24,6 +24,7 @@ export function getAllCourses() {
       .catch(error => {
         coursePromise = null; // allow retry if failed
         console.error("error: ", error)
+        throw error;
       });
   }
 

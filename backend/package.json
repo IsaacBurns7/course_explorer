@@ -5,7 +5,7 @@
   "scripts": {
     "test": "mocha",
     "test:unit": "mocha test/planner2-unit.test.js",
-    "start": "node server.js"
+    "start": "node dist/server.js"
   },
   "type": "commonjs",
   "keywords": [],

@@ -1,10 +1,53 @@
-Global setup: Attempting to connect to DB at  postgresql://isaac:npg_gyAJrH9S4eQb@ep-flat-wind-adwtnsu1-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+Global setup: Attempting to connect to DB at  postgresql://neondb_owner:npg_XqOT8AZzQG4S@ep-flat-wind-adwtnsu1-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+(node:17236) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
 Global setup: Server listening on port 4000
 Global setup: DB Connection established successfully.
-SIGTERM signal received: closing database pool
+/api/programs/bachelor-of-science-in-computer-science/requirements GET
+[programs] course_explorer.program_requirements not found — serving program data from local scraper JSON. Create and seed the tables to use the database.
+/auth/me GET
+/api/courses/getAll GET
+/auth/me GET
+/api/professors/getAll GET
 /auth/me GET
 /auth/me GET
+/api/credits/ap/evaluate POST
+[credits] course_explorer.credit_equivalency not found — serving credit data from local scraper JSON. Create and seed the table to use the database.
 /auth/me GET
 /auth/me GET
+/api/courses/getAll GET
 /auth/me GET
 /auth/me GET
+/api/programs GET
+/api/credits/methods GET
+/api/credits/methods GET
+/api/programs GET
+/api/programs/bachelor-of-science-in-computer-science/requirements GET
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: Connection terminated unexpectedly
+    at Connection.<anonymous> (C:\Users\kotha\course_explorer\backend\node_modules\pg\lib\client.js:180:73)
+    at Object.onceWrapper (node:events:622:28)
+    at Connection.emit (node:events:508:28)
+    at Socket.<anonymous> (C:\Users\kotha\course_explorer\backend\node_modules\pg\lib\connection.js:61:12)
+    at Socket.emit (node:events:520:35)
+    at TCP.<anonymous> (node:net:346:12)
+Emitted 'error' event on Client instance at:
+    at Client._handleErrorEvent (C:\Users\kotha\course_explorer\backend\node_modules\pg\lib\client.js:393:10)
+    at Connection.<anonymous> (C:\Users\kotha\course_explorer\backend\node_modules\pg\lib\client.js:198:16)
+    at Object.onceWrapper (node:events:622:28)
+    at Connection.emit (node:events:508:28)
+    at Socket.<anonymous> (C:\Users\kotha\course_explorer\backend\node_modules\pg\lib\connection.js:61:12)
+    at Socket.emit (node:events:520:35)
+    at TCP.<anonymous> (node:net:346:12)
+
+Node.js v24.10.0

@@ -212,6 +212,42 @@ async function populateCourses(deptRaw) {
     return courses;
 }
 
+function extractSemesters(textArray) {
+    const joined = textArray.join(" ").replace(/\s+/g, " ").trim();
+
+    // Match semesters like "2025 - Spring"
+    const semesterRegex = /(\d{4}) - (Fall|Spring|Summer)/g;
+    const matches = [...joined.matchAll(semesterRegex)];
+
+    const result = {};
+
+    for (let i = 0; i < matches.length; i++) {
+        const year = matches[i][1];
+        const term = matches[i][2];
+        const nextMatch = matches[i + 1];
+        const startIndex = matches[i].index;
+        const endIndex = nextMatch ? nextMatch.index : joined.length;
+        const block = joined.substring(startIndex, endIndex);
+
+        const key = `${term} ${year}`;
+        result[key] = [];
+
+        // Match course entries: e.g., "CSCE 120 PROGRAM DESIGN & CONCEPTS 3"
+        const courseRegex = /([A-Z]{2,5})\s+(\d{3,4})\s+(.+?)\s+(\d)/g;
+        const courses = [...block.matchAll(courseRegex)];
+
+        for (const c of courses) {
+        result[key].push({
+            department: c[1],
+            number: c[2],
+            title: c[3],
+            hours: c[4],
+        });
+        }
+    }
+
+    return result;
+}
 
 async function parseDegreePlanPDF(pdfBuffer) {
     return new Promise((resolve, reject) => {
@@ -235,43 +271,6 @@ async function parseDegreePlanPDF(pdfBuffer) {
 
         pdfParser.parseBuffer(pdfBuffer);
     });
-
-    function extractSemesters(textArray) {
-        const joined = textArray.join(" ").replace(/\s+/g, " ").trim();
-
-        // Match semesters like "2025 - Spring"
-        const semesterRegex = /(\d{4}) - (Fall|Spring|Summer)/g;
-        const matches = [...joined.matchAll(semesterRegex)];
-
-        const result = {};
-
-        for (let i = 0; i < matches.length; i++) {
-            const year = matches[i][1];
-            const term = matches[i][2];
-            const nextMatch = matches[i + 1];
-            const startIndex = matches[i].index;
-            const endIndex = nextMatch ? nextMatch.index : joined.length;
-            const block = joined.substring(startIndex, endIndex);
-
-            const key = `${term} ${year}`;
-            result[key] = [];
-
-            // Match course entries: e.g., "CSCE 120 PROGRAM DESIGN & CONCEPTS 3"
-            const courseRegex = /([A-Z]{2,4}) (\d{3}) ([A-Z0-9&'".,\- ]+?) (\d)(?= [A-Z]{2,4} \d{3}| Term|$)/g;
-            const courses = [...block.matchAll(courseRegex)];
-
-            for (const c of courses) {
-            result[key].push({
-                department: c[1],
-                number: c[2],
-                title: " " + c[3].trim() + " ",
-                hours: c[4],
-            });
-            }
-        }
-
-        return result;
-    }
 }
 
 function parseViewPlanFormat(text) {
