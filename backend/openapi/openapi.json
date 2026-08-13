@@ -900,16 +900,46 @@
                   "professor_id": 64785,
                   "graph_data": {
                     "data": [
-                      ["A", null],
-                      ["B", null],
-                      ["C", null],
-                      ["D", null],
-                      ["F", null],
-                      ["I", null],
-                      ["S", null],
-                      ["U", null],
-                      ["Q", null],
-                      ["X", null]
+                      [
+                        "A",
+                        null
+                      ],
+                      [
+                        "B",
+                        null
+                      ],
+                      [
+                        "C",
+                        null
+                      ],
+                      [
+                        "D",
+                        null
+                      ],
+                      [
+                        "F",
+                        null
+                      ],
+                      [
+                        "I",
+                        null
+                      ],
+                      [
+                        "S",
+                        null
+                      ],
+                      [
+                        "U",
+                        null
+                      ],
+                      [
+                        "Q",
+                        null
+                      ],
+                      [
+                        "X",
+                        null
+                      ]
                     ],
                     "meta": {
                       "courseNumber": "120",
@@ -920,16 +950,46 @@
                   },
                   "CSCE120_100615": {
                     "data": [
-                      ["A", 26],
-                      ["B", 2],
-                      ["C", null],
-                      ["D", null],
-                      ["F", null],
-                      ["I", null],
-                      ["S", null],
-                      ["U", null],
-                      ["Q", 1],
-                      ["X", null]
+                      [
+                        "A",
+                        26
+                      ],
+                      [
+                        "B",
+                        2
+                      ],
+                      [
+                        "C",
+                        null
+                      ],
+                      [
+                        "D",
+                        null
+                      ],
+                      [
+                        "F",
+                        null
+                      ],
+                      [
+                        "I",
+                        null
+                      ],
+                      [
+                        "S",
+                        null
+                      ],
+                      [
+                        "U",
+                        null
+                      ],
+                      [
+                        "Q",
+                        1
+                      ],
+                      [
+                        "X",
+                        null
+                      ]
                     ],
                     "meta": {
                       "courseNumber": "120",
@@ -940,16 +1000,46 @@
                   },
                   "CSCE120_193825": {
                     "data": [
-                      ["A", 133],
-                      ["B", 59],
-                      ["C", 23],
-                      ["D", 15],
-                      ["F", 1],
-                      ["I", null],
-                      ["S", null],
-                      ["U", null],
-                      ["Q", 10],
-                      ["X", 11]
+                      [
+                        "A",
+                        133
+                      ],
+                      [
+                        "B",
+                        59
+                      ],
+                      [
+                        "C",
+                        23
+                      ],
+                      [
+                        "D",
+                        15
+                      ],
+                      [
+                        "F",
+                        1
+                      ],
+                      [
+                        "I",
+                        null
+                      ],
+                      [
+                        "S",
+                        null
+                      ],
+                      [
+                        "U",
+                        null
+                      ],
+                      [
+                        "Q",
+                        10
+                      ],
+                      [
+                        "X",
+                        11
+                      ]
                     ],
                     "meta": {
                       "courseNumber": "120",
@@ -960,16 +1050,46 @@
                   },
                   "CSCE120_232025": {
                     "data": [
-                      ["A", 72],
-                      ["B", 32],
-                      ["C", 13],
-                      ["D", 4],
-                      ["F", 4],
-                      ["I", null],
-                      ["S", null],
-                      ["U", null],
-                      ["Q", 16],
-                      ["X", null]
+                      [
+                        "A",
+                        72
+                      ],
+                      [
+                        "B",
+                        32
+                      ],
+                      [
+                        "C",
+                        13
+                      ],
+                      [
+                        "D",
+                        4
+                      ],
+                      [
+                        "F",
+                        4
+                      ],
+                      [
+                        "I",
+                        null
+                      ],
+                      [
+                        "S",
+                        null
+                      ],
+                      [
+                        "U",
+                        null
+                      ],
+                      [
+                        "Q",
+                        16
+                      ],
+                      [
+                        "X",
+                        null
+                      ]
                     ],
                     "meta": {
                       "courseNumber": "120",
@@ -1015,7 +1135,18 @@
                 "example": {
                   "lineGraphData": {
                     "CSCE120_64785": {
-                      "data": [null, null, null, null, null, null, null, null, null, null],
+                      "data": [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                      ],
                       "meta": {
                         "courseNumber": "120",
                         "department": "CSCE",
@@ -1099,6 +1230,2139 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/course-sections": {
+      "servers": [
+        {
+          "url": "https://howdyportal.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdyportal.tamu.edu/api"
+        ],
+        "summary": "List all course sections offered in a term (campus)",
+        "description": "Public, unauthenticated course-section search behind the Howdy portal UI. Primary discovery endpoint: returns subject, course number, section, CRN, attributes and meeting info for every section in the given term. Used to seed courses/sections in the ingestion pipeline (backend/services/populateClasses.js gatherData, RUNME.js getAttributesForSemester).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "startRow": {
+                    "type": "integer",
+                    "description": "Pagination offset (row index to start at). 0 = first row.",
+                    "example": 0
+                  },
+                  "endRow": {
+                    "type": "integer",
+                    "description": "Pagination limit (row index to stop at). 0 appears to return the full set.",
+                    "example": 0
+                  },
+                  "termCode": {
+                    "type": "string",
+                    "description": "6-digit {YEAR}{SEM}{SITE} term code || SEM: 1-Spring, 2-Summer, 3-Fall || SITE: 1-CS, 2-GV, 3-Qatar",
+                    "example": "202611"
+                  },
+                  "publicSearch": {
+                    "type": "string",
+                    "description": "\"Y\" for the public (unauthenticated) search path.",
+                    "example": "Y"
+                  }
+                },
+                "required": [
+                  "startRow",
+                  "endRow",
+                  "termCode",
+                  "publicSearch"
+                ]
+              },
+              "example": {
+                "startRow": 0,
+                "endRow": 0,
+                "termCode": "202611",
+                "publicSearch": "Y"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Array of section objects, each keyed with the SWV_CLASS_SEARCH_* prefix. Many more fields are returned than listed here (CRN, title, instructor, meeting times, seats, etc.) - expand as captured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "SWV_CLASS_SEARCH_SUBJECT": {
+                        "type": "string",
+                        "description": "Subject / department code. From Banner self-service class-search view (SWV_CLASS_SEARCH_*)."
+                      },
+                      "SWV_CLASS_SEARCH_COURSE": {
+                        "type": "string",
+                        "description": "Course number."
+                      },
+                      "SWV_CLASS_SEARCH_SECTION": {
+                        "type": "string",
+                        "description": "Section number."
+                      },
+                      "SWV_CLASS_SEARCH_ATTRIBUTES": {
+                        "type": "string",
+                        "description": "Pipe-delimited attribute string; split on \"| \" for an array."
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "SWV_CLASS_SEARCH_SUBJECT": "CSCE",
+                    "SWV_CLASS_SEARCH_COURSE": "120",
+                    "SWV_CLASS_SEARCH_SECTION": "500",
+                    "SWV_CLASS_SEARCH_ATTRIBUTES": "Core| Univ Writing Req"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/section-prereqs": {
+      "servers": [
+        {
+          "url": "https://howdyportal.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdyportal.tamu.edu/api"
+        ],
+        "summary": "Get prerequisite text for a single section (by term + CRN)",
+        "description": "Returns the human-readable prerequisite description for one section, identified by term code and CRN. The CRN is obtained from /course-sections. The prereq string is unstructured free text, not a parsed requirement tree. Used by backend/services/populateClasses.js getPrereq.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "term": {
+                    "type": "string",
+                    "description": "6-digit {YEAR}{SEM}{SITE} term code || SEM: 1-Spring, 2-Summer, 3-Fall || SITE: 1-CS, 2-GV, 3-Qatar",
+                    "example": "202611"
+                  },
+                  "crn": {
+                    "type": "string",
+                    "description": "Course Reference Number of the specific section (from /course-sections).",
+                    "example": "12345"
+                  }
+                },
+                "required": [
+                  "term",
+                  "crn"
+                ]
+              },
+              "example": {
+                "term": "202611",
+                "crn": "12345"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Prerequisite text. P_PRE_REQS_OUT may be absent when the section has no prerequisites.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "P_PRE_REQS_OUT": {
+                      "type": "string",
+                      "description": "Free-text prerequisite description as displayed in Howdy (Oracle OUT bind). May be absent when the section has no prerequisites."
+                    }
+                  }
+                },
+                "example": {
+                  "P_PRE_REQS_OUT": "Grade of C or better in CSCE 121; junior or senior classification."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/what-if-submit": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Submit a what-if evaluation / get all programs for a term (majors, certificates, grad, PhD)",
+        "description": "Registers a Degree Evaluation \"what-if\" request for a program and returns a request handle (request_no / sf_status). That request_no is then used to fetch the actual evaluation report (requirement blocks + required courses) via the results call. Called from https://howdy.tamu.edu/main/home/degree-evaluation-one-ui.\n\nAUTH: There is no API key or token. The caller must already be logged in to the Howdy portal in the same browser session; that interactive login sets a session cookie which the request replays automatically (fetch uses `credentials: include`). Without an existing, unexpired Howdy login cookie the request cannot succeed (it redirects to login / returns 401). To call this programmatically you must first authenticate to Howdy and reuse the resulting cookie.\n\nNOTE: Method was previously documented as GET while the endpoint was unreachable; it is a POST with a JSON body. Verify against a fresh capture.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "term_in": {
+                    "type": "string",
+                    "description": "{YEAR}{SEM}{SITE} || SEM: 1-Spring, 2-Summer, 3-Fall || SITE: 1-CS, 2-GV, 3-MC",
+                    "example": "202611"
+                  },
+                  "catlg_term_in": {
+                    "type": "string",
+                    "description": "{YEAR}{SEM}{SITE} || SEM: 1-Spring, 2-Summer, 3-Fall || SITE: 1-CS, 2-GV, 3-MC",
+                    "example": "202611"
+                  },
+                  "program_in": {
+                    "type": "string",
+                    "description": "Desired program (bachelors, masters, phd) || {LEVEL}={PROGRAM_CODE}",
+                    "example": "BA=GLST"
+                  },
+                  "eval_term_in": {
+                    "type": "string",
+                    "description": "{YEAR}{SEM}{SITE} || SEM: 1-Spring, 2-Summer, 3-Fall || SITE: 1-CS, 2-GV, 3-MC",
+                    "example": "202611"
+                  },
+                  "levl_in": {
+                    "type": "string",
+                    "description": "Student level (undergraduate, graduate)",
+                    "example": "UG"
+                  },
+                  "degc_in": {
+                    "type": "string",
+                    "description": "Degree type (major, minor, certificate)",
+                    "example": "BA"
+                  },
+                  "coll_in": {
+                    "type": "string",
+                    "description": "College code",
+                    "example": "AT"
+                  },
+                  "camp_in": {
+                    "type": "string",
+                    "description": "Campus code (CS, GV, MC)",
+                    "example": "CS"
+                  },
+                  "sobcurr_rule_in": {
+                    "type": "integer",
+                    "description": "Unknown parameter, can be determined from another route",
+                    "example": 2185
+                  },
+                  "majr_code_1_1_in": {
+                    "type": "string",
+                    "description": "Major code for first desired program",
+                    "example": "GLST"
+                  },
+                  "dept_code_1_1_in": {
+                    "type": "string",
+                    "description": "Department code for first desired program",
+                    "example": "GLAC"
+                  },
+                  "dflt_ip_in": {
+                    "type": "string",
+                    "description": "Unknown parameter, can be determined from another route",
+                    "example": "Y"
+                  }
+                }
+              },
+              "example": {
+                "term_in": "202611",
+                "catlg_term_in": "202611",
+                "program_in": "BA=GLST",
+                "eval_term_in": "202631",
+                "levl_in": "UG",
+                "degc_in": "BA",
+                "coll_in": "AT",
+                "camp_in": "CS",
+                "sobcurr_rule_in": 2185,
+                "majr_code_1_1_in": "GLST",
+                "dept_code_1_1_in": "GLAC",
+                "dflt_ip_in": "Y"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Echo of the submitted what-if request plus a request handle (request_no / sf_status) used to fetch the evaluation report.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pidm_in": {
+                      "type": "integer",
+                      "description": "Internal student identifier (PIDM), echoed. PERSONAL."
+                    },
+                    "orig_pidm_in": {
+                      "type": "integer",
+                      "description": "Original PIDM, echoed. PERSONAL."
+                    },
+                    "term_in": {
+                      "type": "string",
+                      "description": "Enrollment term, echoed from the request."
+                    },
+                    "catlg_term_in": {
+                      "type": "string",
+                      "description": "Catalog term, echoed."
+                    },
+                    "program_in": {
+                      "type": "string",
+                      "description": "Program code, echoed."
+                    },
+                    "levl_in": {
+                      "type": "string",
+                      "description": "Student level, echoed."
+                    },
+                    "degc_in": {
+                      "type": "string",
+                      "description": "Degree code, echoed."
+                    },
+                    "coll_in": {
+                      "type": "string",
+                      "description": "College code, echoed."
+                    },
+                    "camp_in": {
+                      "type": "string",
+                      "description": "Campus code, echoed."
+                    },
+                    "sobcurr_rule_in": {
+                      "type": "integer",
+                      "description": "Curriculum rule number, echoed."
+                    },
+                    "majr_code_1_1_in": {
+                      "type": "string",
+                      "description": "Major code, echoed."
+                    },
+                    "dept_code_1_1_in": {
+                      "type": "string",
+                      "description": "Department code, echoed."
+                    },
+                    "eval_term_in": {
+                      "type": "string",
+                      "description": "Evaluation term, echoed."
+                    },
+                    "dflt_ip_in": {
+                      "type": "string",
+                      "description": "Default in-progress flag, echoed."
+                    },
+                    "sf_status": {
+                      "type": "integer",
+                      "description": "Student-folder status of the submission; 1 = success."
+                    },
+                    "request_no": {
+                      "type": "integer",
+                      "description": "NEW evaluation request number (reqNo). Feed to program/areas/additional-info."
+                    }
+                  }
+                },
+                "example": {
+                  "pidm_in": 3294051,
+                  "orig_pidm_in": 3294051,
+                  "term_in": "202611",
+                  "catlg_term_in": "202611",
+                  "program_in": "BA=GLST",
+                  "levl_in": "UG",
+                  "degc_in": "BA",
+                  "coll_in": "AT",
+                  "camp_in": "CS",
+                  "sobcurr_rule_in": 2185,
+                  "majr_code_1_1_in": "GLST",
+                  "dept_code_1_1_in": "GLAC",
+                  "eval_term_in": "202631",
+                  "dflt_ip_in": "Y",
+                  "sf_status": 1,
+                  "request_no": 51
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request payload"
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/what-if-minors": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Get all available minors for a catalog term",
+        "description": "Returns the list of minors selectable in the Degree Evaluation \"what-if\" flow for a given catalog term. Called from https://howdy.tamu.edu/main/home/degree-evaluation-one-ui.\n\nAUTH: There is no API key or token. The caller must already be logged in to the Howdy portal in the same browser session; that interactive login sets a session cookie which the request replays automatically (fetch uses `credentials: include`). Without an existing, unexpired Howdy login cookie the request cannot succeed (it redirects to login / returns 401). To call this programmatically you must first authenticate to Howdy and reuse the resulting cookie.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rule": {
+                    "type": "integer",
+                    "description": "Curriculum rule number. Determined from another route.",
+                    "example": 1436
+                  },
+                  "catalogTerm": {
+                    "type": "string",
+                    "description": "6-digit {YEAR}{SEM}{SITE} term code || SEM: 1-Spring, 2-Summer, 3-Fall || SITE: 1-CS, 2-GV, 3-MC",
+                    "example": "202611"
+                  }
+                },
+                "required": [
+                  "rule",
+                  "catalogTerm"
+                ]
+              },
+              "example": {
+                "rule": 1436,
+                "catalogTerm": "202611"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of available minors for the catalog term. TODO: capture and document the response body."
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/program-description": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Get the description for a single program",
+        "description": "Returns the description of a specific degree program for a given entry term, used in the Degree Evaluation \"what-if\" flow. Called from https://howdy.tamu.edu/main/home/degree-evaluation-one-ui.\n\nAUTH: There is no API key or token. The caller must already be logged in to the Howdy portal in the same browser session; that interactive login sets a session cookie which the request replays automatically (fetch uses `credentials: include`). Without an existing, unexpired Howdy login cookie the request cannot succeed (it redirects to login / returns 401). To call this programmatically you must first authenticate to Howdy and reuse the resulting cookie.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reqNo": {
+                    "type": "integer",
+                    "nullable": true,
+                    "description": "Request number. May be null.",
+                    "example": null
+                  },
+                  "program": {
+                    "type": "string",
+                    "description": "Program identifier, {DEGREE}={MAJOR}={CONCENTRATION} (concentration optional).",
+                    "example": "BA=CHEM=BCA"
+                  },
+                  "entryTerm": {
+                    "type": "string",
+                    "description": "6-digit {YEAR}{SEM}{SITE} term code || SEM: 1-Spring, 2-Summer, 3-Fall || SITE: 1-CS, 2-GV, 3-MC",
+                    "example": "202611"
+                  }
+                },
+                "required": [
+                  "program",
+                  "entryTerm"
+                ]
+              },
+              "example": {
+                "reqNo": null,
+                "program": "BA=CHEM=BCA",
+                "entryTerm": "202611"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Program description for the requested program/entry term. TODO: capture and document the response body."
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree/update-minors": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Update the minors selected for degree plan evaluation",
+        "description": "STATE-CHANGING. Sets the minors attached to the current degree plan (up to two minors per program, two program slots). Called from https://howdy.tamu.edu/main/home/degree-planner-ui/curriculum. This mutates server-side plan state for the session, so it is typically a prerequisite step before fetching an evaluation/requirements that should reflect the chosen minors. Minor codes come from the what-if-minors list.\n\nAUTH: There is no API key or token. The caller must already be logged in to the Howdy portal in the same browser session; that interactive login sets a session cookie which the request replays automatically (fetch uses `credentials: include`). Without an existing, unexpired Howdy login cookie the request cannot succeed (it redirects to login / returns 401). To call this programmatically you must first authenticate to Howdy and reuse the resulting cookie.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prog1Minor1": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "Minor code for the first minor of program slot 1, or null. Code as returned by what-if-minors (e.g. \"FLMS\").",
+                    "example": "FLMS"
+                  },
+                  "prog1Minor2": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "Minor code for the second minor of program slot 1, or null.",
+                    "example": "AIBS"
+                  },
+                  "prog2Minor1": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "Minor code for the first minor of program slot 2 (second major/degree), or null.",
+                    "example": null
+                  },
+                  "prog2Minor2": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "Minor code for the second minor of program slot 2, or null.",
+                    "example": null
+                  }
+                }
+              },
+              "example": {
+                "prog1Minor1": "FLMS",
+                "prog1Minor2": "AIBS",
+                "prog2Minor1": null,
+                "prog2Minor2": null
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Result wrapped in an Oracle out-bind. P_JSON_OUT is a JSON *string* (must be parsed again) containing a minorsUpdate array. Note the vendor typo \"wasUpdateSucessful\".",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "outBinds": {
+                      "type": "object",
+                      "description": "Oracle PL/SQL OUT bind parameters wrapper.",
+                      "properties": {
+                        "P_JSON_OUT": {
+                          "type": "string",
+                          "description": "Stringified JSON (must be parsed AGAIN): {\"minorsUpdate\":[{\"wasUpdateSucessful\":\"Y\"}]}. Note the vendor typo \"wasUpdateSucessful\"."
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "outBinds": {
+                    "P_JSON_OUT": "{\"minorsUpdate\": [{\"wasUpdateSucessful\":\"Y\"}]}"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/program": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "get": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Degree evaluation summary/header for a request",
+        "description": "Top-level summary card of a degree evaluation: program, catalog/eval terms, college, degree, majors/minors, and overall credit/GPA/residence rollups. Part of the evaluate flow (referrer degree-planner-ui/evaluate?requestNumber=<reqNo>).\n\nAUTH: requires an active Howdy session cookie - the caller must already be logged in to howdy.tamu.edu (fetch uses `credentials: include`). No token/API key; returns 401 without a valid session.\n\nNOTE: numeric fields come back as space-padded strings (e.g. \"            126.000\", \"   7\") - trim and coerce.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "reqNo",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Evaluation request number. Obtain from prev-evals or what-if-submit."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Single-element array with the evaluation summary object. (Many more fields than shown; expand as needed.)",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "REQUEST_NUMBER": 53,
+                    "PROGRAM_DESC": "BS CPSC",
+                    "CATALOG_TERM_DESC": "Fall 2025 - College Station",
+                    "EVAL_TERM_DESC": "Summer 2026 - College Station",
+                    "COLLEGE_DESC": "Engineering",
+                    "DEGREE_DESC": "Bachelor of Science",
+                    "LEVEL_DESC": "Undergraduate",
+                    "FIELD_OF_STUDY_MAJOR1_DESC": "Computer Science",
+                    "FIELD_OF_STUDY_MINOR1_DESC": "Game Design & Development",
+                    "FIELD_OF_STUDY_MINOR2_DESC": "AI in the Arts",
+                    "TOTAL_REQ_CREDITS_MET_IND": "No",
+                    "SMBPOGN_REQ_CREDITS_OVERALL": "            126.000",
+                    "SMBPOGN_ACT_CREDITS_OVERALL": "             89.000",
+                    "OVERALL_GPA_MET_IND": "Yes",
+                    "SMBPOGN_MIN_GPA": "2.000",
+                    "SMBPOGN_ACT_GPA": "3.366",
+                    "IN_PROGRESS_CREDITS_TOTAL": "             15.000"
+                  }
+                ],
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "REQUEST_NUMBER": {
+                        "type": "integer",
+                        "description": "Evaluation request number (reqNo) this summary belongs to."
+                      },
+                      "PROGRAM_DESC": {
+                        "type": "string",
+                        "description": "Program name being evaluated."
+                      },
+                      "CATALOG_TERM_DESC": {
+                        "type": "string",
+                        "description": "Catalog term the requirements are drawn from."
+                      },
+                      "EVAL_TERM_DESC": {
+                        "type": "string",
+                        "description": "Evaluation (as-of) term for the audit."
+                      },
+                      "COLLEGE_DESC": {
+                        "type": "string",
+                        "description": "Owning college."
+                      },
+                      "DEGREE_DESC": {
+                        "type": "string",
+                        "description": "Degree/credential."
+                      },
+                      "LEVEL_DESC": {
+                        "type": "string",
+                        "description": "Student level."
+                      },
+                      "FIELD_OF_STUDY_MAJOR1_DESC": {
+                        "type": "string",
+                        "description": "Primary major name."
+                      },
+                      "FIELD_OF_STUDY_MINOR1_DESC": {
+                        "type": "string",
+                        "description": "First attached minor (from update-minors), if any."
+                      },
+                      "FIELD_OF_STUDY_MINOR2_DESC": {
+                        "type": "string",
+                        "description": "Second attached minor, if any."
+                      },
+                      "TOTAL_REQ_CREDITS_MET_IND": {
+                        "type": "string",
+                        "description": "Whether overall required credits are satisfied. Indicator, \"Met\"/\"Not Met\" or \"Yes\"/\"No\"."
+                      },
+                      "SMBPOGN_REQ_CREDITS_OVERALL": {
+                        "type": "string",
+                        "description": "Total credits the program requires overall. (Banner returns this as a space-padded string \u00e2\u20ac\u201d trim and coerce.) Banner degree-audit program-overall results (SMBPOGN)."
+                      },
+                      "SMBPOGN_ACT_CREDITS_OVERALL": {
+                        "type": "string",
+                        "description": "Credits actually applied so far. (Banner returns this as a space-padded string \u00e2\u20ac\u201d trim and coerce.)"
+                      },
+                      "OVERALL_GPA_MET_IND": {
+                        "type": "string",
+                        "description": "Whether the minimum GPA requirement is met. Indicator, \"Met\"/\"Not Met\" or \"Yes\"/\"No\"."
+                      },
+                      "SMBPOGN_MIN_GPA": {
+                        "type": "string",
+                        "description": "Minimum GPA required by the program."
+                      },
+                      "SMBPOGN_ACT_GPA": {
+                        "type": "string",
+                        "description": "Student's actual GPA within the program."
+                      },
+                      "IN_PROGRESS_CREDITS_TOTAL": {
+                        "type": "string",
+                        "description": "Credits currently in progress (registered, not yet graded). (Banner returns this as a space-padded string \u00e2\u20ac\u201d trim and coerce.)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/areas": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "get": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Degree requirements audit (areas + rules + applied courses)",
+        "description": "THE degree requirements. Returns the full DARS-style audit as a flat array with one row per (area x rule x applied course). Reconstruct the tree by grouping on SMBAOGN_AREA (+ AREA_DESC) then SMRDORQ_RULE.\n\nEach row carries three layers:\n- AREA (program-level, reusable): SMBAOGN_AREA, AREA_DESC, AREA_MET_IND, SMBAOGN_REQ/ACT_CREDITS_OVERALL, area GPA.\n- RULE (program-level, reusable): SMRDORQ_RULE, AND_OR_CONNECTOR, SMRDORQ_SET/SUBSET, REQUIRED_COURSE_INFORMATION (human text, e.g. \"CSCE 120 3hrs\", \"ENGR 216 or PHYS 216 2hrs\", \"Theory Directed Elective 3hrs\").\n- FULFILLMENT (per-student, drop for a clean template): SMRDOUS_* = the course applied to the rule (subject, number, CRN, title, grade, credit hours, CRSE_SOURCE H/R/P/O = history/registered/plan/other).\n\nTo get requirements for any program: what-if-submit(program, minors) -> reqNo -> areas?reqNo.\n\nLIMITATION: for elective/directed rules the structured bound fields (SMRDORQ_SUBJ_CODE, CRSE_NUMB_LOW/HIGH, MIN/MAX, REQ_CREDITS) are null - only the prose label and the student's applied course are present. The set of allowed courses for an elective category is NOT enumerated here.\n\nAUTH: requires an active Howdy session cookie (see other main/api endpoints). NOTE: numeric fields are space-padded strings; indicators are \"Met\"/\"Not Met\" or \"Yes\"/\"No\".",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "reqNo",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Evaluation request number. Obtain from prev-evals or what-if-submit."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of audit rows (one per area x rule x applied course). Example shows a single fixed-course rule row, trimmed.",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "SMBAOGN_REQUEST_NO": 53,
+                    "SMBAOGN_AREA": "M-CPSC",
+                    "AREA_DESC": "Major Coursework",
+                    "AREA_MET_IND": "Met",
+                    "SMBAOGN_REQ_CREDITS_OVERALL": "             30.000",
+                    "SMBAOGN_ACT_CREDITS_OVERALL": "             30.000",
+                    "AND_OR_CONNECTOR": "AND",
+                    "SMRDORQ_RULE": "A.",
+                    "REQUIRED_COURSE_INFORMATION": "CSCE 120 3hrs",
+                    "SMRDORQ_SUBJ_CODE": null,
+                    "SMRDORQ_CRSE_NUMB_LOW": null,
+                    "SMRDORQ_CRSE_NUMB_HIGH": null,
+                    "SMRDORQ_REQ_CREDITS": null,
+                    "SMRDOUS_TERM_CODE": "202611",
+                    "SMRDOUS_SUBJ_CODE": "CSCE",
+                    "SMRDOUS_CRSE_NUMB": "120",
+                    "SMRDOUS_CRN": "50614",
+                    "SMRDOUS_TITLE": "PROGRAM DESIGN & CONCEPTS",
+                    "SMRDOUS_COURSE_CREDIT_HOURS": 3,
+                    "SMRDOUS_GRDE_CODE": "B",
+                    "SMRDOUS_CRSE_SOURCE": "H"
+                  }
+                ],
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "SMBAOGN_PIDM": {
+                        "type": "integer",
+                        "description": "Internal student identifier (PIDM). PERSONAL \u00e2\u20ac\u201d drop for a reusable template."
+                      },
+                      "SMBAOGN_REQUEST_NO": {
+                        "type": "integer",
+                        "description": "Evaluation request number (reqNo) this row belongs to."
+                      },
+                      "SMBAOGN_AREA_PRIORITY": {
+                        "type": "integer",
+                        "description": "Ordering priority of the area within the audit."
+                      },
+                      "SMBAOGN_AREA": {
+                        "type": "string",
+                        "description": "Area code \u00e2\u20ac\u201d the top-level requirement block. E.g. M-<prog>=major coursework, S-<prog>=supporting, N-<minor>=minor, UNIV-*/U*=core curriculum, R-*=residence, G-*=GPA. FIRST grouping key. Banner area-overall results (SMBAOGN)."
+                      },
+                      "AREA_DESC": {
+                        "type": "string",
+                        "description": "Human-readable area name."
+                      },
+                      "GENERIC_AREA_COMMENT": {
+                        "type": "string",
+                        "description": "Program-level free-text comment for the area (reusable)."
+                      },
+                      "STUDENT_AREA_COMMENT": {
+                        "type": "string",
+                        "description": "Student-specific free-text comment (per-student \u00e2\u20ac\u201d drop for template)."
+                      },
+                      "AREA_MET_IND": {
+                        "type": "string",
+                        "description": "Whether the whole area is satisfied. Indicator, \"Met\"/\"Not Met\" or \"Yes\"/\"No\"."
+                      },
+                      "DORQ_RULE_MET_IND": {
+                        "type": "string",
+                        "description": "Whether this individual rule is satisfied. Indicator, \"Met\"/\"Not Met\" or \"Yes\"/\"No\"."
+                      },
+                      "REQUIRED_MINIMUM_AREA_GPA": {
+                        "type": "string",
+                        "description": "Minimum GPA required within the area (if any)."
+                      },
+                      "AREA_GPA": {
+                        "type": "string",
+                        "description": "Student's actual GPA within the area (per-student)."
+                      },
+                      "SMBAOGN_REQ_CREDITS_OVERALL": {
+                        "type": "string",
+                        "description": "Credits required by the area. (Banner returns this as a space-padded string \u00e2\u20ac\u201d trim and coerce.)"
+                      },
+                      "SMBAOGN_ACT_CREDITS_OVERALL": {
+                        "type": "string",
+                        "description": "Credits applied to the area so far. (Banner returns this as a space-padded string \u00e2\u20ac\u201d trim and coerce.)"
+                      },
+                      "SMBAOGN_REQ_CREDITS_INST": {
+                        "type": "string",
+                        "description": "In-residence (institutional) credits required by the area. (Banner returns this as a space-padded string \u00e2\u20ac\u201d trim and coerce.)"
+                      },
+                      "SMBAOGN_ACT_CREDITS_INST": {
+                        "type": "string",
+                        "description": "In-residence credits applied to the area. (Banner returns this as a space-padded string \u00e2\u20ac\u201d trim and coerce.)"
+                      },
+                      "SMBAOGN_REQ_COURSES_OVERALL": {
+                        "type": "integer",
+                        "description": "Number of courses the area requires."
+                      },
+                      "SMBAOGN_ACT_COURSES_OVERALL": {
+                        "type": "integer",
+                        "description": "Number of courses applied to the area."
+                      },
+                      "AND_OR_CONNECTOR": {
+                        "type": "string",
+                        "description": "How this rule joins the next within the area: AND / OR."
+                      },
+                      "SMRDORQ_SET": {
+                        "type": "string",
+                        "description": "Rule set number grouping related rules (Banner degree-requirement table SMRDORQ)."
+                      },
+                      "SMRDORQ_SUBSET": {
+                        "type": "string",
+                        "description": "Rule subset number within the set."
+                      },
+                      "SMBAOGN_GC_IND": {
+                        "type": "string",
+                        "description": "Group-connector indicator (how rule groups combine)."
+                      },
+                      "SMRDORQ_RULE": {
+                        "type": "string",
+                        "description": "Rule identifier within the area (e.g. \"A.\", \"B.\"). SECOND grouping key."
+                      },
+                      "SMRDOUS_KEY_RULE": {
+                        "type": "string",
+                        "description": "Key linking a used/applied course (SMRDOUS) back to its rule."
+                      },
+                      "SMRDORQ_CAA_SEQNO": {
+                        "type": "integer",
+                        "description": "Rule sequence number."
+                      },
+                      "REQUIRED_COURSE_INFORMATION": {
+                        "type": "string",
+                        "description": "PRIMARY requirement label \u00e2\u20ac\u201d human-readable, e.g. \"CSCE 120 3hrs\", \"ENGR 216 or PHYS 216 2hrs\", \"Theory Directed Elective 3hrs\". In practice the structured bound fields below are null, so THIS prose (plus SMRDORQ_COURSE_NOTES) is the requirement definition."
+                      },
+                      "SMRDORQ_COURSE_NOTES": {
+                        "type": "string",
+                        "description": "HTML/free-text notes. Elective allowed-sets (\"Select from CSCE 441; VIST 386\"), grade rules, and advisor-gating live here \u00e2\u20ac\u201d NOT in the structured fields."
+                      },
+                      "SMRSACT_COURSE_NOTES": {
+                        "type": "string",
+                        "description": "Additional student-activity/section course notes (usually empty)."
+                      },
+                      "SMRDORQ_TESC_CODE": {
+                        "type": "string",
+                        "description": "Test/exam-score code that can satisfy the rule (usually null)."
+                      },
+                      "SMRDORQ_MIN_VALUE": {
+                        "type": "string",
+                        "description": "Minimum bound for the rule (usually null)."
+                      },
+                      "SMRDORQ_MAX_VALUE": {
+                        "type": "string",
+                        "description": "Maximum bound for the rule (usually null)."
+                      },
+                      "SMRDORQ_SUBJ_CODE": {
+                        "type": "string",
+                        "description": "Subject code the rule restricts to. USUALLY NULL \u00e2\u20ac\u201d read the subject from REQUIRED_COURSE_INFORMATION / notes instead."
+                      },
+                      "SMRDORQ_CRSE_NUMB_LOW": {
+                        "type": "string",
+                        "description": "Low course-number bound for an elective range. USUALLY NULL."
+                      },
+                      "SMRDORQ_CRSE_NUMB_HIGH": {
+                        "type": "string",
+                        "description": "High course-number bound for an elective range. USUALLY NULL."
+                      },
+                      "SMRDORQ_REQ_CREDITS": {
+                        "type": "string",
+                        "description": "Credits this rule requires. USUALLY NULL \u00e2\u20ac\u201d read hours from the label."
+                      },
+                      "SMRDORQ_REQ_COURSES": {
+                        "type": "string",
+                        "description": "Course count this rule requires. USUALLY NULL."
+                      },
+                      "SMBAOGN_LEVL_CODE": {
+                        "type": "string",
+                        "description": "Student level code for the area (UG/GR)."
+                      },
+                      "SMRDOUS_CNT_IN_PROGRAM_IND": {
+                        "type": "string",
+                        "description": "Whether the applied course counts toward the program (per-student)."
+                      },
+                      "SMRDOUS_AREA_PRIORITY": {
+                        "type": "integer",
+                        "description": "Area priority for the applied course (per-student)."
+                      },
+                      "SMRDOUS_TERM_CODE": {
+                        "type": "string",
+                        "description": "Term the applied course was/will be taken (per-student)."
+                      },
+                      "SMRDOUS_SUBJ_CODE": {
+                        "type": "string",
+                        "description": "Subject of the applied/used course (per-student). Banner degree-audit used courses table (SMRDOUS)."
+                      },
+                      "SMRDOUS_CRSE_NUMB": {
+                        "type": "string",
+                        "description": "Course number of the applied/used course (per-student)."
+                      },
+                      "SMRDOUS_CRN": {
+                        "type": "string",
+                        "description": "Course Reference Number of the applied course section (per-student)."
+                      },
+                      "SMRDOUS_TRIT_SEQ_NO": {
+                        "type": "integer",
+                        "description": "Transfer institution sequence key (per-student)."
+                      },
+                      "SMRDOUS_TRAM_SEQ_NO": {
+                        "type": "integer",
+                        "description": "Transfer articulation-major sequence key (per-student)."
+                      },
+                      "SMRDOUS_TRCR_SEQ_NO": {
+                        "type": "integer",
+                        "description": "Transfer course sequence key (per-student)."
+                      },
+                      "SMRDOUS_TRCE_SEQ_NO": {
+                        "type": "integer",
+                        "description": "Transfer course-equivalency sequence key (per-student)."
+                      },
+                      "SMRDOUS_COURSE_CREDIT_HOURS": {
+                        "type": "number",
+                        "description": "Credit hours of the applied course (per-student)."
+                      },
+                      "SMRDOUS_TITLE": {
+                        "type": "string",
+                        "description": "Title of the applied course (per-student)."
+                      },
+                      "SMRDOUS_ATTR_CODE": {
+                        "type": "string",
+                        "description": "Course attribute code of the applied course (per-student)."
+                      },
+                      "SMRDOUS_CREDIT_HOURS": {
+                        "type": "number",
+                        "description": "Credit hours (alternate) of the applied course (per-student)."
+                      },
+                      "SMRDOUS_GRDE_CODE": {
+                        "type": "string",
+                        "description": "Grade earned in the applied course; null if in-progress/planned (per-student)."
+                      },
+                      "SMRDOUS_TESC_CODE": {
+                        "type": "string",
+                        "description": "Test/exam code, if the rule was satisfied by exam (per-student)."
+                      },
+                      "SMRDOUS_TEST_SCORE": {
+                        "type": "string",
+                        "description": "Test/exam score, if applicable (per-student)."
+                      },
+                      "SMBAOGN_SOURCE_IND": {
+                        "type": "string",
+                        "description": "Source of the applied course: H=history/completed, R=registered, P=plan (planner recommendation), T=transfer, E=exam/test credit, O=other. (area-level source indicator)."
+                      },
+                      "SMRDOUS_CRSE_SOURCE": {
+                        "type": "string",
+                        "description": "Source of the applied course: H=history/completed, R=registered, P=plan (planner recommendation), T=transfer, E=exam/test credit, O=other."
+                      },
+                      "SMRDOUS_CAMP_CODE": {
+                        "type": "string",
+                        "description": "Campus of the applied course (per-student)."
+                      },
+                      "SMRDOUS_COLL_CODE": {
+                        "type": "string",
+                        "description": "College of the applied course (per-student)."
+                      },
+                      "NEWCONNECTOR": {
+                        "type": "string",
+                        "description": "Computed AND/OR connector used for display."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/additional-info": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "get": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Supplementary degree-evaluation rows",
+        "description": "Section-organized extras that accompany the areas audit: in-progress courses, non-course requirements, include/exclude rules and LOW/HIGH course ranges, NCRQ codes, statuses. Ancillary to areas; grouped by SECTION_HEADING and AREA.\n\nAUTH: requires an active Howdy session cookie (see other main/api endpoints).",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "reqNo",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Evaluation request number. Obtain from prev-evals or what-if-submit."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of supplementary rows. Example trimmed to one In-Progress Courses row.",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "SECTION_HEADING": "In-Progress Courses",
+                    "SORT_ORDER_MAIN": 2,
+                    "AREA_CODE": "G-CPSC",
+                    "AREA": "GPA-Major",
+                    "SUBJECT": "CSCE",
+                    "COURSE": "181",
+                    "TERM_CODE": "202631",
+                    "CREDITS": "        1.000",
+                    "CREDIT_HOURS_USED": 1,
+                    "MET_IND": null,
+                    "LOW": null,
+                    "HIGH": null,
+                    "DESCRIPTION": null
+                  }
+                ],
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "SECTION_HEADING": {
+                        "type": "string",
+                        "description": "Grouping header: In-Progress Courses, Planned Courses, Program Restricted Grades, or Program Restricted Subjects and Attributes."
+                      },
+                      "SORT_ORDER_MAIN": {
+                        "type": "integer",
+                        "description": "Display sort order."
+                      },
+                      "AREA_CODE": {
+                        "type": "string",
+                        "description": "Area code this supplementary row relates to (matches SMBAOGN_AREA in /areas)."
+                      },
+                      "AREA": {
+                        "type": "string",
+                        "description": "Area name."
+                      },
+                      "SUBJECT": {
+                        "type": "string",
+                        "description": "Subject code (for course rows)."
+                      },
+                      "COURSE": {
+                        "type": "string",
+                        "description": "Course number (for course rows)."
+                      },
+                      "TERM_CODE": {
+                        "type": "string",
+                        "description": "Term code (for in-progress/planned course rows)."
+                      },
+                      "CREDITS": {
+                        "type": "string",
+                        "description": "Credit hours. (Banner returns this as a space-padded string \u00e2\u20ac\u201d trim and coerce.)"
+                      },
+                      "CREDIT_HOURS_USED": {
+                        "type": "number",
+                        "description": "Credit hours actually used."
+                      },
+                      "MET_IND": {
+                        "type": "string",
+                        "description": "Met indicator, nullable. Indicator, \"Met\"/\"Not Met\" or \"Yes\"/\"No\"."
+                      },
+                      "LOW": {
+                        "type": "string",
+                        "description": "Low course-number bound for an include/exclude range rule (nullable)."
+                      },
+                      "HIGH": {
+                        "type": "string",
+                        "description": "High course-number bound for an include/exclude range rule (nullable)."
+                      },
+                      "DESCRIPTION": {
+                        "type": "string",
+                        "description": "Free-text description of the restriction/rule (nullable)."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/prev-evals": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "get": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "List previous degree evaluations (reqNo directory)",
+        "description": "Lists the caller's prior degree-evaluation requests. Use this to DISCOVER valid reqNo values (and which program each belongs to) without re-submitting a what-if. No parameters; scoped to the logged-in user.\n\nAUTH: requires an active Howdy session cookie (see other main/api endpoints).",
+        "responses": {
+          "200": {
+            "description": "Array of previous evaluations, newest first.",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "PROGRAM_DESC": "BS CPSC",
+                    "SMRRQCM_COMPLY_DATE": "2026-07-03T22:20:22.000Z",
+                    "SMRRQCM_REQUEST_NO": 53,
+                    "SMRRQCM_ORIG_CODE": "XPLN",
+                    "USER_CAN_DELETE_IND": "N"
+                  },
+                  {
+                    "PROGRAM_DESC": "BS PETE",
+                    "SMRRQCM_COMPLY_DATE": "2026-04-01T02:09:23.000Z",
+                    "SMRRQCM_REQUEST_NO": 43,
+                    "SMRRQCM_ORIG_CODE": "XPLN",
+                    "USER_CAN_DELETE_IND": "N"
+                  }
+                ],
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "PROGRAM_DESC": {
+                        "type": "string",
+                        "description": "Program name of this prior evaluation."
+                      },
+                      "SMRRQCM_COMPLY_DATE": {
+                        "type": "string",
+                        "description": "Timestamp the evaluation was run/complied (Banner requirement-compliance table SMRRQCM)."
+                      },
+                      "SMRRQCM_REQUEST_NO": {
+                        "type": "integer",
+                        "description": "The evaluation request number (reqNo). Use as reqNo in program/areas/additional-info."
+                      },
+                      "SMRRQCM_ORIG_CODE": {
+                        "type": "string",
+                        "description": "Origin code for the request (e.g. XPLN = what-if / plan)."
+                      },
+                      "USER_CAN_DELETE_IND": {
+                        "type": "string",
+                        "description": "Whether the user may delete this evaluation (Y/N)."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree/get-latest-prev-eval": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "get": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Get the most recent degree evaluation for the logged-in student",
+        "description": "Returns a single object representing the student's latest degree evaluation. Shortcut for prev-evals[0] without needing to list all evals. Called from the degree-planner-ui/curriculum page.\n\nAUTH: requires an active Howdy session cookie (credentials: include). Returns 401 without it.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Array containing the latest evaluation (single-element array).",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "PROGRAM_DESC": "BS CPSC",
+                    "SMRRQCM_COMPLY_DATE": "2026-07-24T05:52:15.000Z",
+                    "SMRRQCM_REQUEST_NO": 75,
+                    "SMRRQCM_ORIG_CODE": "XPLN",
+                    "USER_CAN_DELETE_IND": "N"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/curriculum/minors": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "get": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "All minors catalog + current plan selection",
+        "description": "Returns the complete minor catalog (allMinors: [{CODE, DESC}]) plus the minors currently attached to the active plan (program1/program2, MajorMinor_X_Y with Source_X_Y). A cleaner full list than what-if-minors, and reflects current selection. No reqNo; plan/session scoped.\n\nAUTH: requires an active Howdy session cookie (see other main/api endpoints).",
+        "responses": {
+          "200": {
+            "description": "Object with current selection fields and the allMinors catalog array (trimmed).",
+            "content": {
+              "application/json": {
+                "example": {
+                  "program1": "BAC-ENGE-CS",
+                  "program2": "",
+                  "hasSecondaryProgram": "N",
+                  "MajorMinor_1_1": "GAME",
+                  "Source_1_1": "P",
+                  "MajorMinor_1_2": "AIAT",
+                  "Source_1_2": "P",
+                  "allMinors": [
+                    {
+                      "CODE": "AIBS",
+                      "DESC": "AI in Business"
+                    },
+                    {
+                      "CODE": "AIAT",
+                      "DESC": "AI in the Arts"
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "program1": {
+                      "type": "string",
+                      "description": "Active plan program code, slot 1."
+                    },
+                    "program2": {
+                      "type": "string",
+                      "description": "Active plan program code, slot 2 (second major/degree), or empty."
+                    },
+                    "hasSecondaryProgram": {
+                      "type": "string",
+                      "description": "Whether a second program slot is in use (Y/N)."
+                    },
+                    "MajorMinor_1_1": {
+                      "type": "string",
+                      "description": "Minor code attached to program slot 1, position 1."
+                    },
+                    "Source_1_1": {
+                      "type": "string",
+                      "description": "Source of that minor selection (e.g. P=plan)."
+                    },
+                    "MajorMinor_1_2": {
+                      "type": "string",
+                      "description": "Minor code attached to program slot 1, position 2."
+                    },
+                    "Source_1_2": {
+                      "type": "string",
+                      "description": "Source of that minor selection."
+                    },
+                    "allMinors": {
+                      "type": "array",
+                      "description": "Full minor catalog.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "CODE": {
+                            "type": "string",
+                            "description": "Minor code (pass to update-minors)."
+                          },
+                          "DESC": {
+                            "type": "string",
+                            "description": "Minor name."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/what-if-programs": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "get": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "List all degree programs for a catalog term (program catalog)",
+        "description": "Returns every degree program available for a catalog term - the major/program catalog that populates the what-if program picker. Each entry's SMRPRLE_PROGRAM code is the handle you pass to degree-eval-program-info (to get its codes + SOBCURR_RULE) and ultimately to what-if-submit.\n\nFILTERING TO BACHELOR'S MAJORS: filter on SMRPRLE_PROGRAM_DESC, not the code. Keep DESC starting with 'BA ', 'BS ', 'BBA ', 'BFA ', 'BLA ', 'BSN '. Drop certificates (DESC 'Cert-*'; codes CTG-/GCT-/UCT-/PCT-/CTU-), masters (MA/MS/MBA/MEN/MHA/...), doctoral/professional ('PHD [..]', 'Doctor of ...', JD/EDD/DNP/DDS/DVM/PHMD), non-degree/admin (NDS-* 'non-degree seeking', ELP-* 'ELP Check', Z-UHNR, and BAC-* lower-division pre-majors like 'Engineering (Lower)'). Optionally also drop combined/accelerated variants whose DESC contains '3+2', '5YR', or '4+2'. Concentration variants (BS=PHYS=ASP, BA=CHEM=CET) are distinct programs with distinct requirements - keep each rather than collapsing to the base major.\n\nCODE FORMAT / SEPARATOR GOTCHA: SMRPRLE_PROGRAM is {DEGREE}[sep]{MAJOR}[[sep]{CONCENTRATION}] but the separator is INCONSISTENT - both '=' and '-' appear, sometimes within the same degree (BA=ANTH vs BA-CPSC; BS=CHEM=BCT vs BS-CPEN-CS). Do NOT split on a fixed separator and do NOT normalize it: pass the code back VERBATIM to degree-eval-program-info / what-if-submit or the lookup fails. You never need to parse it yourself - degree-eval-program-info decomposes it into DEGC/COLL/CAMP/LEVL + SOBCURR_RULE, so treat SMRPRLE_PROGRAM as an opaque key.\n\nAUTH: requires an active Howdy session cookie (see other main/api endpoints).",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "catalogTerm",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "6-digit {YEAR}{SEM}{SITE} catalog term code (e.g. 202611)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of programs (code + description), trimmed.",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "SMRPRLE_PROGRAM": "BA=ANTH",
+                    "SMRPRLE_PROGRAM_DESC": "BA ANTH"
+                  },
+                  {
+                    "SMRPRLE_PROGRAM": "BA=ANTH=ATR",
+                    "SMRPRLE_PROGRAM_DESC": "BA ANTH-Archaeology"
+                  },
+                  {
+                    "SMRPRLE_PROGRAM": "BA-CPSC",
+                    "SMRPRLE_PROGRAM_DESC": "BA CPSC"
+                  }
+                ],
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "SMRPRLE_PROGRAM": {
+                        "type": "string",
+                        "description": "Program code handle (see degree-eval-program-info). Opaque; pass verbatim."
+                      },
+                      "SMRPRLE_PROGRAM_DESC": {
+                        "type": "string",
+                        "description": "Program name. Filter bachelor's on THIS field (BA/BS/BBA/BFA/BLA/BSN ...)."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/degree-eval-program-info": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Get program metadata (codes + curriculum rule) for one program",
+        "description": "Returns the metadata for a single program: degree/college/campus/level codes and the SOBCURR_RULE (curriculum rule). These are exactly the values needed to build a what-if-submit request (degc_in, coll_in, camp_in, levl_in, sobcurr_rule_in) - i.e. this is the \"other route\" that resolves what-if-submit's otherwise-unknown params. The program code comes from what-if-programs.\n\nAUTH: requires an active Howdy session cookie (see other main/api endpoints).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "catalogTerm": {
+                    "type": "string",
+                    "description": "6-digit {YEAR}{SEM}{SITE} catalog term code.",
+                    "example": "202611"
+                  },
+                  "program": {
+                    "type": "string",
+                    "description": "Program code from what-if-programs, {DEGREE}={MAJOR}[={CONCENTRATION}].",
+                    "example": "BA=SEAL"
+                  }
+                },
+                "required": [
+                  "catalogTerm",
+                  "program"
+                ]
+              },
+              "example": {
+                "catalogTerm": "202611",
+                "program": "BA=SEAL"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Single-element array with the program's codes and curriculum rule (trimmed).",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "SMRPRLE_PROGRAM": "BA=SEAL",
+                    "SMRPRLE_PROGRAM_DESC": "BA SEAL",
+                    "SMRPRLE_LEVL_CODE": "UG",
+                    "SMRPRLE_CAMP_CODE": "CS",
+                    "SMRPRLE_COLL_CODE": "AT",
+                    "SMRPRLE_DEGC_CODE": "BA",
+                    "LEVL_DESC": "Undergraduate",
+                    "DEGREE_DESC": "Bachelor of Arts",
+                    "COLLEGE_DESC": "Arts & Sciences",
+                    "CAMPUS_DESC": "College Station",
+                    "SOBCURR_RULE": 2186
+                  }
+                ],
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "SMRPRLE_PROGRAM": {
+                        "type": "string",
+                        "description": "Program code \u00e2\u20ac\u201d opaque handle {DEGREE}[sep]{MAJOR}[sep{CONCENTRATION}]. Separator is inconsistent (= or -); pass VERBATIM to what-if-submit. From the Banner program-rule table (SMRPRLE)."
+                      },
+                      "SMRPRLE_PROGRAM_DESC": {
+                        "type": "string",
+                        "description": "Human-readable program name."
+                      },
+                      "SMRPRLE_LEVL_CODE": {
+                        "type": "string",
+                        "description": "Student level code (UG=undergraduate, GR=graduate). -> what-if-submit levl_in."
+                      },
+                      "SMRPRLE_CAMP_CODE": {
+                        "type": "string",
+                        "description": "Campus code (CS=College Station, GV=Galveston, MC/QT=Qatar). -> camp_in."
+                      },
+                      "SMRPRLE_COLL_CODE": {
+                        "type": "string",
+                        "description": "Owning college code (e.g. AT=Arts & Sciences). -> coll_in."
+                      },
+                      "SMRPRLE_DEGC_CODE": {
+                        "type": "string",
+                        "description": "Degree/credential code (BA, BS, BBA, ...). -> degc_in."
+                      },
+                      "LEVL_DESC": {
+                        "type": "string",
+                        "description": "Description of SMRPRLE_LEVL_CODE."
+                      },
+                      "DEGREE_DESC": {
+                        "type": "string",
+                        "description": "Description of SMRPRLE_DEGC_CODE."
+                      },
+                      "COLLEGE_DESC": {
+                        "type": "string",
+                        "description": "Description of SMRPRLE_COLL_CODE."
+                      },
+                      "CAMPUS_DESC": {
+                        "type": "string",
+                        "description": "Description of SMRPRLE_CAMP_CODE."
+                      },
+                      "SOBCURR_RULE": {
+                        "type": "integer",
+                        "description": "Curriculum rule number tying this program to its requirement set for the catalog term (Banner SOBCURR curriculum-base table). This is the value you cannot derive from the code yourself. -> what-if-submit sobcurr_rule_in."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/what-if-eval-terms": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "get": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "List selectable evaluation/entry terms (the what-if term picker)",
+        "description": "Returns every term selectable in the Degree Evaluation what-if flow - the source of valid term codes for term_in / catlg_term_in / eval_term_in on what-if-submit. Each row is a Banner term-validation (STVTERM) record.\n\nTERM CODE FORMAT: STVTERM_CODE = {YEAR}{DTERM}{CAMPUS} (6 digits). DTERM (5th digit): 1=Spring, 2=Summer, 3=Fall, 4=Full-Year Professional. CAMPUS (6th digit): 1=College Station, 2=Galveston, 3=Qatar, 5=Half-Year Term. For a standard bachelor's sweep, filter DTERM in {1,2,3} and CAMPUS in {1,2,3}.\n\nCACHING: supports ETag / 304 Not Modified - send If-None-Match to skip re-downloading.\n\nAUTH: requires an active Howdy session cookie - the caller must already be logged in to howdy.tamu.edu (fetch uses `credentials: include`). No token/API key; returns 401 without a valid session.",
+        "responses": {
+          "200": {
+            "description": "Array of selectable terms, newest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "STVTERM_CODE": {
+                        "type": "string",
+                        "description": "6-digit term code {YEAR}{DTERM}{CAMPUS}. Pass as term_in / catlg_term_in / eval_term_in."
+                      },
+                      "SORTYEAR": {
+                        "type": "string",
+                        "description": "4-digit year (equals the first 4 digits of STVTERM_CODE); used for sorting."
+                      },
+                      "CAMPUS": {
+                        "type": "string",
+                        "description": "Campus/site digit (6th digit of the code): 1=College Station, 2=Galveston, 3=Qatar, 5=Half-Year Term."
+                      },
+                      "DTERM": {
+                        "type": "string",
+                        "description": "Semester digit (5th digit of the code): 1=Spring, 2=Summer, 3=Fall, 4=Full-Year Professional."
+                      },
+                      "STVTERM_DESC": {
+                        "type": "string",
+                        "description": "Human-readable term name, e.g. \"Fall 2026 - College Station\"."
+                      },
+                      "STVTERM_START_DATE": {
+                        "type": "string",
+                        "description": "Term start date (ISO-8601, UTC)."
+                      },
+                      "STVTERM_END_DATE": {
+                        "type": "string",
+                        "description": "Term end date (ISO-8601, UTC)."
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "STVTERM_CODE": "202631",
+                    "SORTYEAR": "2026",
+                    "CAMPUS": "1",
+                    "DTERM": "3",
+                    "STVTERM_DESC": "Fall 2026 - College Station",
+                    "STVTERM_START_DATE": "2026-08-24T05:00:00.000Z",
+                    "STVTERM_END_DATE": "2026-12-10T06:00:00.000Z"
+                  },
+                  {
+                    "STVTERM_CODE": "202611",
+                    "SORTYEAR": "2026",
+                    "CAMPUS": "1",
+                    "DTERM": "1",
+                    "STVTERM_DESC": "Spring 2026 - College Station",
+                    "STVTERM_START_DATE": "2026-01-12T06:00:00.000Z",
+                    "STVTERM_END_DATE": "2026-05-05T05:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "304": {
+            "description": "Not Modified (ETag matched If-None-Match)."
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/what-if-major-and-dept-codes": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Resolve the major code & department code for a program's major",
+        "description": "REDUNDANT for building a what-if-submit: what-if-majors already returns STVMAJR_CODE (majr_code_1_1_in) and SORCMJR_DEPT_CODE (dept_code_1_1_in) directly, and the one-ui front end only console-logs this call's result. Kept for completeness.\n\nGiven a program's curriculum rule + catalog term and a major identifier (CIP code + numeric major id), returns the major code and department code. This is the \"other route\" that supplies what-if-submit's majr_code_1_1_in (MAJR_CODE) and - critically - dept_code_1_1_in (DEPT_CODE), the department code that cannot be derived from the program code or degree-eval-program-info. Confirmed: {cipc:302301, rule:2185, cmjr:17941} -> {MAJR_CODE:\"GLST\", DEPT_CODE:\"GLAC\"}.\n\nAUTH: requires an active Howdy session cookie - the caller must already be logged in to howdy.tamu.edu (fetch uses `credentials: include`). No token/API key; returns 401 without a valid session.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cipc": {
+                    "type": "string",
+                    "description": "CIP code (Classification of Instructional Programs) identifying the major's academic discipline. From the program/major metadata in the what-if picker."
+                  },
+                  "rule": {
+                    "type": "integer",
+                    "description": "Curriculum rule number (SOBCURR_RULE) from degree-eval-program-info."
+                  },
+                  "catalogTerm": {
+                    "type": "string",
+                    "description": "6-digit {YEAR}{DTERM}{CAMPUS} catalog term code."
+                  },
+                  "cmjr": {
+                    "type": "integer",
+                    "description": "Numeric curriculum-major surrogate id for the major (from the program/major metadata)."
+                  }
+                },
+                "required": [
+                  "cipc",
+                  "rule",
+                  "catalogTerm",
+                  "cmjr"
+                ]
+              },
+              "example": {
+                "cipc": "302301",
+                "rule": 2185,
+                "catalogTerm": "202631",
+                "cmjr": 17941
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Single-element array with the resolved major and department codes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "MAJR_CODE": {
+                        "type": "string",
+                        "description": "Major code. -> what-if-submit majr_code_1_1_in."
+                      },
+                      "DEPT_CODE": {
+                        "type": "string",
+                        "description": "Owning department code (finer than college). -> what-if-submit dept_code_1_1_in. This is the value not available elsewhere."
+                      },
+                      "SORCMJR_CMJR_RULE": {
+                        "type": "integer",
+                        "description": "Numeric curriculum-major rule id (echoes the request's cmjr). From Banner curriculum-major table (SORCMJR)."
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "MAJR_CODE": "GLST",
+                    "DEPT_CODE": "GLAC",
+                    "SORCMJR_CMJR_RULE": 17941
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree/get-degree-plan-template": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Official 4-year course sequence for a degree program, with per-student completion status",
+        "description": "Returns the TAMU-recommended semester-by-semester course sequence for a given degree program and catalog year. Each row is one course slot in the plan; generic elective slots have null subject/course fields. The HASTAKENCOURSE field is personalized \u00e2\u20ac\u201d it reflects whether the authenticated student has already completed each required course. Called from https://howdy.tamu.edu/main/home/degree-planner-ui/planner.\n\nLIMITATION: elective subcategories (e.g. Systems / Software & Languages / Information & Applications for BS CSCE) are not encoded in this response. The SWRTMPX_TEXT for elective semesters defers to the advising office. No Howdy endpoint exposes those subcategory mappings.\n\nAUTH: requires an active Howdy session cookie (fetch uses `credentials: include`). Returns 401 without it. Returns 201 on success.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "program": {
+                    "type": "string",
+                    "description": "Degree program code (e.g. BS-CPSC = BS Computer Science). Discover by watching network traffic in the Howdy degree planner UI.",
+                    "example": "BS-CPSC"
+                  },
+                  "catalogTerm": {
+                    "type": "string",
+                    "description": "6-digit {YEAR}{SEM}{SITE} catalog term code. See term code conventions.",
+                    "example": "202531"
+                  }
+                },
+                "required": [
+                  "program",
+                  "catalogTerm"
+                ]
+              },
+              "example": {
+                "program": "BS-CPSC",
+                "catalogTerm": "202531"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Array of course-slot objects representing the 4-year plan. Generic elective slots have null subject/course/credit/taken fields. SWRTMPX_TEXT is semester-level (shared by all rows in the same year+semester) \u00e2\u20ac\u201d render it once per semester group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "SWRTMPL_YEAR": {
+                        "type": "string",
+                        "description": "Year in the 4-year plan (\"1\"\u00e2\u20ac\u201c\"4\")."
+                      },
+                      "SWRTMPL_SEMESTER": {
+                        "type": "string",
+                        "description": "Semester within the year (\"1\" = Fall, \"2\" = Spring)."
+                      },
+                      "SWRTMPL_SUBJ_CODE": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Subject code (e.g. \"CSCE\"). null for generic elective slots."
+                      },
+                      "SWRTMPL_CRSE_NUMB": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Course number (e.g. \"221\"). null for generic elective slots."
+                      },
+                      "SWRTMPL_CREDIT_HR": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Credit hours. null for generic elective slots."
+                      },
+                      "HASTAKENCOURSE": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                          "Y",
+                          "N",
+                          null
+                        ],
+                        "description": "Whether the authenticated student has completed this course. null for generic elective slots."
+                      },
+                      "SWRTMPX_TEXT": {
+                        "type": "string",
+                        "description": "Advisor notes for the semester. Shared across all rows in the same SWRTMPL_YEAR + SWRTMPL_SEMESTER \u00e2\u20ac\u201d render once per semester group, not per row."
+                      },
+                      "enabled": {
+                        "type": "boolean",
+                        "description": "Whether this slot is active in the template."
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "SWRTMPL_YEAR": "1",
+                    "SWRTMPL_SEMESTER": "1",
+                    "SWRTMPL_SUBJ_CODE": "CHEM",
+                    "SWRTMPL_CRSE_NUMB": "107",
+                    "SWRTMPL_CREDIT_HR": 3,
+                    "HASTAKENCOURSE": "Y",
+                    "SWRTMPX_TEXT": "CHEM 119 may be taken in place of CHEM 107/117. ENGL 103 can be substituted for ENGL 104. We also recommend taking a University Core Curriculum (UCC) elective.",
+                    "enabled": true
+                  },
+                  {
+                    "SWRTMPL_YEAR": "4",
+                    "SWRTMPL_SEMESTER": "1",
+                    "SWRTMPL_SUBJ_CODE": null,
+                    "SWRTMPL_CRSE_NUMB": null,
+                    "SWRTMPL_CREDIT_HR": null,
+                    "HASTAKENCOURSE": null,
+                    "SWRTMPX_TEXT": "We recommend taking a UCC elective, an emphasis area elective, as well as computer science electives.",
+                    "enabled": true
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree/update": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "Insert or delete a course in the student's Howdy degree plan",
+        "description": "STATE-CHANGING. Multiplex endpoint driven by the `action` field.\n\n**action 0 \u00e2\u20ac\u201d insert:** Persists a course placement (subject, number, term, credits) into the student's plan. Returns warnings if the course isn't offered that term or prerequisites aren't met, but still succeeds. The returned P_INSERTED_SEQ_NO_OUT is the handle needed to delete the entry later.\n\n**action 1 \u00e2\u20ac\u201d delete:** Removes a previously inserted plan entry identified by `crs_seq_no` (the P_INSERTED_SEQ_NO_OUT from the insert call). `target` must be `\"delcrs\"`. Response contains only P_STATUS_OUT and P_MESSAGE_OUT.\n\nCalled from https://howdy.tamu.edu/main/home/degree-planner-ui/planner.\n\nNOTE: on insert, P_WARNINGS_OUT is a JSON *string* \u00e2\u20ac\u201d parse it with JSON.parse() before displaying.\n\nAUTH: requires an active Howdy session cookie (fetch uses `credentials: include`). Returns 401 without it.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "integer",
+                    "description": "Operation type. 0 = insert, 1 = delete.",
+                    "enum": [
+                      0,
+                      1
+                    ],
+                    "example": 0
+                  },
+                  "target": {
+                    "type": "string",
+                    "description": "Insert: \"term\" (place in a specific term slot). Delete: \"delcrs\".",
+                    "example": "term"
+                  },
+                  "crs_subj": {
+                    "type": "string",
+                    "description": "Subject code. Required for both insert and delete.",
+                    "example": "CSCE"
+                  },
+                  "crs_num": {
+                    "type": "string",
+                    "description": "Course number. Required for both insert and delete.",
+                    "example": "410"
+                  },
+                  "crs_seq_no": {
+                    "type": "integer",
+                    "description": "Delete only. Sequence number of the plan entry to remove \u00e2\u20ac\u201d the P_INSERTED_SEQ_NO_OUT returned by the insert call.",
+                    "example": 38
+                  },
+                  "new_value": {
+                    "type": "string",
+                    "description": "Delete only. Pass empty string.",
+                    "example": ""
+                  },
+                  "crs_credit_hours": {
+                    "type": "number",
+                    "description": "Insert only. Credit hours to record.",
+                    "example": 3
+                  },
+                  "crs_term_code": {
+                    "type": "string",
+                    "description": "Insert only. 6-digit {YEAR}{SEM}{SITE} term code for when the course is planned.",
+                    "example": "202621"
+                  },
+                  "crs_title": {
+                    "type": "string",
+                    "description": "Insert only. Course title. Can be empty \u00e2\u20ac\u201d Howdy resolves it server-side.",
+                    "example": ""
+                  },
+                  "honors_ind": {
+                    "type": "string",
+                    "description": "Insert only. Honors indicator. Pass empty string for standard sections.",
+                    "example": ""
+                  },
+                  "transfer_ind": {
+                    "type": "string",
+                    "description": "Insert only. Transfer credit indicator. Pass empty string for non-transfer.",
+                    "example": ""
+                  }
+                },
+                "required": [
+                  "action",
+                  "target",
+                  "crs_subj",
+                  "crs_num"
+                ]
+              },
+              "examples": {
+                "insert": {
+                  "summary": "Insert a course",
+                  "value": {
+                    "action": 0,
+                    "crs_credit_hours": 3,
+                    "crs_num": "410",
+                    "crs_subj": "CSCE",
+                    "crs_term_code": "202621",
+                    "crs_title": "",
+                    "honors_ind": "",
+                    "target": "term",
+                    "transfer_ind": ""
+                  }
+                },
+                "delete": {
+                  "summary": "Delete a course by seq_no",
+                  "value": {
+                    "action": 1,
+                    "target": "delcrs",
+                    "crs_subj": "IDIS",
+                    "crs_num": "433",
+                    "crs_seq_no": 38,
+                    "new_value": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Result object. On insert: includes P_INSERTED_SEQ_NO_OUT and P_WARNINGS_OUT (a JSON string \u00e2\u20ac\u201d parse before displaying); P_STATUS_OUT is SUCCESS even when warnings are present. On delete: only P_STATUS_OUT and P_MESSAGE_OUT are returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "P_INSERTED_SEQ_NO_OUT": {
+                      "type": "integer",
+                      "description": "Insert only. Sequence number assigned to the new plan entry \u00e2\u20ac\u201d store this to delete the entry later."
+                    },
+                    "P_WARNINGS_OUT": {
+                      "type": "string",
+                      "description": "Insert only. JSON-encoded array of warning strings (parse with JSON.parse). Non-empty even on success. Examples: \"Course is not offered in this term\", \"Prerequisites not met for this course\"."
+                    },
+                    "P_STATUS_OUT": {
+                      "type": "string",
+                      "description": "\"SUCCESS\" or an error status."
+                    },
+                    "P_MESSAGE_OUT": {
+                      "type": "string",
+                      "description": "Human-readable result message."
+                    }
+                  }
+                },
+                "examples": {
+                  "insert": {
+                    "summary": "Insert response",
+                    "value": {
+                      "P_INSERTED_SEQ_NO_OUT": 15,
+                      "P_WARNINGS_OUT": "[\"Course is not offered in this term\",\"Prerequisites not met for this course\"]",
+                      "P_STATUS_OUT": "SUCCESS",
+                      "P_MESSAGE_OUT": "Successfully inserted into plan"
+                    }
+                  },
+                  "delete": {
+                    "summary": "Delete response",
+                    "value": {
+                      "P_STATUS_OUT": "SUCCESS",
+                      "P_MESSAGE_OUT": "Successfully deleted."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/main/api/degree-evaluation/what-if-majors": {
+      "servers": [
+        {
+          "url": "https://howdy.tamu.edu"
+        }
+      ],
+      "post": {
+        "tags": [
+          "howdy.tamu.edu/main/api (requires auth)"
+        ],
+        "summary": "List a program's major(s) with the codes needed for what-if-submit",
+        "description": "Given a program + its curriculum-rule indicator + catalog term, returns the program's major(s), each with the exact values what-if-submit needs. THE source of majr_code_1_1_in (STVMAJR_CODE), dept_code_1_1_in (SORCMJR_DEPT_CODE), plus cipc (STVMAJR_CIPC_CODE) and cmjr (CMJR_RULE) if you also call what-if-major-and-dept-codes.\n\nBODY GOTCHA: send {program, ruleInd, catalogTerm} where ruleInd is SMRPRLE_CURR_RULE_IND from degree-eval-program-info. Sending {rule, catalogTerm} instead returns a degenerate all-majors list (only DEPT_CODE/MAJR_CODE/STVMAJR_CIPC_CODE, no CMJR_RULE/STVMAJR_CODE/SORCMJR_DEPT_CODE).\n\nAUTH: requires an active Howdy session cookie - the caller must already be logged in to howdy.tamu.edu (fetch uses `credentials: include`). No token/API key; returns 401 without a valid session.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "program": {
+                    "type": "string",
+                    "description": "Program code from what-if-programs, passed VERBATIM."
+                  },
+                  "ruleInd": {
+                    "type": "string",
+                    "description": "Curriculum-rule indicator = SMRPRLE_CURR_RULE_IND from degree-eval-program-info (e.g. \"Y\")."
+                  },
+                  "catalogTerm": {
+                    "type": "string",
+                    "description": "6-digit {YEAR}{DTERM}{CAMPUS} catalog term code."
+                  }
+                },
+                "required": [
+                  "program",
+                  "ruleInd",
+                  "catalogTerm"
+                ]
+              },
+              "example": {
+                "program": "BA=GLST",
+                "ruleInd": "Y",
+                "catalogTerm": "202631"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Array of the program's majors with codes + descriptions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "STVMAJR_CODE": {
+                        "type": "string",
+                        "description": "Major code. -> what-if-submit majr_code_1_1_in."
+                      },
+                      "SORCMJR_DEPT_CODE": {
+                        "type": "string",
+                        "description": "Owning department code. -> what-if-submit dept_code_1_1_in."
+                      },
+                      "STVMAJR_CIPC_CODE": {
+                        "type": "string",
+                        "description": "CIP code for the major (the `cipc` input to what-if-major-and-dept-codes). Not unique - several majors can share a CIP."
+                      },
+                      "CMJR_RULE": {
+                        "type": "integer",
+                        "description": "Numeric curriculum-major rule id (the `cmjr` input to what-if-major-and-dept-codes; Banner SORCMJR)."
+                      },
+                      "MAJR_CODE": {
+                        "type": "string",
+                        "description": "Major name (human-readable description, not the code)."
+                      },
+                      "DEPT_CODE": {
+                        "type": "string",
+                        "description": "Department name (human-readable description, not the code)."
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "MAJR_CODE": "Global Studies",
+                    "DEPT_CODE": "Global Languages & Cultures",
+                    "STVMAJR_CIPC_CODE": "302301",
+                    "CMJR_RULE": 17941,
+                    "STVMAJR_CODE": "GLST",
+                    "SORCMJR_DEPT_CODE": "GLAC"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated (missing/expired Howdy session)"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
       }
